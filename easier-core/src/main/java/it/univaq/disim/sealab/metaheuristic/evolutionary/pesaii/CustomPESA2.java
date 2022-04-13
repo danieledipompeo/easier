@@ -37,6 +37,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
 	private int _evaluations;
 
+
 	public CustomPESA2(Problem<S> problem, int maxEvaluations, int populationSize, int archiveSize, int biSections,
 			CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
 			SolutionListEvaluator<S> evaluator) {

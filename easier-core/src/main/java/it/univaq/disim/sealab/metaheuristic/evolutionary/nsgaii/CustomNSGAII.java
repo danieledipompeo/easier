@@ -134,6 +134,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	@Override
 	public void run() {
 		super.run();
+
 		/*
 		 * prints the number of iterations until the search budget is not reached.
 		 * !!!Attn!!! evaluations / getMaxPopulationSize() -1 is required because
