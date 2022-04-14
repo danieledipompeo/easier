@@ -20,17 +20,18 @@ import org.junit.Test;
 public class FileUtilsTest {
 
 	@BeforeClass
-	public static void setupClass() throws IOException {
+	public static void setup() throws IOException {
 		Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
 	}
 
 	@AfterClass
-	public static void tearDownClass() throws IOException {
-		Files.walk(Configurator.eINSTANCE.getOutputFolder())
-	    .sorted(Comparator.reverseOrder())
-	    .map(Path::toFile)
-	    .forEach(File::delete);
+	public static void tearDown() throws IOException {
+		Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
+		Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
+		Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv"));
 		
+		Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder());
+
 	}
 
 	@Test
@@ -40,7 +41,7 @@ public class FileUtilsTest {
 		
 		//Check the correct header
 		String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
-		assertEquals(header, extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv")));
+		assertEquals(header, extractHeaderFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv")));
 		assertEquals(7, header.split(",").length);
 		
 		LineNumberReader lnr = new LineNumberReader(
@@ -57,7 +58,7 @@ public class FileUtilsTest {
 		
 		//Check the correct header
 		String header = "algorithm,problem_tag,search_budget,iteration,max_iteration";
-		assertEquals(header, extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv")));
+		assertEquals(header, extractHeaderFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv")));
 		assertEquals(5, header.split(",").length);
 		
 		LineNumberReader lnr = new LineNumberReader(
@@ -66,7 +67,7 @@ public class FileUtilsTest {
 		assertTrue(lnr.getLineNumber() == 2);
 	}
 
-	private String extractLineFromFile(Path file) throws IOException {
+	private String extractHeaderFromFile(Path file) throws IOException {
 		String line = "";
 		try (BufferedReader br = new BufferedReader(new FileReader(file.toFile()))) {
 			line = br.readLine(); // Read the first line, and it should be the header
@@ -82,7 +83,7 @@ public class FileUtilsTest {
 
 		//Check the correct header
 		String EXPECTED_HEADER = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
-		String header = extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
+		String header = extractHeaderFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
 		assertEquals(EXPECTED_HEADER, header);
 		
 		assertEquals(7, header.split(",").length);
