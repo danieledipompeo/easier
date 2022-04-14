@@ -37,7 +37,10 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
 	private int _evaluations;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a4ab966 (remove duplicated code)
 	public CustomPESA2(Problem<S> problem, int maxEvaluations, int populationSize, int archiveSize, int biSections,
 			CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
 			SolutionListEvaluator<S> evaluator) {
@@ -139,9 +142,53 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 		System.out.println(this.getName());
 		ProgressBar.showBar(_evaluations / getMaxPopulationSize(), _maxEvaluations / getMaxPopulationSize());
 	}
+<<<<<<< HEAD
 
 	@Override
 	public void run() {
+=======
+
+	@Override
+	public void run() {
+		/*
+		  List<S> offspringPopulation; List<S> matingPopulation;
+		  
+		  this.setPopulation(createInitialPopulation());
+		  this.setPopulation(evaluatePopulation(this.getPopulation()));
+		  
+		  int _evaluations = this.getMaxPopulationSize();
+		  
+		  initProgress(); while (!isStoppingConditionReached()) {
+		  
+		  System.out.println(this.getName()); ProgressBar.showBar(_evaluations /
+		  getMaxPopulationSize(), _maxEvaluations / getMaxPopulationSize());
+		 
+		  // MOVED into initProgres
+		  long freeBefore = Runtime.getRuntime().freeMemory(); 
+		  long totalBefore = Runtime.getRuntime().totalMemory();
+		  long initTime = System.currentTimeMillis();
+		  
+		  matingPopulation = selection(this.getPopulation()); offspringPopulation =
+		  reproduction(matingPopulation); offspringPopulation =
+		  evaluatePopulation(offspringPopulation);
+		  this.setPopulation(replacement(this.getPopulation(), offspringPopulation));
+		  
+		  // MOVED into updateProgress method
+		  long computingTime = System.currentTimeMillis() - initTime;
+		  long freeAfter = Runtime.getRuntime().freeMemory(); 
+		  long totalAfter = Runtime.getRuntime().totalMemory();
+		  
+		  new FileUtils().algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s",
+		  this.getName(), this.getProblem().getName(), computingTime, totalBefore,
+		  freeBefore, totalAfter, freeAfter));
+		  
+		  updateProgress(); populationToCSV(); 
+		  _evaluations += this.getMaxPopulationSize();
+		  
+		  }
+		 */
+
+>>>>>>> a4ab966 (remove duplicated code)
 		super.run();
 
 		/*
