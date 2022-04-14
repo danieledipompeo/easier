@@ -1,5 +1,17 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
+import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,32 +22,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.UnexpectedException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-
-
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.eclipse.uml2.uml.*;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UMLRSolutionTest {
 
-    private UMLRSolution solution, solution2;
-
     UMLRProblem<RSolution<?>> p;
+    private UMLRSolution solution, solution2;
 
 
 //    private static void logInfo(Description description, String status, long nanos) {
@@ -88,7 +82,7 @@ public class UMLRSolutionTest {
         int populationSize = 4;
 
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-        p = new UMLRProblem<>(Paths.get(modelpath),"simplied-cocome__test");
+        p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 
         solution = (UMLRSolution) p.createSolution();
     }
@@ -395,7 +389,6 @@ public class UMLRSolutionTest {
                 solution.toString()));
 
         assertTrue(solution.isFeasible());
-
 
     }
 }

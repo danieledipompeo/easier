@@ -1,22 +1,21 @@
 package it.univaq.disim.sealab.metaheuristic;
 
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RProblem;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
+import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class LauncherTest {
 
