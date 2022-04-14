@@ -194,6 +194,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
             this.targetRefactoringElement.put(k, new HashSet<>());
             this.createdRefactoringElement.put(k, new HashSet<>());
         }
+
     }
 
     protected void init() {
@@ -206,6 +207,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         initMap();
         Refactoring refactoring = new Refactoring();
         refactoring.setSolutionID(this.name);
+
         this.setVariable(0, refactoring);
 
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
@@ -303,6 +305,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         } catch (URISyntaxException | EolModelLoadingException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     protected void createRandomRefactoring() {
@@ -315,6 +318,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
                     num_failures++;
                 if (num_failures >= allowedFailures) {
                     throw new RuntimeException(String.format("Exceed %s failures \t %s ", allowedFailures, num_failures));
+
                 }
             } catch (UnexpectedException | EolRuntimeException e) {
                 e.printStackTrace();
@@ -324,6 +328,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
     }
 
     boolean tryRandomPush() throws UnexpectedException, EolRuntimeException {
+
 
 
         RefactoringAction candidate;
@@ -347,6 +352,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         }
         return true;
+
     }
 
     public boolean isFeasible() {
@@ -371,6 +377,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     protected void copyRefactoringVariable(Refactoring refactoring) {
         this.setVariable(VARIABLE_INDEX, refactoring.clone());
+
     }
 
     @Override
@@ -389,6 +396,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
                 RefactoringAction _new = s2.getActionAt(j).clone();
                 this.getVariable(0).getActions().add(j, _new);
             }
+
         } catch (IndexOutOfBoundsException e) {
             EasierLogger.logger_.warning("POINT SIZE ERROR: " + Integer.toString(point));
             e.printStackTrace();
@@ -442,6 +450,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     @Override
     public boolean alter(int i) {
+
 
         RefactoringAction candidate;
         do {
