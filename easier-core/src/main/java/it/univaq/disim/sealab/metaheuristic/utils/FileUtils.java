@@ -274,7 +274,6 @@ public class FileUtils {
 	public void solutionDumpToCSV(String line) {
 		String fileName = "solution_dump.csv";
 		String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
-		
 		dumpToFile(fileName, header, line);
 	}
 
@@ -316,7 +315,6 @@ public class FileUtils {
 		String header = "solID,operation,target,to,where";
 		
 		dumpToFile(fileName, header, line);
-
 	}
 
 	/**
