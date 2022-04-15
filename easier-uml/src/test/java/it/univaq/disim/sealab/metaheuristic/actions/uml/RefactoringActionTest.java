@@ -88,6 +88,5 @@ public class RefactoringActionTest {
         double archChanges = action.computeArchitecturalChanges(modelContents);
 
         assertNotEquals(0, archChanges, "Expected arcChanges != 0");
-
     }
 }

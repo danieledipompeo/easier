@@ -69,7 +69,6 @@ public class UMLCloneNode implements RefactoringAction {
         if (targetObject == null)
             throw new EasierException("Error when computing the architectural changes of " + this.getName());
 
-
         int cpSize = targetObject.getCommunicationPaths().size();
 
         int artSize = (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();

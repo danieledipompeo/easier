@@ -30,6 +30,7 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 
 public class UMLMvComponentToNN implements RefactoringAction {
 
+<<<<<<< HEAD
     private final static Path eolModulePath;
 
     private final static double BFR = 1.23;
@@ -207,5 +208,4 @@ public class UMLMvComponentToNN implements RefactoringAction {
         }
         return true;
     }
-
 }
