@@ -45,7 +45,6 @@ public class UMLMvOperationToComp implements RefactoringAction {
         this.name = "moc";
     }
 
-<<<<<<< HEAD
     public UMLMvOperationToComp(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements) {
         this();
         Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
