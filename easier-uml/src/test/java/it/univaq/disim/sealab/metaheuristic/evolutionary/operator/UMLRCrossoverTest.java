@@ -53,7 +53,7 @@ public class UMLRCrossoverTest {
             System.out.println(sol.getVariable(0).toCSV());
         }
     }
-
+    
     @Test
     void independentSequence() {
         UMLRSolution sol = new UMLRSolution(modelPath, "simplied-cocome__test");
