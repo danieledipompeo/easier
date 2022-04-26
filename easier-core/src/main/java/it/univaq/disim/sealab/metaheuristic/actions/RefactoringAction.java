@@ -29,5 +29,4 @@ public interface RefactoringAction extends Cloneable {
 	public void setIndependent(Map<String, Set<String>> initialElements);
 
 	public boolean isIndependent();
-
 }
