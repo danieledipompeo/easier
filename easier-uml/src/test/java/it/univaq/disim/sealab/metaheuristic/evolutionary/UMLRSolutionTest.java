@@ -25,11 +25,11 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class UMLRSolutionTest {
 
-    UMLRProblem<RSolution<?>> p;
     private UMLRSolution solution, solution2;
+
+    UMLRProblem<RSolution<?>> p;
 
 
 //    private static void logInfo(Description description, String status, long nanos) {
@@ -82,7 +82,7 @@ public class UMLRSolutionTest {
         int populationSize = 4;
 
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-        p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
+        p = new UMLRProblem<>(Paths.get(modelpath),"simplied-cocome__test");
 
         solution = (UMLRSolution) p.createSolution();
     }
@@ -378,7 +378,6 @@ public class UMLRSolutionTest {
         assertTrue(solution.isFeasible(), "Expected a feasible solution after the alter operation.");
 
     }
-
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
