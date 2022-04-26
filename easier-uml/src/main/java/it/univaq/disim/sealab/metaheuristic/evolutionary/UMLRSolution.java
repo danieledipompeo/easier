@@ -194,6 +194,13 @@ public class UMLRSolution extends RSolution<Refactoring> {
             this.targetRefactoringElement.put(k, new HashSet<>());
             this.createdRefactoringElement.put(k, new HashSet<>());
         }
+        for (int j = point; j < refactoringLength; j++) {
+            RefactoringAction _new = parent.getActionAt(j).clone();
+            child.getVariable(0).getActions().add(j, _new);
+        }
+        if (child.isFeasible())
+            return child;
+        return null;
 
     }
 
@@ -207,7 +214,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         initMap();
         Refactoring refactoring = new Refactoring();
         refactoring.setSolutionID(this.name);
-
         this.setVariable(0, refactoring);
 
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
@@ -305,7 +311,33 @@ public class UMLRSolution extends RSolution<Refactoring> {
         } catch (URISyntaxException | EolModelLoadingException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    Set<String> getNodes() {
+        try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
+            org.eclipse.uml2.uml.Package deploymentView = null;
+            org.eclipse.uml2.uml.Model rootPackage = null;
+
+            for (Object pkg : EcoreUtil.getObjectsByType(model.allContents(), UMLPackage.Literals.PACKAGE)) {
+                if (pkg instanceof org.eclipse.uml2.uml.Model) {
+                    rootPackage = (org.eclipse.uml2.uml.Model) pkg;
+                    break;
+                }
+            }
+
+            for (Object pkg : EcoreUtil.getObjectsByType(rootPackage.getOwnedElements(), UMLPackage.Literals.PACKAGE)) {
+                if (pkg instanceof org.eclipse.uml2.uml.Package
+                        && "deployment_view".equals(((org.eclipse.uml2.uml.Package) pkg).getName())) {
+                    deploymentView = (org.eclipse.uml2.uml.Package) pkg;
+                    break;
+                }
+            }
+            List<Object> nodes = new ArrayList<>(
+                    EcoreUtil.getObjectsByType(deploymentView.getOwnedElements(), UMLPackage.Literals.NODE));
+            return nodes.stream().map(node -> (Node) node).map(NamedElement::getName).collect(Collectors.toSet());
+        } catch (URISyntaxException | EolModelLoadingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void createRandomRefactoring() {
@@ -318,7 +350,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
                     num_failures++;
                 if (num_failures >= allowedFailures) {
                     throw new RuntimeException(String.format("Exceed %s failures \t %s ", allowedFailures, num_failures));
-
                 }
             } catch (UnexpectedException | EolRuntimeException e) {
                 e.printStackTrace();
@@ -328,7 +359,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
     }
 
     boolean tryRandomPush() throws UnexpectedException, EolRuntimeException {
-
 
 
         RefactoringAction candidate;
@@ -353,6 +383,16 @@ public class UMLRSolution extends RSolution<Refactoring> {
         }
         return true;
 
+        // Add created element to the available element list
+        // for the next refactoring action
+        for (String k : candidate.getCreatedElements().keySet()) {
+            candidate.getCreatedElements().get(k).forEach(createdElement -> {
+                targetRefactoringElement.get(k).add(createdElement);
+                createdRefactoringElement.get(k).add(createdElement);
+            });
+
+        }
+        return true;
     }
 
     public boolean isFeasible() {
@@ -377,7 +417,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     protected void copyRefactoringVariable(Refactoring refactoring) {
         this.setVariable(VARIABLE_INDEX, refactoring.clone());
-
     }
 
     @Override
@@ -396,7 +435,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
                 RefactoringAction _new = s2.getActionAt(j).clone();
                 this.getVariable(0).getActions().add(j, _new);
             }
-
         } catch (IndexOutOfBoundsException e) {
             EasierLogger.logger_.warning("POINT SIZE ERROR: " + Integer.toString(point));
             e.printStackTrace();
@@ -450,7 +488,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     @Override
     public boolean alter(int i) {
-
 
         RefactoringAction candidate;
         do {
