@@ -54,6 +54,9 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 
 public class Launcher {
 
+	private static final UMLRCrossover crossoverOperator = new UMLRCrossover(
+				Configurator.eINSTANCE.getXoverProbabiliy());
+
 	public static void main(String[] args) throws Exception {
 
 		JCommander jc = new JCommander();
@@ -150,7 +153,7 @@ public class Launcher {
 					experiment);
 			qualityIndicator.run();
 
-
+			crossoverOperator.writeCrossoverReport(experiment.getExperimentBaseDirectory());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -164,8 +167,6 @@ public class Launcher {
 
 		List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithms = new ArrayList<>();
 		FactoryBuilder<UMLRSolution> fBuilder = new FactoryBuilder<>();
-		final CrossoverOperator<UMLRSolution> crossoverOperator = new UMLRCrossover(
-				Configurator.eINSTANCE.getXoverProbabiliy());
 		final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
 
 		String algo = Configurator.eINSTANCE.getAlgorithm();

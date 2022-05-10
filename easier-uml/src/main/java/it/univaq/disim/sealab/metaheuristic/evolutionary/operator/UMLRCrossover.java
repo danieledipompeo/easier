@@ -1,10 +1,13 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ocl.ParserException;
 import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
@@ -19,6 +22,9 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
      *
      */
     private static final long serialVersionUID = 1L;
+
+    /** List of the offspring solutions that are candidates for crossover */
+    private static final ArrayList<UMLRSolution> crossoverCandidates = new ArrayList<>();
 
     /**
      * Constructor
@@ -69,6 +75,9 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
 
             offspring = parent1.createChildren(parent2, crossoverPoint);
 
+            // Add the offsprings to the list of candidates
+            crossoverCandidates.addAll(offspring);
+
             // if both children are feasible then it checks
             // whether each one can be applied to the model
 //            if (offspring1.isFeasible() && offspring2.isFeasible()) {
@@ -109,5 +118,20 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
         return true;
     }
 
-
+    /**
+     * Writes the crossover report on the 'CrossoverReport.txt' file.
+     */
+    public void writeCrossoverReport(final String baseDirectory) {
+        JMetalLogger.logger.info("Writing the crossover report.");
+        final String crossoverReportFile = baseDirectory + "/CrossoverReport.txt";
+        final long valid = crossoverCandidates.stream().filter(UMLRSolution::isRefactored).count();
+        final String crossoverReport = String.format("Crossover probability: %f. Valid offsprings: %d / %d.",
+                crossoverProbability, valid, crossoverCandidates.size());
+        try (final FileWriter fw = new FileWriter(crossoverReportFile)) {
+            fw.write(crossoverReport);
+        } catch (IOException e) {
+            JMetalLogger.logger.warning("Unable to write to " + crossoverReportFile);
+            e.printStackTrace();
+        }
+    }
 }
