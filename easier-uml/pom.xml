@@ -160,6 +160,7 @@
 <!--            <artifactId>logicalSpecification</artifactId>-->
 <!--            <version>0.6</version>-->
 <!--        </dependency>-->
+
         <dependency>
             <groupId>it.univaq.disim.sealab</groupId>
             <artifactId>easier-core</artifactId>
@@ -167,6 +168,7 @@
         </dependency>
         <dependency>
             <groupId>it.univaq.disim.sealab</groupId>
+
             <artifactId>it.univaq.sealab.umlreliability</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
