@@ -61,7 +61,6 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
         algorithm.runAlgorithm(this.experiment);
         long computingTime = System.currentTimeMillis() - initTime;
         long free = Runtime.getRuntime().freeMemory();
-
         return new AbstractMap.SimpleEntry<Algorithm<Result>, long[]>(algorithm.getAlgorithm(),
                 new long[]{computingTime, total, free});// new
     }
@@ -80,18 +79,22 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
      */
     private void createExperimentDirectory() {
 
-        try (Stream<Path> walker = Files.walk(Paths.get(experiment.getExperimentBaseDirectory()))) {
-            walker.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile).forEach(File::delete);
+        if (Files.exists(Paths.get(experiment.getExperimentBaseDirectory()))) {
+            try (Stream<Path> walker = Files.walk(Paths.get(experiment.getExperimentBaseDirectory()))) {
+                walker.sorted(Comparator.reverseOrder())
+                        .map(Path::toFile).forEach(File::delete);
 
-        } catch (IOException e1) {
-            e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
-        try (Stream<Path> walker = Files.walk(Configurator.eINSTANCE.getTmpFolder())) {
-            walker.sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        if (Files.exists(Configurator.eINSTANCE.getTmpFolder())) {
+            try (Stream<Path> walker = Files.walk(Configurator.eINSTANCE.getTmpFolder())) {
+                walker.sorted(Comparator.reverseOrder()).map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
 
         try {
