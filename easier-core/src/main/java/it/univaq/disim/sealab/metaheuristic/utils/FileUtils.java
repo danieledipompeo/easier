@@ -22,11 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.text.StringSubstitutor;
 
-import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import logicalSpecification.actions.AEmilia.AEmiliaCloneAEIAction;
-import logicalSpecification.actions.AEmilia.AEmiliaConstChangesAction;
 
 public class FileUtils {
 
@@ -98,17 +94,16 @@ public class FileUtils {
 	}
 
 	public static void simpleSolutionWriterToCSV(RSolution<?> rSolution) {
-		try (FileWriter fw = new FileWriter(
-				Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(),
-						rSolution.getProblemName() + "_solutions.csv").toFile(),
-				true)) {
+		try (FileWriter fw = new FileWriter(Paths
+				.get(Configurator.eINSTANCE.getOutputFolder().toString(), rSolution.getProblemName() + "_solutions.csv")
+				.toFile(), true)) {
 			List<String> line = new ArrayList<String>();
 			line.addAll(Arrays.asList("SolID", "PerfQ", "ArchDist", "PAs"));
 			CSVUtils.writeHeader(fw, line);
 			line.clear();
 			line.add(String.valueOf(rSolution.getName()));
 			line.add(String.valueOf(rSolution.getPerfQ()));
-			line.add(String.valueOf(rSolution.getNumOfChanges()));
+			line.add(String.valueOf(rSolution.getArchitecturalChanges()));
 			line.add(String.valueOf(rSolution.getPAs()));
 			CSVUtils.writeLine(fw, line);
 		} catch (IOException e) {
@@ -116,41 +111,41 @@ public class FileUtils {
 		}
 	}
 
-	public static void writeAnalyzableFile(final RSolution solution) {
-		try (FileWriter analyzableCSV = new FileWriter(
-				Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "pareto",
-						solution.getProblemName() + "_analyzableResults.csv").toFile(),
-				true)) {
-
-			List<String> line = new ArrayList<String>();
-			/*String solID = "( "
-					+ Configurator.eINSTANCE.getMaxEvaluation() / Configurator.eINSTANCE.getPopulationSize()
-					+ "-" + Configurator.eINSTANCE.getPopulationSize() + " ) " + ":" + solution.getName();*/
-			line.add(String.valueOf(solution.getName()));
-			line.add(String.valueOf(solution.getPerfQ()));
-			line.add(String.valueOf(solution.getNumOfChanges()));
-			line.add(String.valueOf(solution.getPAs()));
-
-			final Refactoring ref = (Refactoring) solution.getVariable(0);
-
-			for (RefactoringAction action : ref.getActions()) {
-				if (action.getName() == null)
-					action.setName(action.getClass().getSimpleName());
-
-				String target = action instanceof AEmiliaConstChangesAction
-						? ((AEmiliaConstChangesAction) action).getSourceConstInit().getName()
-						: ((AEmiliaCloneAEIAction) action).getSourceAEI().getInstanceName();
-				String factor = action instanceof AEmiliaConstChangesAction
-						? Double.toString(((AEmiliaConstChangesAction) action).getFactorOfChange())
-						: "NULL";
-				line.addAll(Arrays.asList(target, factor));
-
-			}
-			CSVUtils.writeLine(analyzableCSV, line);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	public static void writeAnalyzableFile(final RSolution solution) {
+//		try (FileWriter analyzableCSV = new FileWriter(
+//				Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "pareto",
+//						solution.getProblemName() + "_analyzableResults.csv").toFile(),
+//				true)) {
+//
+//			List<String> line = new ArrayList<String>();
+//			/*String solID = "( "
+//					+ Configurator.eINSTANCE.getMaxEvaluation() / Configurator.eINSTANCE.getPopulationSize()
+//					+ "-" + Configurator.eINSTANCE.getPopulationSize() + " ) " + ":" + solution.getName();*/
+//			line.add(String.valueOf(solution.getName()));
+//			line.add(String.valueOf(solution.getPerfQ()));
+//			line.add(String.valueOf(solution.getNumOfChanges()));
+//			line.add(String.valueOf(solution.getPAs()));
+//
+//			final Refactoring ref = (Refactoring) solution.getVariable(0);
+//
+//			for (RefactoringAction action : ref.getActions()) {
+//				if (action.getName() == null)
+//					action.setName(action.getClass().getSimpleName());
+//
+//				String target = action instanceof AEmiliaConstChangesAction
+//						? ((AEmiliaConstChangesAction) action).getSourceConstInit().getName()
+//						: ((AEmiliaCloneAEIAction) action).getSourceAEI().getInstanceName();
+//				String factor = action instanceof AEmiliaConstChangesAction
+//						? Double.toString(((AEmiliaConstChangesAction) action).getFactorOfChange())
+//						: "NULL";
+//				line.addAll(Arrays.asList(target, factor));
+//
+//			}
+//			CSVUtils.writeLine(analyzableCSV, line);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public static synchronized void moveTmpFile(final Path sourceFolder, final Path destFolder) {
 		destFolder.toFile().mkdirs();
@@ -269,204 +264,157 @@ public class FileUtils {
 
 		return modelPaths;
 	}
-	
+
 	/**
-	 * Prints the line into the solution_dump.csv file.
-	 * The header of the file is
+	 * Prints the line into the solution_dump.csv file. The header of the file is
 	 * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
+	 * 
 	 * @param line is the CVS conversion of a RSolution
 	 */
 	public void solutionDumpToCSV(String line) {
 		String fileName = "solution_dump.csv";
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
-
-			try (BufferedWriter writer = new BufferedWriter(
-					new FileWriter(Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write("algorithm,problem_tag,solID,perfQ,#changes,pas,reliability");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
 		
-		try (BufferedWriter writer = new BufferedWriter(
-				new FileWriter(Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-				writer.write(line);
-				writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
+		dumpToFile(fileName, header, line);
 	}
-	
+
 	/**
-	 * Prints the line into the solution_dump.csv file.
-	 * The header of the file is
+	 * Prints the line into the solution_dump.csv file. The header of the file is
 	 * "algorithm,problem_tag,search_busget,iteration,max_iteration"
+	 * 
 	 * @param line is the CSV representation of the search budget data
 	 */
 	public void searchBudgetDumpToCSV(String line) {
 		String fileName = "search_budget_stats.csv";
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write("algorithm,problem_tag,search_busget,iteration,max_iteration");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		String header = "algorithm,problem_tag,search_budget,iteration,max_iteration";
 		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-			writer.write(line);
-			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		dumpToFile(fileName, header, line);
 	}
-	
+
 	/**
-	 * Prints the line into the solution_dump.csv file.
-	 * The header of the file is
+	 * Prints the line into the solution_dump.csv file. The header of the file is
 	 * "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)"
-	 * @param line is the CSV representation of the performance data of a run of an algorithm
+	 * 
+	 * @param line is the CSV representation of the performance data of a run of an
+	 *             algorithm
 	 */
 	public void algoPerfStatsDumpToCSV(String line) {
 		String fileName = "algo_perf_stats.csv";
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
-
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write(
-						"algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		String header = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
 		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-			writer.write(line);
-			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		dumpToFile(fileName, header, line);
 	}
-	
+
 	/**
-	 * Prints the line into the refactoring_dump.csv file.
-	 * The header of the file is
+	 * Prints the line into the refactoring_dump.csv file. The header of the file is
 	 * "solID,operation,target,to,where"
+	 * 
 	 * @param line is the CSV representation of a refactoring composition
 	 */
 	public void refactoringDumpToCSV(String line) {
 		String fileName = "refactoring_composition.csv";
+		String header = "solID,operation,target,to,where";
 		
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
+		dumpToFile(fileName, header, line);
 
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write(
-						"solID,operation,target,to,where");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-			writer.write(line);
-//			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}	
-	
+	}
+
 	/**
-	 * Prints the line into the refactoring_stats_dump.csv file.
-	 * The header of the file is
-	 * "operation,target,to,where,exec_time(nanoSec)"
+	 * Prints the line into the refactoring_stats_dump.csv file. The header of the
+	 * file is "operation,target,to,where,exec_time(nanoSec)"
+	 * 
 	 * @param line is the CSV of the applied refactoring action
 	 */
 	public void refactoringStatsDumpToCSV(String line) {
 		String fileName = "refactoring_stats.csv";
-		
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
+		String header = "operation,target,to,where,exec_time(nanoSec)";
 
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write(
-						"operation,target,to,where,exec_time(nanoSec)");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-			writer.write(line);
-			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		dumpToFile(fileName, header, line);
+
 	}
-	
+
 	/**
-	 * Prints the line into the refactoring_stats_dump.csv file.
-	 * The header of the file is
-	 * "algorithm,problem,step,exec_time(milliSec)"
+	 * Prints the line into the refactoring_stats_dump.csv file. The header of the
+	 * file is "algorithm,problem,step,exec_time(milliSec)"
+	 * 
 	 * @param line is the CSV of the applied step
 	 */
 	public void processStepStatsDumpToCSV(String line) {
 		String fileName = "process_step_stats.csv";
-		
-		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
+		String header = "algorithm,problem,solID,step,exec_time(milliSec)";
 
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write(
-						"algorithm,problem,solID,step,exec_time(milliSec)");
-				writer.newLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
-			writer.write(line);
-			writer.newLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		dumpToFile(fileName, header, line);
+
 	}
-	
-	
+
 	/**
-	 * Prints the line into the performance_antipatter_dump.csv file.
-	 * The header of the file is
+	 * Prints the line into the performance_antipatter_dump.csv file. The header of
+	 * the file is
 	 * "algorithm,problem_tag,performance_antipattern,target_element,fuzziness"
+	 * 
 	 * @param line is the CSV representation of the performance antipatern data
 	 */
 	public void performanceAntipatternDumpToCSV(String line) {
 		String fileName = "performance_antipatter_dump.csv";
+		String header = "algorithm,problem_tag,performance_antipattern,target_element,fuzziness";
+
+		dumpToFile(fileName, header, line);
+
+	}
+
+	/**
+	 * Prints the line into the back_annotation_error_log.csv file.
+	 * The header of the file is "solID,message,actions"
+	 * The line is a comma separated string, with the last
+	 * field as a semicolon separated string
+	 * 
+	 * @param line
+	 */
+	public void backAnnotationErrorLogToCSV(String line) {
+		String fileName = "back_annotation_error_log.csv";
+		String header = "solID,message,actions";
+		dumpToFile(fileName, header, line);
+
+	}
+
+	public void etlErrorLogToCSv(String line){
+		String fileName = "etlErrorLog.csv";
+		String header = "solID;message;actions";
+		dumpToFile(fileName, header, line);
+	}
+
+	public void reliabilityErrorLogToCSV(String line){
+		String fileName = "relErrorLog.csv";
+		String header ="solID;message;actions";
+		dumpToFile(fileName, header, line);
+	}
+
+	public void failedSolutionLogToCSV(String line){
+		String fileName = "reportFailedSolution.csv";
+		String header = "solID;lqn_solver_message;actions";
+		dumpToFile(fileName,header,line);
+	}
+
+	/**
+	 * If fileName does not exist, it will dump the header. Write line into fileName
+	 * 
+	 * @param fileName
+	 * @param header
+	 * @param line
+	 */
+	private void dumpToFile(String fileName, String header, String line) {
 		if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-					Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
-				writer.write("algorithm,problem_tag,performance_antipattern,target_element,fuzziness");
+			try (BufferedWriter writer = new BufferedWriter(
+					new FileWriter(Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
+				writer.write(header);
 				writer.newLine();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-				Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new FileWriter(Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString(), true))) {
 			writer.write(line);
 			writer.newLine();
 		} catch (IOException e) {
