@@ -2,6 +2,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
@@ -31,9 +32,7 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
      * <p>
      * The result can be
      * <ul>
-     *     <li>parent1, parent2 : when no crossover operation took place</li>
-     *     <li>parent1,child2 : when child1 is not applicable</li>
-     *     <li>child1,parent2 : when child2 is not applicable</li>
+     *     <li>parent1, parent2 : when any crossover operation did not take place</li>
      *     <li>child1,child2 : when the crossover operation took place</li>
      * </ul>
      *
@@ -75,7 +74,7 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
             Map<Integer, List<List<RefactoringAction>>> parent1IndependentSequence = independentSequence(parent1);
             Map<Integer, List<List<RefactoringAction>>> parent2IndependentSequence = independentSequence(parent2);
 
-            Refactoring child1Refactoring = new Refactoring(child1.getModelPath().toString());
+            Refactoring child1Refactoring = new UMLRefactoring(child1.getModelPath().toString());
             child1Refactoring.getActions().addAll(parent1IndependentSequence.get(crossoverPoint).get(JMetalRandom.getInstance().nextInt(0,
                     parent1IndependentSequence.get(crossoverPoint).size() - 1)));
             child1Refactoring.getActions().addAll(parent2IndependentSequence.get(refactoringLength - crossoverPoint).
@@ -84,7 +83,7 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
             child1.setVariable(0, child1Refactoring);
             child1.setCrossovered(true);
 
-            Refactoring child2Refactoring = new Refactoring(child2.getModelPath().toString());
+            Refactoring child2Refactoring = new UMLRefactoring(child2.getModelPath().toString());
             child2Refactoring.getActions().addAll(parent2IndependentSequence.get(crossoverPoint).get(JMetalRandom.getInstance().nextInt(0,
                     parent2IndependentSequence.get(crossoverPoint).size() - 1)));
             child2Refactoring.getActions().addAll(parent1IndependentSequence.get(refactoringLength - crossoverPoint).
@@ -98,7 +97,7 @@ public class UMLRCrossover extends RCrossover<UMLRSolution> {
 
         }
 
-        // It can be equal to parent1, parent2; parent1,child2; child1,parent2; child1,child2;
+        // It can be equal to parent1, parent2; child1,child2;
         return offspring;
     }
 
