@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.spea2;
 
+import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomAlgorithmTest;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
@@ -7,8 +8,9 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2Builder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
@@ -30,32 +32,24 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CustomSPEA2Test<S extends RSolution<?>> {
-    final CrossoverOperator<UMLRSolution> crossoverOperator = new UMLRCrossover(
-            Configurator.eINSTANCE.getXoverProbabiliy());
-    final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(
-            Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
-    final SelectionOperator<List<UMLRSolution>, UMLRSolution> selectionOpertor = new BinaryTournamentSelection<UMLRSolution>(
-            new RankingAndCrowdingDistanceComparator<UMLRSolution>());
-    final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
-    UMLRProblem<UMLRSolution> p;
-    List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithms = new ArrayList<>();
-    SPEA2<UMLRSolution> algorithm;
+public class CustomSPEA2Test<S extends RSolution<?>> extends CustomAlgorithmTest<S> {
 
-    @Before
+//    SPEA2<UMLRSolution> algorithm;
+
+//    @BeforeAll
+//    public static void beforeClass() throws IOException {
+//        Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+//    }
+
+    @BeforeEach
     public void setUp() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
+        super.setUp();
 
-        String modelpath = getClass().getResource("/models/train-ticket/train-ticket.uml").getFile();
-        p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
-
-        SPEA2Builder<UMLRSolution> customNSGABuilder = new CustomSPEA2Builder<UMLRSolution>(p, crossoverOperator,
+        SPEA2Builder<UMLRSolution> customBuilder = new CustomSPEA2Builder<UMLRSolution>(p, crossoverOperator,
                 mutationOperator).setMaxIterations(72)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
-        algorithm = customNSGABuilder.build();
+        algorithm = customBuilder.build();
     }
 
     @Test

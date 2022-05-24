@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class RefactoringActionTest {
 
     UMLRProblem<UMLRSolution> p;
-    protected RefactoringAction action, oldAction;
+    protected UMLRefactoringAction action, oldAction;
     protected UMLRSolution solution;
 
     protected String generatedCSV;
@@ -31,6 +32,8 @@ public class RefactoringActionTest {
     protected String actionName;
     protected String expectedType;
     protected Map<String, Set<String>> expectedName;
+
+    protected EasierModel eModel;
 
     public void setUp() throws Exception {
         int allowedFailures = 100;
@@ -41,6 +44,7 @@ public class RefactoringActionTest {
         p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
         solution = p.createSolution();
 
+        eModel = solution.getVariable(0).getEasierModel();
     }
 
     public void testToCSV() {

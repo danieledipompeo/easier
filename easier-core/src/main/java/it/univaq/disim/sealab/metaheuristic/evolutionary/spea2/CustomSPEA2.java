@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -38,6 +39,8 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 	private long totalBefore;
 
 	private long initTime;
+
+	EasierResourcesLogger easierResourcesLogger;
 	
 	/**
 	 * Constructor
@@ -60,10 +63,12 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 	
 	/**
 	 * Support multiple stopping criteria.
-	 * byTime the default computing threshold is set to 1 h
-	 * byPrematureConvergence the default premature convergence is set to 3 consecutive populations with the same objectives
-	 * byBoth using byTime and byPrematureConvergence
-	 * classic using the number of evaluation
+	 * <ul>
+	 *     <li><b>byTime</b> the default computing threshold is set to 1 h</li>
+	 *     <li><b>byPrematureConvergence</b> the default premature convergence is set to 3 consecutive populations with the same objectives</li>
+	 *     <li><b>byBoth</b> using byTime and byPrematureConvergence classic using the number of evaluation</li>
+	 *     <li><b>none</b></li> using the default stopping criterion based on the number of evolutions
+	 * </ul>
 	 */
 	@Override
 	public boolean isStoppingConditionReached() {
@@ -85,10 +90,12 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 		super.initProgress();
 		this.getPopulation().forEach(s -> s.refactoringToCSV());
 
-		iterationStartingTime = System.currentTimeMillis();
+		easierResourcesLogger = new EasierResourcesLogger(this.getName(), this.getProblem().getName());
+
+		/*iterationStartingTime = System.currentTimeMillis();
 		freeBefore = Runtime.getRuntime().freeMemory();
 		totalBefore = Runtime.getRuntime().totalMemory();
-		initTime = System.currentTimeMillis();
+		initTime = System.currentTimeMillis();*/
 		
 		oldPopulation = (List<S>) this.getPopulation(); // store the initial population
 	}
@@ -97,7 +104,9 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 	public void updateProgress() {
 		super.updateProgress();
 
-		long computingTime = System.currentTimeMillis() - initTime;
+		easierResourcesLogger.checkpoint();
+
+		/*long computingTime = System.currentTimeMillis() - initTime;
 		long freeAfter = Runtime.getRuntime().freeMemory();
 		long totalAfter = Runtime.getRuntime().totalMemory();
 
@@ -107,7 +116,7 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 		// Store the checkpoint
 		totalBefore = totalAfter;
 		freeBefore = freeAfter;
-		initTime = computingTime;
+		initTime = computingTime;*/
 
 		populationToCSV();
 		System.out.println(this.getName());
@@ -149,6 +158,8 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 	@Override
 	public void run() {
 		super.run();
+
+		easierResourcesLogger.toCSV();
 		
 		/* prints the number of iterations until the search budget is not reached. 
 		 * !!!Attn!!! 
