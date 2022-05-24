@@ -1,8 +1,10 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.easier.utils.uml.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.easier.utils.uml.UMLUtil;
-import it.univaq.disim.sealab.easier.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
+import it.univaq.disim.sealab.metaheuristic.utils.uml.UMLMemoryOptimizer;
+import it.univaq.disim.sealab.metaheuristic.utils.uml.UMLUtil;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
@@ -62,9 +64,9 @@ public class UMLRSolution extends RSolution<Refactoring> {
         GQAM_NAMESPACE = "MARTE::MARTE_AnalysisModel::GQAM::";
     }
 
-    Map<String, Set<String>> initialElements;
-    Map<String, Set<String>> targetRefactoringElement;
-    Map<String, Set<String>> createdRefactoringElement;
+//    Map<String, Set<String>> initialElements;
+//    Map<String, Set<String>> targetRefactoringElement;
+//    Map<String, Set<String>> createdRefactoringElement;
     private Path folderPath;
     private double[] scenarioRTs;
     private String algorithm;
@@ -72,27 +74,14 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     public UMLRSolution(Path sourceModelPath, String problemName) {
         super(sourceModelPath, problemName);
-
         init();
-//        this.createRandomRefactoring();
     }
 
     public UMLRSolution(UMLRSolution s) {
         this(s.sourceModelPath, s.problemName);
 
-        // to clear the created refactoring while constructing the object
-//        initMap();
-
-        for (String k : s.targetRefactoringElement.keySet()) {
-            targetRefactoringElement.get(k).addAll(s.targetRefactoringElement.get(k));
-        }
-
-        for (String k : s.createdRefactoringElement.keySet()) {
-            createdRefactoringElement.get(k).addAll(s.createdRefactoringElement.get(k));
-        }
-
         // create a new refactoring and clone refactoring actions from the source solution
-        Refactoring ref = new Refactoring(this.getModelPath().toString());
+        Refactoring ref = new UMLRefactoring(this.getModelPath().toString());
         ref.setSolutionID(this.getName());
         ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone).collect(Collectors.toList()));
         this.setVariable(0, ref);
@@ -111,27 +100,19 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     }
 
-    /**
-     * Initialize the internal maps for storing available and generated elements
-     */
-    void initMap() {
-        targetRefactoringElement = new HashMap<>();
-        createdRefactoringElement = new HashMap<>();
-        initialElements = new HashMap<>();
-        for (String k : List.of(SupportedType.NODE.toString(), SupportedType.COMPONENT.toString(),
-                SupportedType.OPERATION.toString())) {
-            this.targetRefactoringElement.put(k, new HashSet<>());
-            this.createdRefactoringElement.put(k, new HashSet<>());
-        }
-        for (int j = point; j < refactoringLength; j++) {
-            RefactoringAction _new = parent.getActionAt(j).clone();
-            child.getVariable(0).getActions().add(j, _new);
-        }
-        if (child.isFeasible())
-            return child;
-        return null;
-
-    }
+//    /**
+//     * Initialize the internal maps for storing available and generated elements
+//     */
+//    void initMap() {
+//        targetRefactoringElement = new HashMap<>();
+//        createdRefactoringElement = new HashMap<>();
+//        initialElements = new HashMap<>();
+//        for (String k : List.of(SupportedType.NODE.toString(), SupportedType.COMPONENT.toString(),
+//                SupportedType.OPERATION.toString())) {
+//            this.targetRefactoringElement.put(k, new HashSet<>());
+//            this.createdRefactoringElement.put(k, new HashSet<>());
+//        }
+//    }
 
 //    protected UMLRSolution createChild(UMLRSolution parent, int point) {
 //
@@ -200,123 +181,26 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         this.setName();
 
-        initMap();
+//        initMap();
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
                 String.valueOf(getName()));
         modelPath = folderPath.resolve(getName() + ".uml");
-        Refactoring refactoring = new Refactoring(modelPath.toString());
-        refactoring.setSolutionID(this.name);
-        this.setVariable(0, refactoring);
-
 
         algorithm = this.problemName.substring(this.problemName.lastIndexOf('_') + 1);
 
         try {
             org.apache.commons.io.FileUtils.copyFile(sourceModelPath.toFile(), modelPath.toFile());
-            Set<String> nodes = getNodes();
-            Set<String> components = getComponents();
-            Set<String> operations = getOperations();
-            initialElements.put(SupportedType.NODE.toString(), Collections.unmodifiableSet(nodes));
-            initialElements.put(SupportedType.COMPONENT.toString(), Collections.unmodifiableSet(components));
-            initialElements.put(SupportedType.OPERATION.toString(), Collections.unmodifiableSet(operations));
-            targetRefactoringElement.put(SupportedType.NODE.toString(), new HashSet<>(nodes));
-            targetRefactoringElement.put(SupportedType.COMPONENT.toString(), new HashSet<>(components));
-            targetRefactoringElement.put(SupportedType.OPERATION.toString(), new HashSet<>(operations));
         } catch (IOException e) {
             System.out.println("[ERROR] The problem's model copy generated an error!!!");
             e.printStackTrace();
         } catch (RuntimeException eRun) {
             System.out.println(eRun.getMessage());
         }
+        Refactoring refactoring = new UMLRefactoring(modelPath.toString());
+        refactoring.setSolutionID(this.name);
+        this.setVariable(0, refactoring);
     }
 
-    Set<String> getOperations() {
-        return UMLUtil.getElementsInPackage(modelPath.toString(), UMLPackage.Literals.MESSAGE)
-                .stream().map(Message.class::cast).filter(msg -> !msg.getMessageSort().toString().equals("reply"))
-                .map(Message::getSignature).map(NamedElement::getName).collect(Collectors.toSet());
-
-
-        /*
-        try (EasierUmlModel dirtyIModel = EOLStandalone.createUmlModel(modelPath.toString())) {
-            org.eclipse.uml2.uml.Package dynamicView = null;
-            for (Object pkg : EcoreUtil.getObjectsByType(dirtyIModel.allContents(), UMLPackage.Literals.PACKAGE)) {
-                if (pkg instanceof org.eclipse.uml2.uml.Package
-                        && "dynamic_view".equals(((org.eclipse.uml2.uml.Package) pkg).getName())) {
-                    dynamicView = (org.eclipse.uml2.uml.Package) pkg;
-                    break;
-                }
-            }
-
-            List<Object> objects = new ArrayList<>(
-                    EcoreUtil.getObjectsByType(dynamicView.getOwnedElements(), UMLPackage.Literals.USE_CASE));
-
-            List<UseCase> usecases = objects.stream().map(UseCase.class::cast).collect(Collectors.toList());
-
-            List<Interaction> interactions = usecases.stream().map(UseCase::getOwnedBehaviors).flatMap(List::stream).
-                    map(Interaction.class::cast).collect(Collectors.toList());
-
-            return interactions.stream().map(Interaction::getMessages).flatMap(List::stream).
-                    map(Message.class::cast).filter(msg -> !msg.getMessageSort().toString().equals("reply")).
-                    map(Message::getSignature).map(NamedElement::getName).collect(Collectors.toSet());
-        } catch (EolModelLoadingException | URISyntaxException e) {
-            throw new RuntimeException("Error while loading the model.");
-        }*/
-    }
-
-    Set<String> getComponents() {
-        return UMLUtil.getElementsInPackage(modelPath.toString(), UMLPackage.Literals.COMPONENT)
-                .stream().map(NamedElement.class::cast).map(NamedElement::getName).collect(Collectors.toSet());
-
-        /*try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
-            org.eclipse.uml2.uml.Package staticView = null;
-            for (Object pkg : EcoreUtil.getObjectsByType(model.allContents(),
-                    UMLPackage.Literals.PACKAGE)) {
-                if (pkg instanceof org.eclipse.uml2.uml.Package
-                        && "static_view".equals(((org.eclipse.uml2.uml.Package) pkg).getName())) {
-                    staticView = (org.eclipse.uml2.uml.Package) pkg;
-                    break;
-                }
-            }
-
-            List<Component> comps = new ArrayList<>(
-                    EcoreUtil.getObjectsByType(staticView.getOwnedElements(), UMLPackage.Literals.COMPONENT));
-            return comps.stream().map(component -> (Component) component).map(NamedElement::getName).collect(Collectors.toSet());
-        } catch (URISyntaxException | EolModelLoadingException e) {
-            throw new RuntimeException(e);
-        }*/
-    }
-
-    Set<String> getNodes() {
-
-        return UMLUtil.getElementsInPackage(modelPath.toString(), UMLPackage.Literals.NODE)
-                .stream().map(NamedElement.class::cast).map(NamedElement::getName).collect(Collectors.toSet());
-
-        /*
-        try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
-            org.eclipse.uml2.uml.Package deploymentView = null;
-            org.eclipse.uml2.uml.Model rootPackage = null;
-
-            for (Object pkg : EcoreUtil.getObjectsByType(model.allContents(), UMLPackage.Literals.PACKAGE)) {
-                if (pkg instanceof org.eclipse.uml2.uml.Model) {
-                    rootPackage = (org.eclipse.uml2.uml.Model) pkg;
-                    break;
-                }
-            }
-
-            for (Object pkg : EcoreUtil.getObjectsByType(rootPackage.getOwnedElements(), UMLPackage.Literals.PACKAGE)) {
-                if (pkg instanceof org.eclipse.uml2.uml.Package
-                        && "deployment_view".equals(((org.eclipse.uml2.uml.Package) pkg).getName())) {
-                    deploymentView = (org.eclipse.uml2.uml.Package) pkg;
-                    break;
-                }
-            }
-            List<Object> nodes = new ArrayList<>(
-                    EcoreUtil.getObjectsByType(deploymentView.getOwnedElements(), UMLPackage.Literals.NODE));
-            return nodes.stream().map(node -> (Node) node).map(NamedElement::getName).collect(Collectors.toSet());
-        } catch (URISyntaxException | EolModelLoadingException e) {
-            throw new RuntimeException(e);
-        }*/
-    }
 
     public void createRandomRefactoring() {
 
@@ -342,46 +226,14 @@ public class UMLRSolution extends RSolution<Refactoring> {
      * @return false otherwise
      */
     public boolean isIndependent(List<RefactoringAction> listOfActions) {
-        if (listOfActions.size() == 1) {
-            RefactoringAction act = listOfActions.get(0);
-            for (String k : act.getTargetElements().keySet()) {
-                for (String elemName : act.getTargetElements().get(k)) {
-
-                    // check if the target element of a refactoring action is within the original set of elements
-                    if (!initialElements.get(k).contains(elemName))
-                        return false;
-                }
-            }
-        } else {
-            for (int i = 0; i < listOfActions.size(); i++) {
-                RefactoringAction act = listOfActions.get(i);
-                for (int j = i + 1; j < listOfActions.size(); j++) {
-
-                    // only use independent actions
-                    if (listOfActions.get(j).isIndependent()) {
-                        for (String k : act.getCreatedElements().keySet()) {
-
-                            // check whether an action target element type is equal to the created type of a previous
-                            // refactoring action
-                            if (listOfActions.get(j).getTargetElements().get(k) != null) {
-                                for (String elemName : listOfActions.get(j).getTargetElements().get(k)) {
-
-                                    // check whether a target element of a refactoring action belongs to the created
-                                    // elements of previous refactoring actions
-                                    if (act.getCreatedElements().get(k).contains(elemName))
-                                        return false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return true;
+        return getVariable(0).isIndependent(listOfActions);
     }
 
     boolean tryRandomPush() throws UnexpectedException, EolRuntimeException {
-        RefactoringAction candidate;
+
+        return getVariable(0).tryRandomPush();
+
+        /*RefactoringAction candidate;
         do {
             candidate = RefactoringActionFactory.getRandomAction(this.getAvailableElements(), this.getInitialElements());
         } while (candidate == null);
@@ -393,6 +245,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         // Add created element to the available element list
         // for the next refactoring action
+        easierModel.store(candidate.getCreatedElements());
         for (String k : candidate.getCreatedElements().keySet()) {
             candidate.getCreatedElements().get(k).forEach(createdElement -> {
                 targetRefactoringElement.get(k).add(createdElement);
@@ -400,39 +253,28 @@ public class UMLRSolution extends RSolution<Refactoring> {
             });
 
         }
-        return true;
-
-        // Add created element to the available element list
-        // for the next refactoring action
-        for (String k : candidate.getCreatedElements().keySet()) {
-            candidate.getCreatedElements().get(k).forEach(createdElement -> {
-                targetRefactoringElement.get(k).add(createdElement);
-                createdRefactoringElement.get(k).add(createdElement);
-            });
-
-        }
-        return true;
+        return true;*/
     }
 
     public boolean isFeasible() {
         return getVariable(VARIABLE_INDEX).isFeasible();
     }
 
-    private boolean isFeasible(Refactoring tr) {
-
-        if (tr.hasMultipleOccurrence())
-            return false;
-
-        for (RefactoringAction action : tr.getActions()) {
-            Set<String> actionTargetElements =
-                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
-            if (getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
+//    private boolean isFeasible(Refactoring tr) {
+//
+//        if (tr.hasMultipleOccurrence())
+//            return false;
+//
+//        for (RefactoringAction action : tr.getActions()) {
+//            Set<String> actionTargetElements =
+//                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
+//            if (getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
     protected void copyRefactoringVariable(Refactoring refactoring) {
         this.setVariable(VARIABLE_INDEX, refactoring.clone());
@@ -443,6 +285,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return new UMLRSolution(this);
     }
 
+    /* MOVED to RMutation operator
     boolean doAlter(int i, RefactoringAction candidate) {
 
         // save the original solution and substitute it with the new one
@@ -486,7 +329,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         }
 
         return true;
-    }
+    }*/
 
 //    protected void createChild(UMLRSolution s1, UMLRSolution s2, int point) {
 //
@@ -505,6 +348,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 //        }
 //    }
 
+    /* MOVED to RMutation operator
     @Override
     public boolean alter(int i) {
 
@@ -515,7 +359,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         return doAlter(i, candidate);
 
-    }
+    }*/
 
     /**
      * This method counts the number of Performance Antipatterns (PAs) invoking
@@ -860,22 +704,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
             return false;
         UMLRSolution other = (UMLRSolution) obj;
 
-        for (String k : createdRefactoringElement.keySet()) {
-            if (createdRefactoringElement.get(k).size() != other.createdRefactoringElement.get(k).size())
-                return false;
-            for (String e : createdRefactoringElement.get(k)) {
-                if (!other.createdRefactoringElement.get(k).contains(e))
-                    return false;
-            }
-        }
-        for (String k : targetRefactoringElement.keySet()) {
-            if (targetRefactoringElement.get(k).size() != other.targetRefactoringElement.get(k).size())
-                return false;
-            for (String e : targetRefactoringElement.get(k)) {
-                if (!other.targetRefactoringElement.get(k).contains(e))
-                    return false;
-            }
-        }
+
         if (folderPath == null ^ other.folderPath == null)
             return false;
         return true;
@@ -889,34 +718,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     public void setPAs(int pas) {
         this.numPAs = pas;
-    }
-
-    void setRefactoring(Refactoring ref) {
-        initMap();
-        for (RefactoringAction action : ref.getActions()) {
-            for (String k : action.getTargetElements().keySet()) {
-                action.getTargetElements().get(k).forEach(v -> this.targetRefactoringElement.get(k).add(v));
-            }
-            for (String k : action.getCreatedElements().keySet()) {
-                action.getCreatedElements().get(k).forEach(v -> this.createdRefactoringElement.get(k).add(v));
-            }
-        }
-
-    }
-
-    /**
-     * @return the immutable map of available elements that next refactoring action
-     * could use as target element.
-     */
-    public Map<String, Set<String>> getAvailableElements() {
-        return Map.copyOf(targetRefactoringElement);
-    }
-
-    /**
-     * @return the immutable map of initial elements
-     */
-    public Map<String, Set<String>> getInitialElements() {
-        return Map.copyOf(initialElements);
     }
 
     public enum SupportedType {

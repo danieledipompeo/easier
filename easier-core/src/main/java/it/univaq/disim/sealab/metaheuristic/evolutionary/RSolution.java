@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import org.uma.jmetal.solution.AbstractSolution;
 
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
@@ -85,7 +86,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
 
     public abstract void computeScenarioRT();
 
-    public abstract boolean alter(int i);
+//    public abstract boolean alter(int i);
 
     public abstract void invokeSolver();
 
@@ -232,7 +233,9 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
     }
 
 
-    public void setRefactoring(List<RefactoringAction> listOfActions){
+    public void setRefactoring(Refactoring ref){
+
+        setVariable(0, (T) ref);
 //
 //        Refactoring ref = new Refactoring(this.modelPath.toString());
 //        ref.setSolutionID(this.name);
