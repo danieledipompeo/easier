@@ -3,44 +3,36 @@
  */
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
+import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.uml2.uml.Node;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.eclipse.uml2.uml.Component;
-import org.eclipse.uml2.uml.NamedElement;
-import org.eclipse.uml2.uml.Node;
-
-public class UMLCloneNode implements RefactoringAction {
+public class UMLCloneNode implements UMLRefactoringAction {
 
     private final static Path eolModulePath;
 
     private final static double BRF = 1.23;
 
-    private double numOfChanges;
-    private final String name;
-
-    private boolean isIndependent = true;
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
     }
+
+    private final String name;
+    Map<String, Set<String>> targetElements = new HashMap<>();
+    Map<String, Set<String>> createdElements = new HashMap<>();
+    private double numOfChanges;
+    private boolean isIndependent = true;
 
     public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements) {
         this();
@@ -69,13 +61,17 @@ public class UMLCloneNode implements RefactoringAction {
         if (targetObject == null)
             throw new EasierException("Error when computing the architectural changes of " + this.getName());
 
-
         int cpSize = targetObject.getCommunicationPaths().size();
 
         int artSize = (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();
 
         return (cpSize + artSize);
 
+    }
+
+    @Override
+    public boolean isIndependent() {
+        return isIndependent;
     }
 
     @Override
@@ -87,11 +83,6 @@ public class UMLCloneNode implements RefactoringAction {
 
         if (!flattenSourceElement.containsAll(candidateTargetValues))
             isIndependent = false;
-    }
-
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
     }
 
     private String generateHash() {

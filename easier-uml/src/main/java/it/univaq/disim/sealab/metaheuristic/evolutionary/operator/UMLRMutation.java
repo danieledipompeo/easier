@@ -33,7 +33,7 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
             // guard condition
             if (JMetalRandom.getInstance().nextDouble() <= probability) {
 
-                final Map<String, Set<String>> initialElements = solution.getInitialElements();
+                final Map<String, Set<String>> initialElements = solution.getVariable(0).getEasierModel().getInitialElements();
 
                 for (int j = 0; j < allowed_failures; j++) {
                     Refactoring ref = solution.getVariable(i);
@@ -69,7 +69,7 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
     }
 
     private Map<String, Set<String>> filterOutElementOf(UMLRSolution solution, RefactoringAction refactoringAction) {
-        Map<String, Set<String>> availableElements = solution.getAvailableElements();
+        Map<String, Set<String>> availableElements = solution.getVariable(0).getEasierModel().getAvailableElements();
 
         Map<String, Set<String>> filteredAvailableElements = new HashMap<>();
         // filter out elements belong to the candidateToBeRemoved from the availableElements

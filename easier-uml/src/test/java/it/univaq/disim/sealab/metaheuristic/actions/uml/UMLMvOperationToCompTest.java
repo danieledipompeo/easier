@@ -12,23 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class UMLMvOperationToCompTest extends RefactoringActionTest {
+public class UMLMvOperationToCompTest extends UMLRefactoringActionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLMvOperationToComp(solution.getAvailableElements(),
-                solution.getInitialElements());
-        action = new UMLMvOperationToComp(solution.getAvailableElements(),
-                solution.getInitialElements());
+        oldAction = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements());
+        action = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements());
     }
 
     @Test
     public void testConstructor() {
         String targetOperation =
                 action.getTargetElements().get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
-        assertFalse(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
+        assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
                 String.format("Expected target node %s belongs to the availableElements.", targetOperation));
 
     }

@@ -274,7 +274,6 @@ public class FileUtils {
 	public void solutionDumpToCSV(String line) {
 		String fileName = "solution_dump.csv";
 		String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
-		
 		dumpToFile(fileName, header, line);
 	}
 
@@ -316,7 +315,6 @@ public class FileUtils {
 		String header = "solID,operation,target,to,where";
 		
 		dumpToFile(fileName, header, line);
-
 	}
 
 	/**
@@ -356,7 +354,7 @@ public class FileUtils {
 	 */
 	public void performanceAntipatternDumpToCSV(String line) {
 		String fileName = "performance_antipatter_dump.csv";
-		String header = "algorithm,problem_tag,performance_antipattern,target_element,fuzziness";
+		String header = "solID,problem_tag,performance_antipattern,target_element,fuzziness";
 
 		dumpToFile(fileName, header, line);
 
@@ -395,6 +393,11 @@ public class FileUtils {
 		dumpToFile(fileName,header,line);
 	}
 
+	public void xoverStatistics(String line){
+		String fileName = "xover_statistics.csv";
+		String header = "total,total_xover,failed_xover";
+		dumpToFile(fileName,header,line);
+	}
 	/**
 	 * If fileName does not exist, it will dump the header. Write line into fileName
 	 * 

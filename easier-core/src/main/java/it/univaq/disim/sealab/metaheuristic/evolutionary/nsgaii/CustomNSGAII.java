@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -27,6 +28,8 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	private long freeBefore;
 	private long totalBefore;
 
+	EasierResourcesLogger eResourcesLogger;
+
 	/**
 	 * Constructor matingPopulationSize = offspringPopulationSize = populationSize
 	 * as used in NSGAIIBuilder
@@ -34,11 +37,14 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	public CustomNSGAII(Problem<S> problem, int maxIterations, int populationSize,
 			CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
 			SelectionOperator<List<S>, S> selectionOperator, SolutionListEvaluator<S> evaluator) {
-		super((Problem<S>) problem, maxIterations, populationSize, populationSize, populationSize, crossoverOperator,
+		super(problem, maxIterations, populationSize, populationSize, populationSize, crossoverOperator,
 				mutationOperator, selectionOperator, evaluator);
+
+		eResourcesLogger = new EasierResourcesLogger(this.getName(), this.getProblem().getName());
+
 		durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
 		prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
-		oldPopulation = new ArrayList<S>();
+		oldPopulation = new ArrayList<>();
 	}
 
 	/*
@@ -54,10 +60,13 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	}
 
 	/**
-	 * Support multiple stopping criteria. byTime the default computing threshold is
-	 * set to 1 h byPrematureConvergence the default premature convergence is set to
-	 * 3 consecutive populations with the same objectives byBoth using byTime and
-	 * byPrematureConvergence classic using the number of evaluation
+	 * Support multiple stopping criteria.
+	 * <ul>
+	 *     <li><b>byTime</b> the default computing threshold is set to 1 h</li>
+	 *     <li><b>byPrematureConvergence</b> the default premature convergence is set to 3 consecutive populations with the same objectives</li>
+	 *     <li><b>byBoth</b> using byTime and byPrematureConvergence classic using the number of evaluation</li>
+	 *     <li><b>none</b></li> using the default stopping criterion based on the number of evolutions
+	 * </ul>
 	 */
 	@Override
 	public boolean isStoppingConditionReached() {
@@ -78,22 +87,27 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	@Override
 	protected void initProgress() {
 		super.initProgress();
-		iterationStartingTime = System.currentTimeMillis();
+
+		eResourcesLogger = new EasierResourcesLogger(this.getName(), this.getProblem().getName());
+
+		/*iterationStartingTime = System.currentTimeMillis();
 
 		freeBefore = Runtime.getRuntime().freeMemory();
 		totalBefore = Runtime.getRuntime().totalMemory();
 
-		initTime = System.currentTimeMillis();
+		initTime = System.currentTimeMillis();*/
 
-		oldPopulation = (List<S>) this.getPopulation(); // store the initial population
+		oldPopulation = this.getPopulation(); // store the initial population
 		this.getPopulation().forEach(s -> s.refactoringToCSV());
 	}
 
 	@Override
 	protected void updateProgress() {
 		super.updateProgress();
-		
-		long computingTime = System.currentTimeMillis() - initTime;
+
+		eResourcesLogger.checkpoint();
+
+		/*long computingTime = System.currentTimeMillis() - initTime;
 
 		long freeAfter = Runtime.getRuntime().freeMemory();
 		long totalAfter = Runtime.getRuntime().totalMemory();
@@ -104,7 +118,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 		// Store the checkpoint
 		totalBefore = totalAfter;
 		freeBefore = freeAfter;
-		initTime = computingTime;
+		initTime = computingTime;*/
 		
 		populationToCSV();
 		System.out.println(this.getName());
@@ -124,7 +138,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 		}
 
 		// update oldPopulation to the current population
-		oldPopulation = (List<S>) population;
+		oldPopulation = population;
 
 		// check if all solutions within the joined list have the same objective values
 		return ((double) (population.size() - countedSameObjectives / population.size())
@@ -134,6 +148,9 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 	@Override
 	public void run() {
 		super.run();
+
+		eResourcesLogger.toCSV();
+
 		/*
 		 * prints the number of iterations until the search budget is not reached.
 		 * !!!Attn!!! evaluations / getMaxPopulationSize() -1 is required because
