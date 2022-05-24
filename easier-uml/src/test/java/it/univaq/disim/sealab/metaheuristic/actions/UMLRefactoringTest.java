@@ -6,6 +6,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToComp;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
@@ -38,14 +39,11 @@ public class UMLRefactoringTest {
 
     @BeforeEach
     public void setUp() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
-        String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-        UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
+        String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
+        UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelPath), "simplied-cocome__test");
 
         solution = p.createSolution();
+        refactoring = solution.getVariable(0);
     }
 
     @AfterEach
@@ -55,15 +53,16 @@ public class UMLRefactoringTest {
 
     @Test
     public void testExecute() throws URISyntaxException, EolModelLoadingException {
-        Refactoring refactoring = new Refactoring(solution.getModelPath().toString());
+        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction clone = new UMLCloneNode(solution.getAvailableElements(), solution.getInitialElements());
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
 
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(solution.getAvailableElements(), solution.getInitialElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
 
-        RefactoringAction movopc = new UMLMvOperationToComp(solution.getAvailableElements(), solution.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
 
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(solution.getAvailableElements(), solution.getInitialElements());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
 
         refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
         refactoring.execute();
@@ -90,7 +89,7 @@ public class UMLRefactoringTest {
     @Test
     public void testEquals() {
         assertEquals(refactoring, refactoring);
-        Refactoring otherRefactoring = new Refactoring(solution.getModelPath().toString());
+        Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];
 
@@ -112,12 +111,13 @@ public class UMLRefactoringTest {
       refactoring action.
       The refactoring has been built synthetically.
      */ public void testFindMultipleOccurrenceWithMultiOccurrences() {
-        Refactoring refactoring = new Refactoring(solution.getModelPath().toString());
-        RefactoringAction clone = new UMLCloneNode(solution.getAvailableElements(), solution.getInitialElements());
+        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel eModel = refactoring.getEasierModel();
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction clone1 = clone.clone();
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(solution.getAvailableElements(), solution.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(solution.getAvailableElements(), solution.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(solution.getAvailableElements(), solution.getInitialElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
     }
