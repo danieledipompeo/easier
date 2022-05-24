@@ -1,11 +1,10 @@
-package it.univaq.disim.sealab.easier.utils;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
-import it.univaq.disim.sealab.easier.utils.uml.UMLMemoryOptimizer;
+import it.univaq.disim.sealab.metaheuristic.utils.uml.UMLMemoryOptimizer;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.etl.ETLStandalone;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;

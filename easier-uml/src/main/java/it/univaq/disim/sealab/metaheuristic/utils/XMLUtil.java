@@ -1,4 +1,4 @@
-package it.univaq.disim.sealab.easier.utils;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
 import java.io.FileWriter;
 import java.io.IOException;

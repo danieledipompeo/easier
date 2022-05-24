@@ -1,8 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic;
 
 import com.beust.jcommander.JCommander;
-import it.univaq.disim.sealab.easier.utils.uml.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.easier.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.uml.UMLMemoryOptimizer;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.*;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperiment;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentBuilder;
