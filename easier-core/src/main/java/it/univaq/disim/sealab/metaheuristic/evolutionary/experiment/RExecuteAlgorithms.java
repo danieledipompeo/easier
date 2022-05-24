@@ -7,7 +7,7 @@ import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 
-import java.io.File
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

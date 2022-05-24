@@ -1,6 +1,6 @@
 package it.univaq.disim.sealab.easier.uml.utils;
 
-import it.univaq.disim.sealab.easier.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

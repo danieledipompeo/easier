@@ -3,10 +3,10 @@ package it.univaq.disim.sealab.metaheuristic.utils;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -22,12 +22,12 @@ public class UMLFileUtilsTest {
     UMLRSolution sol;
     UMLRProblem<RSolution<?>> p;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws IOException {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws IOException {
         Files.walk(Configurator.eINSTANCE.getOutputFolder())
                 .sorted(Comparator.reverseOrder())
@@ -35,7 +35,7 @@ public class UMLFileUtilsTest {
                 .forEach(File::delete);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         int allowedFailures = 100;
         int desired_length = 4;

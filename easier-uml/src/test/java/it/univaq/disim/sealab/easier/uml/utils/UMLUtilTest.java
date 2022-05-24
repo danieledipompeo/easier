@@ -1,6 +1,6 @@
 package it.univaq.disim.sealab.easier.uml.utils;
 
-import it.univaq.disim.sealab.easier.utils.uml.UMLUtil;
+import it.univaq.disim.sealab.metaheuristic.utils.uml.UMLUtil;
 import org.eclipse.uml2.uml.Message;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.jupiter.api.AfterEach;
