@@ -12,14 +12,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class UMLCloneNodeTest extends RefactoringActionTest {
+public class UMLCloneNodeTest extends UMLRefactoringActionTest {
+
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLCloneNode(solution.getAvailableElements(), solution.getInitialElements());
-        action = new UMLCloneNode(solution.getAvailableElements(), solution.getInitialElements());
+        oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
 
 
     }
@@ -27,10 +28,10 @@ public class UMLCloneNodeTest extends RefactoringActionTest {
     @Test
     public void testConstructor() {
         String targetNode = action.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-        assertFalse(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetNode)), String.format("Expected target node %s belongs to the availableElements.", targetNode));
+        assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetNode)), String.format("Expected target node %s belongs to the availableElements.", targetNode));
 
         String createdNode = action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-        assertTrue(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdNode)), String.format("Expected created node %s does not belong to the availableElements.", createdNode));
+        assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdNode)), String.format("Expected created node %s does not belong to the availableElements.", createdNode));
     }
 
     @Test

@@ -1,54 +1,37 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
+import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.uml2.uml.Message;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.uml2.uml.Component;
-import org.eclipse.uml2.uml.Interaction;
-import org.eclipse.uml2.uml.Message;
-import org.eclipse.uml2.uml.Node;
-import org.eclipse.uml2.uml.Operation;
-import org.eclipse.uml2.uml.UMLFactory;
-import org.eclipse.uml2.uml.UMLPackage;
-import org.eclipse.uml2.uml.UseCase;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-
-public class UMLMvOperationToNCToNN implements RefactoringAction {
+public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
 
     private final static String eolModulePath;
 
     private final static double BRF = 1.80;
-
-    private String name;
-    private double numOfChanges;
-
-    private long msgs;
-
-    private boolean isIndependent = true;
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_nc_nn.eol").toString();
     }
 
-    public UMLMvOperationToNCToNN(){
+    Map<String, Set<String>> targetElements = new HashMap<>();
+    Map<String, Set<String>> createdElements = new HashMap<>();
+    private String name;
+    private double numOfChanges;
+    private long msgs;
+    private boolean isIndependent = true;
+
+    public UMLMvOperationToNCToNN() {
         name = "moncnn";
     }
 
@@ -78,10 +61,15 @@ public class UMLMvOperationToNCToNN implements RefactoringAction {
 
     public double computeArchitecturalChanges(Collection<?> modelContents) {
         String opToMove = targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
-		long msgs = modelContents.stream().filter(Message.class::isInstance)
-				.map(Message.class::cast).filter(m -> !m.getMessageSort().toString().equals("reply")).filter(m -> opToMove.equals(m.getSignature().getName())).count();
+        long msgs = modelContents.stream().filter(Message.class::isInstance)
+                .map(Message.class::cast).filter(m -> !m.getMessageSort().toString().equals("reply")).filter(m -> opToMove.equals(m.getSignature().getName())).count();
 
         return msgs;
+    }
+
+    @Override
+    public boolean isIndependent() {
+        return isIndependent;
     }
 
     @Override
@@ -95,11 +83,6 @@ public class UMLMvOperationToNCToNN implements RefactoringAction {
             isIndependent = false;
     }
 
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
-
     private String generateHash() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
@@ -110,7 +93,7 @@ public class UMLMvOperationToNCToNN implements RefactoringAction {
     }
 
     @Override
-    public void execute(EasierUmlModel contextModel ) throws RuntimeException, EasierException {
+    public void execute(EasierUmlModel contextModel) throws RuntimeException, EasierException {
 
         EOLStandalone executor = new EOLStandalone();
 
@@ -213,43 +196,5 @@ public class UMLMvOperationToNCToNN implements RefactoringAction {
 
         return true;
     }
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UMLMvOperationToNCToNN other = (UMLMvOperationToNCToNN) obj;
-		if (sourceModelPath == null) {
-			if (other.sourceModelPath != null)
-				return false;
-		}
-//		else if (!sourceModelPath.equals(other.sourceModelPath))
-//			return false;
-		if (umlTargetComp == null) {
-			if (other.umlTargetComp != null)
-				return false;
-		} else if (!umlTargetComp.equals(other.umlTargetComp))
-			return false;
-		if (umlTargetNode == null) {
-			if (other.umlTargetNode != null)
-				return false;
-		} else if (!umlTargetNode.equals(other.umlTargetNode))
-			return false;
-//		if (umlClonedNodeSVP == null) {
-//			if (other.umlClonedNodeSVP != null)
-//				return false;
-//		} else if (!umlClonedNodeSVP.equals(other.umlClonedNodeSVP))
-//			return false;
-//		if (umlNodeToCloneSVP == null) {
-//			if (other.umlNodeToCloneSVP != null)
-//				return false;
-//		} else if (!umlNodeToCloneSVP.equals(other.umlNodeToCloneSVP))
-//			return false;
-		return true;
-	}
 
 }

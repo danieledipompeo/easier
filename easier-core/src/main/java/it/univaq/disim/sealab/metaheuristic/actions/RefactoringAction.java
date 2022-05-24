@@ -1,6 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 
 import java.util.Collection;
@@ -9,24 +8,23 @@ import java.util.Set;
 
 public interface RefactoringAction extends Cloneable {
 
-	public RefactoringAction clone();
+	RefactoringAction clone();
 
-	public String getTargetType();
+	String getTargetType();
 
-	public Map<String, Set<String>> getTargetElements();
+	Map<String, Set<String>> getTargetElements();
 
-	public Map<String, Set<String>> getCreatedElements();
-	public String toCSV();
+	Map<String, Set<String>> getCreatedElements();
 
-	public  String getName();
+	String toCSV();
 
-	public void execute(EasierUmlModel model) throws EasierException;
+	String getName();
 
-	public double getArchitecturalChanges();
+	double getArchitecturalChanges();
 
-	public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException;
+	double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException;
 
-	public void setIndependent(Map<String, Set<String>> initialElements);
+	void setIndependent(Map<String, Set<String>> initialElements);
 
-	public boolean isIndependent();
+	boolean isIndependent();
 }

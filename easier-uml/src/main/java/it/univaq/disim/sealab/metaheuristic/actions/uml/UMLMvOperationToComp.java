@@ -1,45 +1,36 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
+import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.uml2.uml.Message;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.eclipse.ocl.ecore.CollectionLiteralExp;
-import org.eclipse.uml2.uml.Message;
-import org.eclipse.uml2.uml.UMLPackage;
-
-public class UMLMvOperationToComp implements RefactoringAction {
+public class UMLMvOperationToComp implements UMLRefactoringAction {
 
     private final static String eolModulePath;
 
     private final static double BFR = 1.23;
 
-    private String sourceModelPath;
-    private double numOfChanges;
-    private String name;
-
-    private long msgs;
-
-    private boolean isIndependent = true;
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_comp.eol").toString();
     }
+
+    Map<String, Set<String>> targetElements = new HashMap<>();
+    Map<String, Set<String>> createdElements = new HashMap<>();
+    private String sourceModelPath;
+    private double numOfChanges;
+    private String name;
+    private long msgs;
+    private boolean isIndependent = true;
 
     public UMLMvOperationToComp() {
         this.name = "moc";
@@ -75,6 +66,11 @@ public class UMLMvOperationToComp implements RefactoringAction {
     }
 
     @Override
+    public boolean isIndependent() {
+        return isIndependent;
+    }
+
+    @Override
     public void setIndependent(Map<String, Set<String>> initialElements) {
         Set<String> candidateTargetValues =
                 this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
@@ -83,11 +79,6 @@ public class UMLMvOperationToComp implements RefactoringAction {
 
         if (!flattenSourceElement.containsAll(candidateTargetValues))
             isIndependent = false;
-    }
-
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
     }
 
     @Override

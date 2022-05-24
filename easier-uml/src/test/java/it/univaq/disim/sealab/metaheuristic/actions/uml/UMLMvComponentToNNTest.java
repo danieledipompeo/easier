@@ -12,23 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class UMLMvComponentToNNTest extends RefactoringActionTest {
+public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLMvComponentToNN(solution.getAvailableElements(), solution.getInitialElements());
-        action = new UMLMvComponentToNN(solution.getAvailableElements(), solution.getInitialElements());
+        oldAction = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        action = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
     }
 
     @Test
     public void testConstructor() {
         String targetComponent = action.getTargetElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
         String createdElement = action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-        String availableElements = solution.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).toString();
+        String availableElements = eModel.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).toString();
         System.out.printf("Expected %s \t found %s", availableElements, createdElement);
-        assertTrue(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdElement)), "Expected created node not in the available elements");
+        assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdElement)), "Expected created node not in the available elements");
     }
 
     @Test
