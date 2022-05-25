@@ -1,164 +1,167 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
-import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements EasierAlgorithm {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	int _maxEvaluations;
+    int _maxEvaluations;
+    List<S> oldPopulation;
+    private long durationThreshold, iterationStartingTime, initTime, freeBefore, totalBefore;
+    private float prematureConvergenceThreshold;
+    private int _evaluations;
 
-	private long durationThreshold, iterationStartingTime, initTime, freeBefore, totalBefore;
-	private float prematureConvergenceThreshold;
+    private EasierResourcesLogger eResourcesLogger;
 
-	List<S> oldPopulation;
+    public CustomPESA2(Problem<S> problem, int maxEvaluations, int populationSize, int archiveSize, int biSections,
+                       CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
+                       SolutionListEvaluator<S> evaluator) {
 
-	private int _evaluations;
+        super((Problem<S>) problem, maxEvaluations, populationSize, archiveSize, biSections, crossoverOperator,
+                mutationOperator, evaluator);
+        _maxEvaluations = maxEvaluations;
 
-	public CustomPESA2(Problem<S> problem, int maxEvaluations, int populationSize, int archiveSize, int biSections,
-			CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
-			SolutionListEvaluator<S> evaluator) {
+        durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
+        prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
+        oldPopulation = new ArrayList<S>();
+    }
 
-		super((Problem<S>) problem, maxEvaluations, populationSize, archiveSize, biSections, crossoverOperator,
-				mutationOperator, evaluator);
-		_maxEvaluations = maxEvaluations;
+    /**
+     * Support multiple stopping criteria.
+     * <ul>
+     *     <li><b>byTime</b> the default computing threshold is set to 1 h</li>
+     *     <li><b>byPrematureConvergence</b> the default premature convergence is set to 3 consecutive populations with the same objectives</li>
+     *     <li><b>byBoth</b> using byTime and byPrematureConvergence classic using the number of evaluation</li>
+     *     <li><b>none</b></li> using the default stopping criterion based on the number of evolutions
+     * </ul>
+     */
+    @Override
+    public boolean isStoppingConditionReached() {
+        long currentComputingTime = System.currentTimeMillis() - iterationStartingTime;
 
-		durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
-		prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
-		oldPopulation = new ArrayList<S>();
-	}
+        if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
+            return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
+        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
+            return super.isStoppingConditionReached() || isStagnantState();
+        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
+            return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
+        return super.isStoppingConditionReached();
+    }
 
-	/**
-	 * Support multiple stopping criteria. byTime the default computing threshold is
-	 * set to 1 h byPrematureConvergence the default premature convergence is set to
-	 * 3 consecutive populations with the same objectives byBoth using byTime and
-	 * byPrematureConvergence classic using the number of evaluation
-	 */
-	@Override
-	public boolean isStoppingConditionReached() {
-		long currentComputingTime = System.currentTimeMillis() - iterationStartingTime;
+    @Override
+    protected void initProgress() {
+        super.initProgress();
+        _evaluations = this.getMaxPopulationSize();
 
-		if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
-			return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
-		if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
-			return super.isStoppingConditionReached() || isStagnantState();
-		if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
-			return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
-		return super.isStoppingConditionReached();
-	}
+        this.getPopulation().forEach(s -> s.refactoringToCSV());
 
-	@Override
-	protected void initProgress() {
-		super.initProgress();
-		_evaluations = this.getMaxPopulationSize();
+        eResourcesLogger = new EasierResourcesLogger(this.getName(), this.getProblem().getName());
 
-		this.getPopulation().forEach(s -> s.refactoringToCSV());
-		
-		iterationStartingTime = System.currentTimeMillis();
-		freeBefore = Runtime.getRuntime().freeMemory();
-		totalBefore = Runtime.getRuntime().totalMemory();
-		initTime = System.currentTimeMillis();
+        /*iterationStartingTime = System.currentTimeMillis();
+        freeBefore = Runtime.getRuntime().freeMemory();
+        totalBefore = Runtime.getRuntime().totalMemory();
+        initTime = System.currentTimeMillis();*/
 
-		oldPopulation = (List<S>) this.getPopulation(); // store the initial population
-	}
+        // store the initial population
+        oldPopulation = this.getPopulation();
+    }
 
-	public boolean isStagnantState() {
+    public boolean isStagnantState() {
 
-		int countedSameObjectives = 0;
-		for (int i = 0; i < oldPopulation.size(); i++) {
-			for (int j = 0; j < population.size(); j++) {
-				if (!oldPopulation.get(i).isLocalOptmimalPoint(population.get(j))) {
-					break;
-				}
-				countedSameObjectives++;
-			}
-		}
+        int countedSameObjectives = 0;
+        for (int i = 0; i < oldPopulation.size(); i++) {
+            for (int j = 0; j < population.size(); j++) {
+                if (!oldPopulation.get(i).isLocalOptmimalPoint(population.get(j))) {
+                    break;
+                }
+                countedSameObjectives++;
+            }
+        }
 
-		// update oldPopulation to the current population
-		oldPopulation = (List<S>) population;
+        // update oldPopulation to the current population
+        oldPopulation = population;
 
-		// check if all solutions within the joined list have the same objective values
-		return ((double) (population.size() - countedSameObjectives / population.size())
-				/ population.size()) > prematureConvergenceThreshold;
-	}
+        // check if all solutions within the joined list have the same objective values
+        return ((double) (population.size() - countedSameObjectives / population.size())
+                / population.size()) > prematureConvergenceThreshold;
+    }
 
-	/*
-	 * Prints to CSV each generated population
-	 * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
-	 * 
-	 */
-	public void populationToCSV() {
-		for (RSolution<?> sol : population) {
-			String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
-			new FileUtils().solutionDumpToCSV(line);
-		}
-	}
+    /**
+     * Prints to CSV each generated population
+     * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
+     */
+    public void populationToCSV() {
+        for (RSolution<?> sol : population) {
+            String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
+            new FileUtils().solutionDumpToCSV(line);
+        }
+    }
 
-	@Override
-	protected void updateProgress() {
-		super.updateProgress();
+    @Override
+    protected void updateProgress() {
+        super.updateProgress();
 
-		long computingTime = System.currentTimeMillis() - initTime;
+        // store the duration and the occupied memory by each step
+        eResourcesLogger.checkpoint();
 
-		long freeAfter = Runtime.getRuntime().freeMemory();
-		long totalAfter = Runtime.getRuntime().totalMemory();
+        /*long computingTime = System.currentTimeMillis() - initTime;
 
-		new FileUtils().algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.getName(),
-				this.getProblem().getName(), computingTime, totalBefore, freeBefore, totalAfter, freeAfter));
+        long freeAfter = Runtime.getRuntime().freeMemory();
+        long totalAfter = Runtime.getRuntime().totalMemory();
 
-		// Store the checkpoint
-		totalBefore = totalAfter;
-		freeBefore = freeAfter;
-		initTime = computingTime;
+        new FileUtils().algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.getName(),
+                this.getProblem().getName(), computingTime, totalBefore, freeBefore, totalAfter, freeAfter));
 
-		populationToCSV();
-		_evaluations += this.getMaxPopulationSize();
-		System.out.println(this.getName());
-		ProgressBar.showBar(_evaluations / getMaxPopulationSize(), _maxEvaluations / getMaxPopulationSize());
-	}
+        // Store the checkpoint
+        totalBefore = totalAfter;
+        freeBefore = freeAfter;
+        initTime = computingTime;*/
 
-	@Override
-	public void run() {
-		super.run();
+        populationToCSV();
+        _evaluations += this.getMaxPopulationSize();
+        System.out.println(this.getName());
+        ProgressBar.showBar(_evaluations / getMaxPopulationSize(), _maxEvaluations / getMaxPopulationSize());
+    }
 
-		/*
-		 * prints the number of iterations until the search budget is not reached.
-		 * !!!Attn!!! evaluations / getMaxPopulationSize() -1 is required because
-		 * iterations has been updated just before checking the stopping criteria
-		 * !!!Attn!!!
-		 */
-		new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(),
-				this.getProblem().getName(), Configurator.eINSTANCE.getSearchBudgetType(),
-				_evaluations / getMaxPopulationSize() - 1, _maxEvaluations / getMaxPopulationSize()));
-	}
+    @Override
+    public void run() {
+        super.run();
 
-	public void clear() {
-		for (S sol : this.getPopulation()) {
-			sol.setParents(null, null);
-		}
-		this.getPopulation().clear();
-	}
+        eResourcesLogger.toCSV();
+
+        /*
+         * prints the number of iterations until the search budget is not reached.
+         * !!!Attn!!! evaluations / getMaxPopulationSize() -1 is required because
+         * iterations has been updated just before checking the stopping criteria
+         * !!!Attn!!!
+         */
+        new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(),
+                this.getProblem().getName(), Configurator.eINSTANCE.getSearchBudgetType(),
+                _evaluations / getMaxPopulationSize() - 1, _maxEvaluations / getMaxPopulationSize()));
+    }
+
+    public void clear() {
+        for (S sol : this.getPopulation()) {
+            sol.setParents(null, null);
+        }
+        this.getPopulation().clear();
+    }
 
 }

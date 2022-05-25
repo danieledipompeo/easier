@@ -1,48 +1,43 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-import java.util.*;
-
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.eclipse.ocl.ecore.CollectionLiteralExp;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Message;
 
-public class UMLMvOperationToComp implements RefactoringAction {
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class UMLMvOperationToComp implements UMLRefactoringAction {
 
     private final static String eolModulePath;
 
     private final static double BFR = 1.23;
-
-    private String sourceModelPath;
-    private double numOfChanges;
-    private String name;
-
-    private long msgs;
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_comp.eol").toString();
     }
 
+    Map<String, Set<String>> targetElements = new HashMap<>();
+    Map<String, Set<String>> createdElements = new HashMap<>();
+    private String sourceModelPath;
+    private double numOfChanges;
+    private String name;
+    private long msgs;
+    private boolean isIndependent = true;
+
     public UMLMvOperationToComp() {
-        this.name = "Move_Operation_Component";
+        this.name = "moc";
     }
 
-    public UMLMvOperationToComp(String sourceModel, Map<String, Set<String>> availableElements) {
+    public UMLMvOperationToComp(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements) {
         this();
-        sourceModelPath = sourceModel;
         Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
         String targetOperationName = availableOperations.stream().skip(new Random().nextInt(availableOperations.size())).findFirst().orElse(null);
 
@@ -51,6 +46,7 @@ public class UMLMvOperationToComp implements RefactoringAction {
                     add(targetOperationName);
                 }});
 
+        setIndependent(initialElements);
         Set<String> availableComponents = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
         targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(),
                 new HashSet<>() {{
@@ -70,13 +66,29 @@ public class UMLMvOperationToComp implements RefactoringAction {
     }
 
     @Override
-    public void execute() throws RuntimeException {
+    public boolean isIndependent() {
+        return isIndependent;
+    }
+
+    @Override
+    public void setIndependent(Map<String, Set<String>> initialElements) {
+        Set<String> candidateTargetValues =
+                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+        Set<String> flattenSourceElement =
+                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+
+        if (!flattenSourceElement.containsAll(candidateTargetValues))
+            isIndependent = false;
+    }
+
+    @Override
+    public void execute(EasierUmlModel contextModel) throws EasierException {
 
         EOLStandalone executor = new EOLStandalone();
 
         try {
-            EasierUmlModel contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
-            contextModel.setStoredOnDisposal(true);
+//            EasierUmlModel contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
+//            contextModel.setStoredOnDisposal(true);
 
             executor.setModel(contextModel);
             executor.setSource(Paths.get(eolModulePath));
@@ -93,13 +105,9 @@ public class UMLMvOperationToComp implements RefactoringAction {
 //            message += String.format("No Node called \t %s %n", targetObject.getName());
             message += e.getMessage();
             throw new RuntimeException(message);
-        } catch (URISyntaxException e) {
-            String message = String.format("ERROR while reading the model \t %s %n", sourceModelPath);
-            throw new RuntimeException(message);
         }
 
         executor.clearMemory();
-        executor = null;
     }
 
     @Override

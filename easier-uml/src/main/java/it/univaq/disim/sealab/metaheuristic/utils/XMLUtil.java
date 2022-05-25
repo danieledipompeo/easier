@@ -1,8 +1,5 @@
-package it.univaq.disim.sealab.easier.uml.utils;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;

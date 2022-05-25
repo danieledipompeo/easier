@@ -3,11 +3,11 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
-public class RefactoringActionTest {
+public class UMLRefactoringActionTest {
 
     UMLRProblem<UMLRSolution> p;
     protected UMLRefactoringAction action, oldAction;
@@ -32,6 +32,8 @@ public class RefactoringActionTest {
     protected String expectedType;
     protected Map<String, Set<String>> expectedName;
 
+    protected EasierModel eModel;
+
     public void setUp() throws Exception {
         int allowedFailures = 100;
         int desired_length = 4;
@@ -41,6 +43,7 @@ public class RefactoringActionTest {
         p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
         solution = p.createSolution();
 
+        eModel = solution.getVariable(0).getEasierModel();
     }
 
     public void testToCSV() {
@@ -60,9 +63,9 @@ public class RefactoringActionTest {
 
     }
 
-    public void testExecute() throws EasierException, URISyntaxException, EolModelLoadingException {
+    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         EasierUmlModel model = EOLStandalone.createUmlModel(solution.getModelPath().toString());
-            action.execute(model);
+        action.execute(model);
     }
 
 
@@ -88,8 +91,8 @@ public class RefactoringActionTest {
                 EOLStandalone.createUmlModel(solution.getModelPath().toString()).allContents();
 
         double archChanges = action.computeArchitecturalChanges(modelContents);
+        System.out.println(""+archChanges);
 
         assertNotEquals(0, archChanges, "Expected arcChanges != 0");
-
     }
 }

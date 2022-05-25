@@ -3,62 +3,50 @@
  */
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
+import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.uml2.uml.Component;
+import org.eclipse.uml2.uml.NamedElement;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.uml2.uml.Component;
-import org.eclipse.uml2.uml.NamedElement;
-import org.eclipse.uml2.uml.Node;
-import org.eclipse.uml2.uml.UMLFactory;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import logicalSpecification.actions.UML.UMLPackage;
-
-public class UMLMvComponentToNN implements RefactoringAction {
+public class UMLMvComponentToNN implements UMLRefactoringAction {
 
     private final static Path eolModulePath;
 
     private final static double BFR = 1.23;
-    private double numOfChanges;
-
-
-    private String name;
-
-    private String sourceModelPath;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_comp_nn.eol");
     }
 
-    public UMLMvComponentToNN() {
-        name = "Move_Component_New_Node";
-    }
-
     Map<String, Set<String>> targetElements = new HashMap<>();
     Map<String, Set<String>> createdElements = new HashMap<>();
+    private double numOfChanges;
+    private boolean isIndependent = true;
+    private String name;
+    public UMLMvComponentToNN() {
+        name = "mcnn";
+    }
 
-    public UMLMvComponentToNN(String sourceModel, Map<String, Set<String>> availableElements) {
+    public UMLMvComponentToNN(Map<String, Set<String>> availableElements, Map<String,
+            Set<String>> initialElements) {
+        this();
 
-        sourceModelPath = sourceModel;
         Set<String> availableComponents = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
         Set<String> targetElement = new HashSet<>();
         targetElement.add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size())).findFirst().orElse(null));
         targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), targetElement);
-
+        setIndependent(initialElements);
         Set<String> createdNodeElements = new HashSet<>();
         createdNodeElements.add("New-Node_" + generateHash());
         createdElements.put(UMLRSolution.SupportedType.NODE.toString(), createdNodeElements);
@@ -68,12 +56,15 @@ public class UMLMvComponentToNN implements RefactoringAction {
         return numOfChanges;
     }
 
-    public double computeArchitecturalChanges(Collection<?> modelContents) {
+    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
 
         Component compToMove =
                 (Component) modelContents.stream().filter(Component.class::isInstance)
                         .map(NamedElement.class::cast).filter(ne -> ne.getName()
-                                .equals(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next())).findFirst().get();
+                                .equals(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next())).findFirst().orElse(null);
+
+        if (compToMove == null)
+            throw new EasierException("Error when computing the architectural changes of " + this.getName());
 
 
         int intUsage = compToMove.getUsedInterfaces().size();
@@ -81,6 +72,22 @@ public class UMLMvComponentToNN implements RefactoringAction {
         int ops = compToMove.getOperations().size();
 
         return (intUsage + intReal + ops);
+    }
+
+    @Override
+    public boolean isIndependent() {
+        return isIndependent;
+    }
+
+    @Override
+    public void setIndependent(Map<String, Set<String>> initialElements) {
+        Set<String> candidateTargetValues =
+                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+        Set<String> flattenSourceElement =
+                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+
+        if (!flattenSourceElement.containsAll(candidateTargetValues))
+            isIndependent = false;
     }
 
     private String generateHash() {
@@ -93,14 +100,10 @@ public class UMLMvComponentToNN implements RefactoringAction {
     }
 
     @Override
-    public void execute() throws RuntimeException {
+    public void execute(EasierUmlModel contextModel) throws EasierException {
         EOLStandalone executor = new EOLStandalone();
 
-        EasierUmlModel contextModel;
         try {
-            contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
-            contextModel.setStoredOnDisposal(true);
-
             executor.setModel(contextModel);
             executor.setSource(eolModulePath);
 
@@ -113,17 +116,12 @@ public class UMLMvComponentToNN implements RefactoringAction {
                     "newNodeName");
             executor.execute();
         } catch (EolRuntimeException e) {
-            String message = String.format("Error in execution the eolmodule %s%n", eolModulePath);
+            String message = String.format("Error in execution the eolmodule %s%n ", eolModulePath);
             message += e.getMessage();
-            throw new RuntimeException(message);
-        } catch (URISyntaxException e) {
-            String message = String.format("ERROR while reading the model \t %s %n", sourceModelPath);
-            throw new RuntimeException(message);
+            throw new EasierException(message);
         }
 
-
         executor.clearMemory();
-        executor = null;
     }
 
     @Override
@@ -182,8 +180,6 @@ public class UMLMvComponentToNN implements RefactoringAction {
         if (getClass() != obj.getClass())
             return false;
         UMLMvComponentToNN other = (UMLMvComponentToNN) obj;
-        if (sourceModelPath == null && other.sourceModelPath != null)
-            return false;
 
         if (!targetElements.equals(other.targetElements))
             return false;
@@ -196,5 +192,4 @@ public class UMLMvComponentToNN implements RefactoringAction {
         }
         return true;
     }
-
 }

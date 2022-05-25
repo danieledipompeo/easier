@@ -3,181 +3,182 @@
  */
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.eclipse.uml2.uml.Component;
-import org.eclipse.uml2.uml.NamedElement;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Node;
 
-public class UMLCloneNode implements RefactoringAction {
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
-	private final static Path eolModulePath;
+public class UMLCloneNode implements UMLRefactoringAction {
 
-	private final static double BRF = 1.23;
+    private final static Path eolModulePath;
 
-	private String sourceModelPath;
-	private double numOfChanges;
-	private final String name;
+    private final static double BRF = 1.23;
 
-	Map<String, Set<String>> targetElements = new HashMap<>();
-	Map<String, Set<String>> createdElements = new HashMap<>();
+    static {
+        eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
+                "easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
+    }
 
-	static {
-		eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-				"easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
-	}
+    private final String name;
+    Map<String, Set<String>> targetElements = new HashMap<>();
+    Map<String, Set<String>> createdElements = new HashMap<>();
+    private double numOfChanges;
+    private boolean isIndependent = true;
 
-	public UMLCloneNode(String modelPath, Map<String, Set<String>> availableElements) {
-		this();
+    public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements) {
+        this();
 
-		sourceModelPath = modelPath;
-		Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
-		Set<String> targetElement = new HashSet<>();
-		targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size())).findFirst().orElse(null));
-		targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
-		String clonedNode = targetElement.iterator().next() + "_" + generateHash();
-		createdElements.put(UMLRSolution.SupportedType.NODE.toString(),
-				Set.of(clonedNode));
-	}
+        Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
+        Set<String> targetElement = new HashSet<>();
+        targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size())).findFirst().orElse(null));
+        targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
+        // check whether the action is using an element created by another action
+        setIndependent(sourceElements);
+        String clonedNode = targetElement.iterator().next() + "_" + generateHash();
+        createdElements.put(UMLRSolution.SupportedType.NODE.toString(),
+                Set.of(clonedNode));
+    }
 
-	public UMLCloneNode() {
-		name = "UMLCloneNode";
-	}
+    public UMLCloneNode() {
+        name = "clone";
+    }
 
-	public double computeArchitecturalChanges(Collection<?> modelContents) {
+    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
 
-		Node targetObject =
-				(Node) modelContents.stream().filter(Node.class::isInstance).
-						map(NamedElement.class::cast).
-						filter(ne -> ne.getName().equals(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next())).findFirst().get();
+        Node targetObject = modelContents.stream().filter(Node.class::isInstance).
+                map(Node.class::cast).
+                filter(ne -> ne.getName().equals(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next())).findFirst().orElse(null);
 
-		int cpSize = targetObject.getCommunicationPaths().size();
+        if (targetObject == null)
+            throw new EasierException("Error when computing the architectural changes of " + this.getName());
 
-		int artSize = (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();
+        int cpSize = targetObject.getCommunicationPaths().size();
 
-		return (cpSize + artSize);
+        int artSize = (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();
 
-	}
+        return (cpSize + artSize);
 
-	private String generateHash() {
-		int leftLimit = 97; // letter 'a'
-		int rightLimit = 122; // letter 'z'
-		int targetStringLength = 10;
+    }
 
-		return new Random().ints(leftLimit, rightLimit + 1).limit(targetStringLength)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
-	}
+    @Override
+    public boolean isIndependent() {
+        return isIndependent;
+    }
 
-	@Override
-	public void execute() throws RuntimeException {
-		EOLStandalone executor = new EOLStandalone();
+    @Override
+    public void setIndependent(Map<String, Set<String>> sourceElements) {
+        Set<String> candidateTargetValues =
+                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+        Set<String> flattenSourceElement =
+                sourceElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
 
-		EasierUmlModel contextModel;
-		try {
-			contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
-			contextModel.setStoredOnDisposal(true);
+        if (!flattenSourceElement.containsAll(candidateTargetValues))
+            isIndependent = false;
+    }
 
-			executor.setModel(contextModel);
-			executor.setSource(eolModulePath);
+    private String generateHash() {
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
 
-			executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "targetNodeName");
-			executor.setParameter(createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "clonedNodeName");
+        return new Random().ints(leftLimit, rightLimit + 1).limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
+    }
 
-			executor.execute();
-		} catch (EolRuntimeException e) {
-			String message = String.format("Error in execution the eolmodule %s%n", eolModulePath);
-			message += e.getMessage();
-			throw new RuntimeException(message);
-		}catch (URISyntaxException e) {
-			String message = String.format("ERROR while reading the model \t %s %n", sourceModelPath);
-			throw new RuntimeException(message);
-		}
+    @Override
+    public void execute(EasierUmlModel contextModel) throws EasierException {
+        EOLStandalone executor = new EOLStandalone();
 
-		executor.clearMemory();
-		executor = null;
-	}
+        try {
+            executor.setModel(contextModel);
+            executor.setSource(eolModulePath);
 
-	@Override
-	public RefactoringAction clone() {
-		try {
-			return (RefactoringAction) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "targetNodeName");
+            executor.setParameter(createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "clonedNodeName");
 
-	@Override
-	public String getTargetType() {
-		return UMLRSolution.SupportedType.NODE.toString();
-	}
+            executor.execute();
+        } catch (EolRuntimeException e) {
+            String message = String.format("Error in execution the eolmodule %s%n ", eolModulePath);
+            message += e.getMessage();
+            throw new EasierException(message);
+        }
+        executor.clearMemory();
+    }
 
-	@Override
-	public Map<String, Set<String>> getTargetElements() {
-		return targetElements;
-	}
+    @Override
+    public RefactoringAction clone() {
+        try {
+            return (RefactoringAction) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public Map<String, Set<String>> getCreatedElements() {
-		return createdElements;
-	}
+    @Override
+    public String getTargetType() {
+        return UMLRSolution.SupportedType.NODE.toString();
+    }
 
-	@Override
-	public String toString() {
-		return "Cloning --> " + targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next() + " " +
-				"with -->  " + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-	}
-	
-	public String toCSV() {
-		return String.format("UMLCloneNode,%s,%s,",
-				targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
-				createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
-	}
+    @Override
+    public Map<String, Set<String>> getTargetElements() {
+        return targetElements;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public Map<String, Set<String>> getCreatedElements() {
+        return createdElements;
+    }
 
-	@Override
-	public double getArchitecturalChanges() {
-		return numOfChanges;
-	}
+    @Override
+    public String toString() {
+        return "Cloning --> " + targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next() + " " +
+                "with -->  " + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UMLCloneNode other = (UMLCloneNode) obj;
-		if (sourceModelPath == null) {
-			if (other.sourceModelPath != null)
-				return false;
-		}
+    public String toCSV() {
+        return String.format("UMLCloneNode,%s,%s,",
+                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+    }
 
-		if (!targetElements.equals(other.targetElements))
-			return false;
+    @Override
+    public String getName() {
+        return name;
+    }
 
-		for (String k : createdElements.keySet()) {
-			if (!other.createdElements.get(k).iterator().next().equals(createdElements.get(k).iterator().next())) {
-				return false;
-			}
-		}
+    @Override
+    public double getArchitecturalChanges() {
+        return numOfChanges;
+    }
 
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        UMLCloneNode other = (UMLCloneNode) obj;
+
+        if (!targetElements.equals(other.targetElements))
+            return false;
+
+        for (String k : createdElements.keySet()) {
+            if (!other.createdElements.get(k).iterator().next().equals(createdElements.get(k).iterator().next())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

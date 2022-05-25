@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,23 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class UMLMvComponentToNNTest extends RefactoringActionTest {
+public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLMvComponentToNN(solution.getModelPath().toString(), solution.getAvailableElements());
-        action = new UMLMvComponentToNN(solution.getSourceModelPath().toString(), solution.getAvailableElements());
+        oldAction = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        action = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
     }
 
     @Test
     public void testConstructor() {
         String targetComponent = action.getTargetElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
         String createdElement = action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-        String availableElements = solution.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).toString();
+        String availableElements = eModel.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).toString();
         System.out.printf("Expected %s \t found %s", availableElements, createdElement);
-        assertTrue(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdElement)), "Expected created node not in the available elements");
+        assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdElement)), "Expected created node not in the available elements");
     }
 
     @Test
@@ -39,7 +40,7 @@ public class UMLMvComponentToNNTest extends RefactoringActionTest {
     }
 
     @Test
-    public void testExecute() {
+    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testExecute();
     }
 
@@ -61,7 +62,7 @@ public class UMLMvComponentToNNTest extends RefactoringActionTest {
     }
 
     @Test
-    public void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException {
+    public void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testComputeArchitecturalChanges();
     }
 }

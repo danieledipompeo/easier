@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToComp;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
@@ -42,13 +43,13 @@ public class RefactoringTest {
 
     @Test
     public void testExecute(){
-        Refactoring refactoring = new Refactoring();
-        RefactoringAction clone = new UMLCloneNode(solution.getModelPath().toString(), solution.getAvailableElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(solution.getModelPath().toString(),
-                solution.getAvailableElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(solution.getModelPath().toString(),
-                solution.getAvailableElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(solution.getModelPath().toString(), solution.getAvailableElements());
+        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel easierModel = refactoring.getEasierModel();
+
+        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
         refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
         refactoring.execute();
     }
@@ -70,7 +71,7 @@ public class RefactoringTest {
     @Test
     public void testEquals() {
         assertEquals(refactoring, refactoring);
-        Refactoring otherRefactoring = new Refactoring();
+        Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];
 
@@ -92,14 +93,13 @@ public class RefactoringTest {
       The refactoring has been built synthetically.
      */
     public void testFindMultipleOccurrenceWithMultiOccurrences() {
-        Refactoring refactoring = new Refactoring();
-        RefactoringAction clone = new UMLCloneNode(solution.getModelPath().toString(), solution.getAvailableElements());
+        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel easierModel = refactoring.getEasierModel();
+        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
         RefactoringAction clone1 = clone.clone();
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(solution.getModelPath().toString(),
-                solution.getAvailableElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(solution.getModelPath().toString(),
-                solution.getAvailableElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(solution.getModelPath().toString(), solution.getAvailableElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
     }

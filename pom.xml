@@ -9,7 +9,6 @@
     <description>A multi-objective optimization framework</description>
     <packaging>pom</packaging>
     <modules>
-        <!-- <module>easier-aemilia2text</module> -->
         <module>easier-core</module>
         <module>easier-uml</module>
         <module>easier-epsilon</module>
@@ -22,12 +21,7 @@
         <emf.version>2.15.0</emf.version>
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <easier.aemiliaMetamodel.version>1.0.0</easier.aemiliaMetamodel.version>
         <easier.core.version>0.6.3</easier.core.version>
-        <easier.logicalSpecification.version>0.6</easier.logicalSpecification.version>
-        <easier.aemiliaToQnBridge.version>0.0.2</easier.aemiliaToQnBridge.version>
-        <easier.measuresToIndices.version>1.0.0</easier.measuresToIndices.version>
     </properties>
 
     <build>

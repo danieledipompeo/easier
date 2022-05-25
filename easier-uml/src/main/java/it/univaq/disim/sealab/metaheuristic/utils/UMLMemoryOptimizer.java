@@ -1,4 +1,4 @@
-package it.univaq.disim.sealab.easier.uml.utils;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

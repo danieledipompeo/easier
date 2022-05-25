@@ -1,28 +1,30 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 public interface RefactoringAction extends Cloneable {
 
-//	@Deprecated
-//	public RefactoringAction clone(RSolution solution);
-	public RefactoringAction clone();
+	RefactoringAction clone();
 
-	public String getTargetType();
+	String getTargetType();
 
-	public Map<String, Set<String>> getTargetElements();
+	Map<String, Set<String>> getTargetElements();
 
-	public Map<String, Set<String>> getCreatedElements();
-	public String toCSV();
+	Map<String, Set<String>> getCreatedElements();
 
-	public  String getName();
+	String toCSV();
 
-	public void execute() throws RuntimeException;
+	String getName();
 
-	public double getArchitecturalChanges();
+	double getArchitecturalChanges();
 
-	public double computeArchitecturalChanges(Collection<?> modelContents);
+	double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException;
 
+	void setIndependent(Map<String, Set<String>> initialElements);
+
+	boolean isIndependent();
 }

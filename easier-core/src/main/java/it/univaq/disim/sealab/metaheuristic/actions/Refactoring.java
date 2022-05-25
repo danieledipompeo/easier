@@ -1,39 +1,35 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import logicalSpecification.PostCondition;
-import logicalSpecification.PreCondition;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import org.eclipse.emf.common.util.EList;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
+public abstract class Refactoring implements Cloneable {
 
-public class Refactoring implements Cloneable{
+    protected EasierModel easierModel;
 
-    private List<RefactoringAction> actions;
-    //	private logicalSpecification.Refactoring _refactoring;
-    private int solutionID = -1;
+    protected List<RefactoringAction> actions;
+    protected int solutionID = -1;
+    protected String modelPath;
 
-    public Refactoring() {
-//		setRefactoring(LogicalSpecificationFactory.eINSTANCE.createRefactoring());
+    public Refactoring(final String mPath) {
         actions = new ArrayList<>();
+        this.modelPath = mPath;
     }
 
-    public Refactoring(Refactoring rfSource){
-        this();
+    public Refactoring(Refactoring rfSource) {
+        this(rfSource.modelPath);
         this.solutionID = rfSource.solutionID;
-        for(RefactoringAction a : rfSource.getActions()){
+        for (RefactoringAction a : rfSource.getActions()) {
             this.getActions().add(a.clone());
         }
     }
 
     @Override
-    public Refactoring clone(){
+    public Refactoring clone() {
         try {
             return (Refactoring) super.clone();
         } catch (CloneNotSupportedException e) {
@@ -53,11 +49,11 @@ public class Refactoring implements Cloneable{
         this.actions = actions;
     }
 
-    public void execute(){
-        for(RefactoringAction action : actions){
-            action.execute();
-        }
-    }
+    public abstract boolean execute();
+
+    public abstract boolean tryRandomPush();
+
+    public abstract boolean isFeasible();
 
     public boolean hasMultipleOccurrence() {
 
@@ -76,6 +72,55 @@ public class Refactoring implements Cloneable{
 
         return false;
     }
+
+    public boolean isIndependent(List<RefactoringAction> listOfActions){
+        if (listOfActions.size() == 1) {
+            RefactoringAction act = listOfActions.get(0);
+//            for (String k : act.getTargetElements().keySet()) {
+               if (!easierModel.contains(act.getTargetElements())){
+                        return false;
+//                for (String elemName : act.getTargetElements().get(k)) {
+
+                    // check if the target element of a refactoring action is within the original set of elements
+//                    if (!easierModel.contains(elemName))
+//                        return false;
+//                }
+            }
+        } else {
+            for (int i = 0; i < listOfActions.size(); i++) {
+                RefactoringAction act = listOfActions.get(i);
+                for (int j = i + 1; j < listOfActions.size(); j++) {
+
+                    // only use independent actions
+                    if (listOfActions.get(j).isIndependent()) {
+                        if(easierModel.contains(act.getCreatedElements())){
+                            return false;
+                        }
+                        /*for (String k : act.getCreatedElements().keySet()) {
+
+                            // check whether an action target element type is equal to the created type of a previous
+                            // refactoring action
+                            if (listOfActions.get(j).getTargetElements().get(k) != null) {
+                                for (String elemName : listOfActions.get(j).getTargetElements().get(k)) {
+
+                                    // check whether a target element of a refactoring action belongs to the created
+                                    // elements of previous refactoring actions
+                                    if (act.getCreatedElements().get(k).contains(elemName))
+                                        return false;
+                                }
+                            }
+                        }*/
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public EasierModel getEasierModel(){
+        return easierModel;
+    }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -97,7 +142,10 @@ public class Refactoring implements Cloneable{
                 }
             }
         }
-        return true;
+        if(easierModel == null && other.easierModel != null) {
+            return false;
+        }
+        return easierModel.equals(other.easierModel);
     }
 
     /**

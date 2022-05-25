@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,21 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class UMLMvOperationToCompTest extends RefactoringActionTest {
+public class UMLMvOperationToCompTest extends UMLRefactoringActionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLMvOperationToComp(solution.getModelPath().toString(), solution.getAvailableElements());
-        action = new UMLMvOperationToComp(solution.getSourceModelPath().toString(), solution.getAvailableElements());
+        oldAction = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements());
+        action = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements());
     }
 
     @Test
     public void testConstructor() {
         String targetOperation =
                 action.getTargetElements().get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
-        assertFalse(solution.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
+        assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
                 String.format("Expected target node %s belongs to the availableElements.", targetOperation));
 
     }
@@ -44,7 +47,7 @@ public class UMLMvOperationToCompTest extends RefactoringActionTest {
     }
 
     @Test
-    public void testExecute() {
+    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testExecute();
     }
 
@@ -60,7 +63,7 @@ public class UMLMvOperationToCompTest extends RefactoringActionTest {
     }
 
     @Test
-    public void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException {
+    public void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testComputeArchitecturalChanges();
     }
 }
