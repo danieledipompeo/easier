@@ -29,7 +29,7 @@ public class WorkflowUtils {
 //		EasierUmlModel uml = null;
         ETLStandalone executor = null;
         String uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-                "easier-uml2lqn", "org.univaq.uml2lqn").toString();
+                "easier-uml2lqn").toString();
         try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString())) {
 //			uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString());
 

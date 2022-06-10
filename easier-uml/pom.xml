@@ -157,28 +157,11 @@
 
         <dependency>
             <groupId>it.univaq.disim.sealab</groupId>
-<<<<<<< HEAD
-            <artifactId>logicalSpecification</artifactId>
-            <version>0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>it.univaq.disim.sealab</groupId>
-=======
->>>>>>> devUML
             <artifactId>easier-core</artifactId>
             <version>0.6.3</version>
         </dependency>
         <dependency>
             <groupId>it.univaq.disim.sealab</groupId>
-<<<<<<< HEAD
-            <artifactId>easier-epsilon</artifactId>
-            <version>0.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>it.univaq.disim.sealab</groupId>
-            <artifactId>it.univaq.sealab.umlreliability</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-=======
             <artifactId>it.univaq.sealab.umlreliability</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
@@ -186,7 +169,6 @@
             <groupId>it.univaq.disim.sealab</groupId>
             <artifactId>easier-epsilon</artifactId>
             <version>0.6.3</version>
->>>>>>> devUML
         </dependency>
     </dependencies>
 </project>

@@ -1,9 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -16,17 +15,18 @@ public class WorkflowUtilsTest {
 
     private Path modelPath;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
+//        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
+        modelPath = Paths.get(getClass().getResource("/models/train-ticket/train-ticket.uml").getFile());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
-        Files.deleteIfExists(modelPath.getParent().resolve("output.xml"));
-        Files.deleteIfExists(modelPath.getParent().resolve("output.xml.bak"));
-        Files.deleteIfExists(modelPath.getParent().resolve("output.lqxo"));
-        Files.deleteIfExists(modelPath.getParent().resolve("output.out"));
+//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml"));
+//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml.bak"));
+//        Files.deleteIfExists(modelPath.getParent().resolve("output.lqxo"));
+//        Files.deleteIfExists(modelPath.getParent().resolve("output.out"));
     }
 
     @Test
@@ -35,7 +35,7 @@ public class WorkflowUtilsTest {
         Path lqnModelPath = modelPath.getParent().resolve("output.xml");
         assertTrue(Files.exists(lqnModelPath));
 
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(lqnModelPath.toFile()));
             assertNotEquals(String.format("Expected not empty %s file. ", lqnModelPath), br.readLine(), null);
@@ -45,7 +45,7 @@ public class WorkflowUtilsTest {
 
     }
 
-    @Test(expected = Test.None.class)
+    @Test
     public void invokeSolver() throws Exception {
         new WorkflowUtils().applyTransformation(modelPath);
         Path solverOutcome = modelPath.getParent().resolve("output.lqxo");
@@ -59,7 +59,7 @@ public class WorkflowUtilsTest {
         }
     }
 
-    @Test(expected = Test.None.class)
+    @Test
     public void backAnnotation() throws Exception {
         new WorkflowUtils().applyTransformation(modelPath);
         new WorkflowUtils().invokeSolver(modelPath.getParent());
