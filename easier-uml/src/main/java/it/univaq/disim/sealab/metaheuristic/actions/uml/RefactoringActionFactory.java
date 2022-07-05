@@ -13,10 +13,20 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 
 public class RefactoringActionFactory {
 
-    // TODO change param. Instead of using UMRSolution, use availableElements, and initialElements directly
+    /**
+     * Case 4 and 5 come from the performance tactics used in
+     * <br/>
+     * <b>Distributed quality-attribute optimization of software architectures.</b><br/>
+     * Alejandro Rago, Santiago A. Vidal, J. Andres Diaz-Pace, Sebastian Frank, Andre' van Hoorn <br/>
+     * SBCARS 2017, <url>https://doi.org/10.1145/3132498.3132509</url>
+     *
+     * @param availableElements
+     * @param initialElements
+     * @return
+     */
     public static RefactoringAction getRandomAction(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements) {
 
-        int extractedAction = JMetalRandom.getInstance().nextInt(0, 3);
+        int extractedAction = JMetalRandom.getInstance().nextInt(0, 5);
         switch (extractedAction) {
             case 0:
                 return new UMLCloneNode(availableElements, initialElements);
@@ -26,6 +36,10 @@ public class RefactoringActionFactory {
                 return new UMLMvOperationToNCToNN(availableElements, initialElements);
             case 3:
                 return new UMLMvOperationToComp(availableElements, initialElements);
+            case 4:
+                return new UMLChangePassiveResource(availableElements, initialElements);
+            case 5:
+                return new UMLResourceScaling(availableElements, initialElements);
             default:
                 return null;
         }
