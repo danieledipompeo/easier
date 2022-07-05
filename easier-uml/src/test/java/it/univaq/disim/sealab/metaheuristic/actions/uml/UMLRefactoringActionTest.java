@@ -4,13 +4,11 @@ import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class UMLRefactoringActionTest {
 
-    UMLRProblem<UMLRSolution> p;
+    //    UMLRProblem<UMLRSolution> p;
     protected UMLRefactoringAction action, oldAction;
-    protected UMLRSolution solution;
+//    protected UMLRSolution solution;
 
     protected String generatedCSV;
 
@@ -33,17 +31,20 @@ public class UMLRefactoringActionTest {
     protected Map<String, Set<String>> expectedName;
 
     protected EasierModel eModel;
+    protected String modelpath;
 
     public void setUp() throws Exception {
         int allowedFailures = 100;
         int desired_length = 4;
         int populationSize = 4;
 
-        String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-        p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
-        solution = p.createSolution();
+        modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
+//        p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 
-        eModel = solution.getVariable(0).getEasierModel();
+//        solution = p.createSolution();
+//        solution = new UMLRSolution(Paths.get(modelpath), "simplied-cocome__test");
+
+        eModel = new UMLEasierModel(modelpath);
     }
 
     public void testToCSV() {
@@ -64,7 +65,7 @@ public class UMLRefactoringActionTest {
     }
 
     public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
-        EasierUmlModel model = EOLStandalone.createUmlModel(solution.getModelPath().toString());
+        EasierUmlModel model = EOLStandalone.createUmlModel(modelpath);
         action.execute(model);
     }
 
@@ -88,10 +89,10 @@ public class UMLRefactoringActionTest {
     void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
 
         Collection<?> modelContents =
-                EOLStandalone.createUmlModel(solution.getModelPath().toString()).allContents();
+                EOLStandalone.createUmlModel(modelpath).allContents();
 
         double archChanges = action.computeArchitecturalChanges(modelContents);
-        System.out.println(""+archChanges);
+        System.out.println("" + archChanges);
 
         assertNotEquals(0, archChanges, "Expected arcChanges != 0");
     }

@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
 
-    EasierModel eModel;
+//    EasierModel eModel;
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
-        eModel = solution.getVariable(0).getEasierModel();
+//        eModel = solution.getVariable(0).getEasierModel();
 
         oldAction = new UMLMvOperationToNCToNN(eModel.getAvailableElements(),
                 eModel.getInitialElements());
