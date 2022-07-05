@@ -18,22 +18,15 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UMLMvComponentToNN implements UMLRefactoringAction {
+public class UMLMvComponentToNN extends UMLRefactoringAction {
 
     private final static Path eolModulePath;
-
-    private final static double BFR = 1.23;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_comp_nn.eol");
     }
 
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-    private double numOfChanges;
-    private boolean isIndependent = true;
-    private String name;
     public UMLMvComponentToNN() {
         name = "mcnn";
     }
@@ -50,10 +43,6 @@ public class UMLMvComponentToNN implements UMLRefactoringAction {
         Set<String> createdNodeElements = new HashSet<>();
         createdNodeElements.add("New-Node_" + generateHash());
         createdElements.put(UMLRSolution.SupportedType.NODE.toString(), createdNodeElements);
-    }
-
-    public double getNumOfChanges() {
-        return numOfChanges;
     }
 
     public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
@@ -74,22 +63,6 @@ public class UMLMvComponentToNN implements UMLRefactoringAction {
         return (intUsage + intReal + ops);
     }
 
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
-
-    @Override
-    public void setIndependent(Map<String, Set<String>> initialElements) {
-        Set<String> candidateTargetValues =
-                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-        Set<String> flattenSourceElement =
-                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        if (!flattenSourceElement.containsAll(candidateTargetValues))
-            isIndependent = false;
-    }
-
     private String generateHash() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
@@ -97,6 +70,12 @@ public class UMLMvComponentToNN implements UMLRefactoringAction {
 
         return new Random().ints(leftLimit, rightLimit + 1).limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
+    }
+
+
+    @Override
+    public String getTargetType() {
+        return UMLRSolution.SupportedType.COMPONENT.toString();
     }
 
     @Override
@@ -125,36 +104,6 @@ public class UMLMvComponentToNN implements UMLRefactoringAction {
     }
 
     @Override
-    public RefactoringAction clone() {
-        try {
-            return (RefactoringAction) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    @Override
-    public String getTargetType() {
-        return UMLRSolution.SupportedType.COMPONENT.toString();
-    }
-
-    @Override
-    public Map<String, Set<String>> getTargetElements() {
-        return targetElements;
-    }
-
-    @Override
-    public Map<String, Set<String>> getCreatedElements() {
-        return createdElements;
-    }
-
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
-    }
-
-    @Override
     public String toString() {
         return "Moving --> " + targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next() +
                 " to --> " + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
@@ -164,11 +113,6 @@ public class UMLMvComponentToNN implements UMLRefactoringAction {
         return String.format("Move_Component_New_Node,%s,%s,",
                 targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
                 createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

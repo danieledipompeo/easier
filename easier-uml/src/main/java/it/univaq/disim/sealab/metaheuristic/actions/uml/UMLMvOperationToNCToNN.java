@@ -2,7 +2,6 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -11,25 +10,15 @@ import org.eclipse.uml2.uml.Message;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
+public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
 
     private final static String eolModulePath;
-
-    private final static double BRF = 1.80;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_nc_nn.eol").toString();
     }
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-    private String name;
-    private double numOfChanges;
-    private long msgs;
-    private boolean isIndependent = true;
 
     public UMLMvOperationToNCToNN() {
         name = "moncnn";
@@ -55,32 +44,12 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
 
     }
 
-    public double getNumOfChanges() {
-        return numOfChanges;
-    }
-
     public double computeArchitecturalChanges(Collection<?> modelContents) {
         String opToMove = targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
         long msgs = modelContents.stream().filter(Message.class::isInstance)
                 .map(Message.class::cast).filter(m -> !m.getMessageSort().toString().equals("reply")).filter(m -> opToMove.equals(m.getSignature().getName())).count();
 
         return msgs;
-    }
-
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
-
-    @Override
-    public void setIndependent(Map<String, Set<String>> initialElements) {
-        Set<String> candidateTargetValues =
-                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-        Set<String> flattenSourceElement =
-                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        if (!flattenSourceElement.containsAll(candidateTargetValues))
-            isIndependent = false;
     }
 
     private String generateHash() {
@@ -98,8 +67,6 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
         EOLStandalone executor = new EOLStandalone();
 
         try {
-//            EasierUmlModel contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
-//            contextModel.setStoredOnDisposal(true);
 
             executor.setModel(contextModel);
             executor.setSource(Paths.get(eolModulePath));
@@ -126,28 +93,8 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
     }
 
     @Override
-    public RefactoringAction clone() {
-        try {
-            return (RefactoringAction) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @Override
     public String getTargetType() {
         return UMLRSolution.SupportedType.OPERATION.toString();
-    }
-
-    @Override
-    public Map<String, Set<String>> getTargetElements() {
-        return targetElements;
-    }
-
-    @Override
-    public Map<String, Set<String>> getCreatedElements() {
-        return createdElements;
     }
 
     public String toString() {
@@ -157,21 +104,11 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
                 + " deployed to a New Node -->" + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
     }
 
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
-    }
-
     public String toCSV() {
         return String.format("Move_Operation_New_Component_New_Node,%s,%s,%s",
                 targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next(),
                 createdElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
                 createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

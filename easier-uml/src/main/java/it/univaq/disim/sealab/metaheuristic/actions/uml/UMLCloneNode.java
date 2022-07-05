@@ -17,22 +17,14 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UMLCloneNode implements UMLRefactoringAction {
+public class UMLCloneNode extends UMLRefactoringAction {
 
     private final static Path eolModulePath;
-
-    private final static double BRF = 1.23;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
     }
-
-    private final String name;
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-    private double numOfChanges;
-    private boolean isIndependent = true;
 
     public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements) {
         this();
@@ -69,22 +61,6 @@ public class UMLCloneNode implements UMLRefactoringAction {
 
     }
 
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
-
-    @Override
-    public void setIndependent(Map<String, Set<String>> sourceElements) {
-        Set<String> candidateTargetValues =
-                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-        Set<String> flattenSourceElement =
-                sourceElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        if (!flattenSourceElement.containsAll(candidateTargetValues))
-            isIndependent = false;
-    }
-
     private String generateHash() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
@@ -115,27 +91,8 @@ public class UMLCloneNode implements UMLRefactoringAction {
     }
 
     @Override
-    public RefactoringAction clone() {
-        try {
-            return (RefactoringAction) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public String getTargetType() {
         return UMLRSolution.SupportedType.NODE.toString();
-    }
-
-    @Override
-    public Map<String, Set<String>> getTargetElements() {
-        return targetElements;
-    }
-
-    @Override
-    public Map<String, Set<String>> getCreatedElements() {
-        return createdElements;
     }
 
     @Override
@@ -148,16 +105,6 @@ public class UMLCloneNode implements UMLRefactoringAction {
         return String.format("UMLCloneNode,%s,%s,",
                 targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
                 createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
     }
 
     @Override

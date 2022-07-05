@@ -13,24 +13,15 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UMLMvOperationToComp implements UMLRefactoringAction {
+public class UMLMvOperationToComp extends UMLRefactoringAction {
 
     private final static String eolModulePath;
 
-    private final static double BFR = 1.23;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_comp.eol").toString();
     }
-
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-    private String sourceModelPath;
-    private double numOfChanges;
-    private String name;
-    private long msgs;
-    private boolean isIndependent = true;
 
     public UMLMvOperationToComp() {
         this.name = "moc";
@@ -65,21 +56,7 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
         return msgs;
     }
 
-    @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
 
-    @Override
-    public void setIndependent(Map<String, Set<String>> initialElements) {
-        Set<String> candidateTargetValues =
-                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-        Set<String> flattenSourceElement =
-                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        if (!flattenSourceElement.containsAll(candidateTargetValues))
-            isIndependent = false;
-    }
 
     @Override
     public void execute(EasierUmlModel contextModel) throws EasierException {
@@ -110,28 +87,10 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
         executor.clearMemory();
     }
 
-    @Override
-    public RefactoringAction clone() {
-        try {
-            return (RefactoringAction) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public String getTargetType() {
         return UMLRSolution.SupportedType.OPERATION.toString();
-    }
-
-    @Override
-    public Map<String, Set<String>> getTargetElements() {
-        return targetElements;
-    }
-
-    @Override
-    public Map<String, Set<String>> getCreatedElements() {
-        return createdElements;
     }
 
 
@@ -142,23 +101,11 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
                 "-->  " + targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
     }
 
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
-    }
-
-
     public String toCSV() {
         return String.format("Move_Operation_Component,%s,%s,",
                 targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next(),
                 targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next());
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -169,8 +116,6 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
         if (getClass() != obj.getClass())
             return false;
         UMLMvOperationToComp other = (UMLMvOperationToComp) obj;
-        if (sourceModelPath == null && other.sourceModelPath != null)
-            return false;
 
         if (!targetElements.equals(other.targetElements))
             return false;
