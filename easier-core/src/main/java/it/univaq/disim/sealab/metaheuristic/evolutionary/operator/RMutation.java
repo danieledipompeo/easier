@@ -2,6 +2,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.util.JMetalException;
 
@@ -14,6 +15,8 @@ public abstract class RMutation<S extends RSolution<?>> implements MutationOpera
     private final double distributionIndex;
     private final double mutationProbability;
     private RepairRSolution solutionRepair;
+
+    protected EasierResourcesLogger easierResourcesLogger;
 
     /**
      * Constructor
@@ -39,6 +42,7 @@ public abstract class RMutation<S extends RSolution<?>> implements MutationOpera
         }
         int allowed = Configurator.eINSTANCE.getAllowedFailures();
         doMutation(mutationProbability, solution, allowed);
+//        easierResourcesLogger.toCSV();
         return solution;
     }
 

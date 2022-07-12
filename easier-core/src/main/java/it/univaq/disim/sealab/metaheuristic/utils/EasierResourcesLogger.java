@@ -1,48 +1,35 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import javax.xml.transform.Templates;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EasierResourcesLogger {
 
-    private final Instant startingTime;
-    private ArrayList<Duration> duration;
-    private Instant timeCheckPoint;
+    private static ArrayList<Long> execTimeMillisi = new ArrayList<>();
+    private static ArrayList<long[]> memoryOccupation = new ArrayList<>();
+    private static long totalBefore, freeBefore;
+    private static List<String> labels = new ArrayList<>();
+    private static List<String> steps = new ArrayList<>();
+    private static List<Integer> iterationIDs = new ArrayList<>();
+    private static int ITERATION_COUNTER = 0;
 
-    private ArrayList<long[]> memoryOccupation;
-    private long totalBefore, freeBefore;
-
-    private String algorithmName, problemName;
-
-    public EasierResourcesLogger(String aName, String pName) {
-        duration = new ArrayList<>();
-        memoryOccupation = new ArrayList<>();
-        algorithmName = aName;
-        problemName = pName;
-
-        startingTime = Instant.now();
-        timeCheckPoint = startingTime;
-
-        freeBefore = Runtime.getRuntime().freeMemory();
-        totalBefore = Runtime.getRuntime().totalMemory();
-    }
+//    public EasierResourcesLogger(String aName) {
+//        freeBefore = Runtime.getRuntime().freeMemory();
+//        totalBefore = Runtime.getRuntime().totalMemory();
+//    }
 
     /**
      * Compute the execution time
      */
-    private void computeExecutionTime() {
-        Instant now = Instant.now();
-        duration.add(Duration.between(timeCheckPoint, now));
-        timeCheckPoint = now;
+    private static void computeExecutionTime() {
+        execTimeMillisi.add(Instant.now().toEpochMilli());
     }
 
     /**
      * Compute the memory usage
      */
-    private void computeMemoryOccupation() {
+    private static void computeMemoryOccupation() {
         long[] memory = new long[4];
 
         // memory state before the step
@@ -61,22 +48,31 @@ public class EasierResourcesLogger {
     }
 
     /**
-     *  Store execution time and the memory usage
+     * Store execution time and the memory usage
      */
-    public void checkpoint() {
+    public static void checkpoint(String label, String stp) {
+        labels.add(label);
+        iterationIDs.add(ITERATION_COUNTER);
+        steps.add(stp);
         computeExecutionTime();
         computeMemoryOccupation();
     }
 
+    public static void iterationCheckpointStart(String label, String stp) {
+        ITERATION_COUNTER++;
+        checkpoint(label, stp);
+//        checkpoint("ID_" + ITERATION_COUNTER + "_" + stp);
+    }
+
     /**
-     * Dump resources usages and execution times to a CSV file.
+     * Dump resource usages and execution times in a CSV file.
      */
-    public void toCSV() {
+    public static void dumpToCSV() {
         // duration and memoryOccupation should have the same length by construction
         FileUtils fUtil = new FileUtils();
-        for (int i = 0; i < duration.size(); i++) {
-            fUtil.algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.algorithmName,
-                    this.problemName, duration.get(i).toMillis(), memoryOccupation.get(i)[1], memoryOccupation.get(i)[0], memoryOccupation.get(i)[3], memoryOccupation.get(i)[2]));
+        for (int i = 0; i < execTimeMillisi.size(); i++) {
+            fUtil.algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s,%s", iterationIDs.get(i), labels.get(i),
+                    steps.get(i), execTimeMillisi.get(i), memoryOccupation.get(i)[1], memoryOccupation.get(i)[0], memoryOccupation.get(i)[3], memoryOccupation.get(i)[2]));
         }
     }
 

@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.eclipse.emf.common.util.EList;
 
 import java.util.ArrayList;
@@ -28,14 +29,15 @@ public abstract class Refactoring implements Cloneable {
         }
     }
 
-    @Override
-    public Refactoring clone() {
-        try {
-            return (Refactoring) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public abstract Refactoring clone();
+//    @Override
+//    public Refactoring clone() {
+//        try {
+//            return (Refactoring) super.clone();
+//        } catch (CloneNotSupportedException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public void setSolutionID(int id) {
         solutionID = id;
@@ -165,7 +167,7 @@ public abstract class Refactoring implements Cloneable {
     }
 
     /**
-     * Prints a single semicolon line with actions belong to the refactoring
+     * Prints a single semicolon delimited line with actions belong to the refactoring
      *
      * @return
      */
@@ -173,6 +175,10 @@ public abstract class Refactoring implements Cloneable {
     public String toString() {
         return getActions().stream().map(RefactoringAction::toCSV)
                 .collect(Collectors.joining(";"));
+    }
+
+    public void flushResourcesUsageStats(){
+//        easierResourcesLogger.toCSV();
     }
 
 }

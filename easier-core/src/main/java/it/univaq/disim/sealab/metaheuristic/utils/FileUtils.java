@@ -299,7 +299,7 @@ public class FileUtils {
 	 */
 	public void algoPerfStatsDumpToCSV(String line) {
 		String fileName = "algo_perf_stats.csv";
-		String header = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
+		String header = "iteration_id,label,step,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
 		
 		dumpToFile(fileName, header, line);
 	}

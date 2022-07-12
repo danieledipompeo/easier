@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.solution.AbstractSolution;
 
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
@@ -44,6 +45,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
     protected int allowedFailures;
     protected int refactoringLength;
     protected String problemName;
+    protected EasierResourcesLogger easierResourcesLogger;
 
     static {
         VARIABLE_INDEX = 0;
@@ -290,5 +292,10 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
                 && Math.abs(this.getPerfQ()) >= Math.abs(rSolution.getPerfQ()) / ePerfQ)
                 && (Math.abs(this.getReliability()) <= Math.abs(rSolution.getReliability()) * eRel
                 && Math.abs(this.getReliability()) >= Math.abs(rSolution.getReliability()) / eRel);
+    }
+
+    public void flushResourcesUsageStats(){
+        ((Refactoring)this.getVariable(0)).flushResourcesUsageStats();
+//        easierResourcesLogger.toCSV();
     }
 }

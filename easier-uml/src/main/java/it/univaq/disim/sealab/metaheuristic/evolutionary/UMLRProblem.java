@@ -2,6 +2,8 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import org.uma.jmetal.util.JMetalLogger;
 
 import java.nio.file.Path;
 
@@ -22,21 +24,25 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
      */
     @Override
     public S createSolution() {
+        EasierResourcesLogger.checkpoint("UMLRProblem","createSolution_start");
         UMLRSolution sol = new UMLRSolution(sourceModelPath, getName());
         sol.createRandomRefactoring();
+        EasierResourcesLogger.checkpoint("UMLRProblem","createSolution_end");
+        sol.refactoringToCSV();
         return (S) sol;
     }
 
     /**
-     * The third objective is related to performance evaluation. In this case
-     * 2towers solver is invoked in order to solve the refactoring model. Actually,
-     * the number of Performance Antipatterns (PAs) in the model has been used as
-     * objective for the fitness function.
-     *
+     * Sets objectives computed by UMLRSolutionListEvaluator.
+     * obj_1 = perfQ
+     * obj_2 = architectural changes
+     * obj_3 = performance antipatterns
+     * obj_4 = reliability
      */
     @Override
     public void evaluate(S s) {
 
+        EasierResourcesLogger.checkpoint("UMLRProblem","evaluate_start");
         UMLRSolution solution = (UMLRSolution) s;
 
         solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
@@ -47,6 +53,7 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
         } else {
             solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
         }
+        EasierResourcesLogger.checkpoint("UMLRProblem","evaluate_end");
 
         EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
 

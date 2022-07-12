@@ -6,6 +6,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.RefactoringActionFactory
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLRefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.uma.jmetal.util.JMetalLogger;
 
@@ -14,9 +15,11 @@ import java.net.URISyntaxException;
 public class UMLRefactoring extends Refactoring {
 
 
+
     public UMLRefactoring(String mPath) {
         super(mPath);
         easierModel = new UMLEasierModel(mPath);
+//        easierResourcesLogger = new EasierResourcesLogger("UMLRefactoring");
     }
 
     public UMLRefactoring(Refactoring rfSource) {
@@ -27,6 +30,7 @@ public class UMLRefactoring extends Refactoring {
 
     public boolean execute() {
         try{
+            EasierResourcesLogger.checkpoint("UMLRefactoring","execute_start");
             actions.stream().map(UMLRefactoringAction.class::cast).forEach(a -> {
                 try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath)) {
                     model.setStoredOnDisposal(true);
@@ -39,15 +43,18 @@ public class UMLRefactoring extends Refactoring {
                 }
                 easierModel.store(a.getCreatedElements());
             });
+            EasierResourcesLogger.checkpoint("UMLRefactoring","execute_end");
         } catch (RuntimeException e) {
             JMetalLogger.logger.severe(e.getMessage());
             return false;
         }
+        JMetalLogger.logger.info("Refactoring executed");
         return true;
     }
 
     public boolean isFeasible() {
 
+        EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_start");
         if (hasMultipleOccurrence())
             return false;
 
@@ -56,9 +63,11 @@ public class UMLRefactoring extends Refactoring {
 //                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
 //            if (easierModel.getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
             if (!easierModel.contains(action.getTargetElements())) {
+                EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_end");
                 return false;
             }
         }
+        EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_end");
         return true;
     }
 
@@ -76,6 +85,11 @@ public class UMLRefactoring extends Refactoring {
             return false;
         }
         return true;
+    }
+
+    public Refactoring clone(){
+        UMLRefactoring umlRefactoring = new UMLRefactoring(this);
+        return umlRefactoring;
     }
 
 

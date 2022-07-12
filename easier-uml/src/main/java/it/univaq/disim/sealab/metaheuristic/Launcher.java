@@ -15,13 +15,13 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
 import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.JMetalException;
@@ -35,9 +35,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class Launcher {
-
-//    private static final UMLRCrossover crossoverOperator = new UMLRCrossover(
-//            Configurator.eINSTANCE.getXoverProbabiliy());
 
     public static void main(String[] args) throws Exception {
 
@@ -85,6 +82,7 @@ public class Launcher {
                 i++;
             }
         }
+        EasierResourcesLogger.dumpToCSV();
     }
 
     public static List<Path> runExperiment(final List<RProblem<UMLRSolution>> rProblems,

@@ -173,11 +173,13 @@ public class UMLCloneNode implements UMLRefactoringAction {
         if (!targetElements.equals(other.targetElements))
             return false;
 
-        for (String k : createdElements.keySet()) {
-            if (!other.createdElements.get(k).iterator().next().equals(createdElements.get(k).iterator().next())) {
-                return false;
-            }
-        }
+        if (!createdElements.equals(other.createdElements))
+            return false;
+//        for (String k : createdElements.keySet()) {
+//            if (!other.createdElements.get(k).iterator().next().equals(createdElements.get(k).iterator().next())) {
+//                return false;
+//            }
+//        }
 
         return true;
     }

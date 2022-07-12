@@ -1,17 +1,13 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
-import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import it.univaq.sealab.umlreliability.MissingTagException;
 import it.univaq.sealab.umlreliability.Reliability;
 import it.univaq.sealab.umlreliability.UMLReliability;
@@ -25,7 +21,10 @@ import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.eclipse.uml2.uml.*;
+import org.eclipse.uml2.uml.Element;
+import org.eclipse.uml2.uml.Node;
+import org.eclipse.uml2.uml.Stereotype;
+import org.eclipse.uml2.uml.UseCase;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.solutionattribute.impl.CrowdingDistance;
@@ -36,7 +35,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.UnexpectedException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -61,7 +63,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         GQAM_NAMESPACE = "MARTE::MARTE_AnalysisModel::GQAM::";
     }
 
-//    Map<String, Set<String>> initialElements;
+    //    Map<String, Set<String>> initialElements;
 //    Map<String, Set<String>> targetRefactoringElement;
 //    Map<String, Set<String>> createdRefactoringElement;
     private Path folderPath;
@@ -72,6 +74,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
     public UMLRSolution(Path sourceModelPath, String problemName) {
         super(sourceModelPath, problemName);
         init();
+//        easierResourcesLogger = new EasierResourcesLogger("UMLRSolution");
     }
 
     public UMLRSolution(UMLRSolution s) {
@@ -274,7 +277,9 @@ public class UMLRSolution extends RSolution<Refactoring> {
 //    }
 
     protected void copyRefactoringVariable(Refactoring refactoring) {
-        this.setVariable(VARIABLE_INDEX, refactoring.clone());
+        Refactoring refactoringCloned = refactoring.clone();
+        refactoringCloned.setSolutionID(this.getName());
+        this.setVariable(VARIABLE_INDEX, refactoringCloned);
     }
 
     @Override
@@ -364,8 +369,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
      */
     public void countingPAs() {
 
-        System.out.print("Counting PAs (it may take a while) ... ");
-        long startTime = System.currentTimeMillis();
+        easierResourcesLogger.checkpoint("UMLRSolution", "countingPAs_start");
         EVLStandalone pasCounter = new EVLStandalone();
         try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
             pasCounter.setModel(uml);
@@ -381,7 +385,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
             e.printStackTrace();
         }
 
-        int nPas = 0;
         // Count performance antipatterns and build a string for the next csv storing
         for (String pas : extractFuzzyValues.keySet()) {
             Map<String, Double> mPaf = extractFuzzyValues.get(pas);
@@ -392,14 +395,11 @@ public class UMLRSolution extends RSolution<Refactoring> {
             }
         }
 
-        long duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,counting_pas,%s,%s", algorithm, problemName,
-                getName(), getName(), duration));
-        System.out.printf(" execution time: %s ms%n", duration);
-
         pasCounter.clearMemory();
         new UMLMemoryOptimizer().cleanup();
-        pasCounter = null;
+        easierResourcesLogger.checkpoint("UMLRSolution", "countingPAs_end");
+//        easierResourcesLogger.toCSV();
+        JMetalLogger.logger.info(String.format("Performance antipatterns : %s", numPAs));
     }
 
     /*
@@ -418,46 +418,36 @@ public class UMLRSolution extends RSolution<Refactoring> {
      * </exec> </target>
      */
     public void invokeSolver() {
-
-        long startTime = System.currentTimeMillis();
         try {
+            easierResourcesLogger.checkpoint("UMLRSolution", "invokeSolver_start");
             new WorkflowUtils().invokeSolver(this.folderPath);
+            easierResourcesLogger.checkpoint("UMLRSolution", "invokeSolver_end");
         } catch (Exception e) {
             String line = this.name + "," + e.getMessage() + "," + getVariable(VARIABLE_INDEX).toString();
             new FileUtils().failedSolutionLogToCSV(line);
         }
 
-        long duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,invoke_solver,%s", algorithm, problemName,
-                getName(), duration));
-        System.out.println(String.format("invokeSolver execution time: %s", duration));
-        System.out.println("done");
-
-
-        System.out.print("Invoking the back annotator... ");
-        startTime = System.currentTimeMillis();
-        new WorkflowUtils().backAnnotation(modelPath);
-        duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,lqn2uml,%s", algorithm, problemName,
-                getName(), duration));
-        System.out.println(String.format("backAnnotation execution time: %s", duration));
-        System.out.println("done");
-
+        easierResourcesLogger.checkpoint("UMLRSolution", "backAnnotation_start");
+        try {
+            new WorkflowUtils().backAnnotation(modelPath);
+        } catch (URISyntaxException | EolRuntimeException e) {
+            String line = this.name + "," + e.getMessage() + "," + getVariable(VARIABLE_INDEX).toString() + "," + isMutated() + "," + isCrossover();
+            new FileUtils().failedSolutionLogToCSV(line);
+        }
+        easierResourcesLogger.checkpoint("UMLRSolution", "backAnnotation_end");
     }
 
     /**
      * @return the performance quality indicator as described in
      * <a href="https://doi.org/10.1109/ICSA.2018.00020">https://doi.org/10.1109/ICSA.2018.00020</a>
-     *
      * @throws EolModelElementTypeNotFoundException when the perfQ cannot be computed
      */
     public double evaluatePerformance() {
-        System.out.print("Counting perfQ ... ");
-        long initTime = System.currentTimeMillis();
+        easierResourcesLogger.checkpoint("UMLRSolution", "evaluatePerformance_start");
         perfQ = perfQ();
-        long durationTime = System.currentTimeMillis() - initTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,perfQ,%s", algorithm, problemName, getName(), durationTime));
-        System.out.println("done");
+        easierResourcesLogger.checkpoint("UMLRSolution", "evaluatePerformance_end");
+//        easierResourcesLogger.toCSV();
+        JMetalLogger.logger.info(String.format("Performance : %s", perfQ));
         return perfQ;
     }
 
@@ -525,6 +515,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     @Override
     public void computeArchitecturalChanges() {
+        easierResourcesLogger.checkpoint("UMLRSolution", "computeArchitecturalChanges_start");
 
         try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
 
@@ -543,8 +534,8 @@ public class UMLRSolution extends RSolution<Refactoring> {
         } catch (EasierException e) {
             throw new RuntimeException(e);
         }
-
-
+        easierResourcesLogger.checkpoint("UMLRSolution", "computeArchitecturalChanges_end");
+        JMetalLogger.logger.info(String.format("Architectural changes computed : %s", architecturalChanges));
     }
 
     @Override
@@ -596,7 +587,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
             uml.dispose();
             new UMLMemoryOptimizer().cleanup();
         } catch (Exception e) {
-            System.err.println(String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
+            JMetalLogger.logger.severe(String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
             e.printStackTrace();
         }
     }
@@ -639,7 +630,9 @@ public class UMLRSolution extends RSolution<Refactoring> {
      */
     public void applyTransformation() {
 
+        easierResourcesLogger.checkpoint("UMLRSolution", "applyTransformation_start");
         new WorkflowUtils().applyTransformation(this.modelPath);
+        easierResourcesLogger.checkpoint("UMLRSolution", "applyTransformation_end");
     }
 
     public void executeRefactoring() {
@@ -662,10 +655,9 @@ public class UMLRSolution extends RSolution<Refactoring> {
     @Override
     public void computeReliability() {
 
-        System.out.print("Computing reliability ... ");
+        easierResourcesLogger.checkpoint("UMLRSolution", "computeReliability_start");
         // stores the in memory model to a file
         UMLReliability uml = null;
-        long initTime = System.currentTimeMillis();
         try {
             uml = new UMLReliability(new UMLModelPapyrus(modelPath.toString()).getModel());
             setReliability(new Reliability(uml.getScenarios()).compute());
@@ -683,14 +675,10 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
             new FileUtils().reliabilityErrorLogToCSV(line);
         }
-        long durationTime = System.currentTimeMillis() - initTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,reliability,%s", algorithm, problemName,
-                getName(), durationTime));
 
         new UMLMemoryOptimizer().cleanup();
-        uml = null;
-        System.out.println("done");
-
+        easierResourcesLogger.checkpoint("UMLRSolution", "computeReliability_end");
+        JMetalLogger.logger.info(String.format("Reliability computed : %s", this.reliability));
     }
 
     @Override

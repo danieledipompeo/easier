@@ -24,7 +24,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     int _maxEvaluations;
     List<S> oldPopulation;
-    private long durationThreshold, iterationStartingTime, initTime, freeBefore, totalBefore;
+    private long durationThreshold, iterationStartingTime;
     private float prematureConvergenceThreshold;
     private int _evaluations;
 
@@ -41,6 +41,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
         durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
         prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
         oldPopulation = new ArrayList<S>();
+//        eResourcesLogger = new EasierResourcesLogger(this.getName());
     }
 
     /**
@@ -67,17 +68,13 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected void initProgress() {
+        eResourcesLogger.checkpoint(getName(),"initProgress_start");
         super.initProgress();
+        eResourcesLogger.checkpoint(getName(),"initProgress_end");
+
         _evaluations = this.getMaxPopulationSize();
-
         this.getPopulation().forEach(s -> s.refactoringToCSV());
-
-        eResourcesLogger = new EasierResourcesLogger(this.getName(), this.getProblem().getName());
-
-        /*iterationStartingTime = System.currentTimeMillis();
-        freeBefore = Runtime.getRuntime().freeMemory();
-        totalBefore = Runtime.getRuntime().totalMemory();
-        initTime = System.currentTimeMillis();*/
+        iterationStartingTime = System.currentTimeMillis();
 
         // store the initial population
         oldPopulation = this.getPopulation();
@@ -116,35 +113,67 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected void updateProgress() {
+        eResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
-
         // store the duration and the occupied memory by each step
-        eResourcesLogger.checkpoint();
-
-        /*long computingTime = System.currentTimeMillis() - initTime;
-
-        long freeAfter = Runtime.getRuntime().freeMemory();
-        long totalAfter = Runtime.getRuntime().totalMemory();
-
-        new FileUtils().algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.getName(),
-                this.getProblem().getName(), computingTime, totalBefore, freeBefore, totalAfter, freeAfter));
-
-        // Store the checkpoint
-        totalBefore = totalAfter;
-        freeBefore = freeAfter;
-        initTime = computingTime;*/
+        eResourcesLogger.checkpoint(getName(),"updateProgress_end");
+        eResourcesLogger.checkpoint(getName(),"iteration_end");
 
         populationToCSV();
         _evaluations += this.getMaxPopulationSize();
+
         System.out.println(this.getName());
         ProgressBar.showBar(_evaluations / getMaxPopulationSize(), _maxEvaluations / getMaxPopulationSize());
     }
 
     @Override
-    public void run() {
-        super.run();
+    protected List<S> createInitialPopulation() {
+        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
+        List<S> pop = super.createInitialPopulation();
+        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
+        return pop;
+    }
 
-        eResourcesLogger.toCSV();
+    @Override
+    protected List<S> selection(List<S> pop) {
+        eResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
+        eResourcesLogger.checkpoint(getName(),"selection_start");
+        List<S> matingPopulation = super.selection(pop);
+        eResourcesLogger.checkpoint(getName(),"selection_end");
+        return matingPopulation;
+    }
+
+    @Override
+    protected List<S> reproduction(List<S> matingPool) {
+        eResourcesLogger.checkpoint(getName(),"reproduction_start");
+        List<S> offspringPopulation = super.reproduction(matingPool);
+        eResourcesLogger.checkpoint(getName(),"reproduction_end");
+        return offspringPopulation;
+    }
+
+    @Override
+    protected List<S> replacement(List<S> population, List<S> offspringPopulation) {
+        eResourcesLogger.checkpoint(getName(),"replacement_start");
+        List<S> replacedPop = super.replacement(population, offspringPopulation);
+        eResourcesLogger.checkpoint(getName(),"replacement_end");
+        return replacedPop;
+    }
+
+    @Override
+    protected List<S> evaluatePopulation(List<S> population) {
+        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        List<S> evaluatedPop = super.evaluatePopulation(population);
+        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        return evaluatedPop;
+    }
+
+    @Override
+    public void run() {
+        eResourcesLogger.checkpoint(getName(),"run_start");
+        super.run();
+        eResourcesLogger.checkpoint(getName(),"run_end");
+
+//        eResourcesLogger.toCSV();
 
         /*
          * prints the number of iterations until the search budget is not reached.
