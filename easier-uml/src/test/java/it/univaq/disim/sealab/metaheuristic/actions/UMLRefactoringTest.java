@@ -110,14 +110,16 @@ public class UMLRefactoringTest {
       It should find a multiple occurrence of  the first
       refactoring action.
       The refactoring has been built synthetically.
-     */ public void testFindMultipleOccurrenceWithMultiOccurrences() {
+     */ public void testHasMultipleOccurrence() {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
+
         RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction clone1 = clone.clone();
         RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
     }

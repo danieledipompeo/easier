@@ -20,10 +20,10 @@ class EasierResourcesLoggerTest {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
-    @BeforeEach
-    void setUp() {
-        eLogger = new EasierResourcesLogger("aTest", "pTest");
-    }
+//    @BeforeEach
+//    void setUp() {
+//        eLogger = new EasierResourcesLogger("aTest");//, "pTest");
+//    }
 
     @AfterEach
     void tearDown() {
@@ -36,13 +36,13 @@ class EasierResourcesLoggerTest {
     @Test
     void toCSV() {
         IntStream.range(1,5).forEach( i -> {
-            eLogger.checkpoint();
+            eLogger.checkpoint("aTest","step_"+i);
             try {
                 Thread.sleep(i * 100);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
-        eLogger.toCSV();
+        eLogger.dumpToCSV();
     }
 }

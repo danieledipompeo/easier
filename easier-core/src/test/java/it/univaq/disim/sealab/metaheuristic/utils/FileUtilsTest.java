@@ -78,11 +78,11 @@ public class FileUtilsTest {
         new FileUtils().algoPerfStatsDumpToCSV(line);
 
         //Check the correct header
-        String EXPECTED_HEADER = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
+        String EXPECTED_HEADER = "iteration_id,label,step,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
         String header = extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
         assertEquals(EXPECTED_HEADER, header);
 
-        assertEquals(7, header.split(",").length);
+        assertEquals(8, header.split(",").length);
 
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv").toString()));
