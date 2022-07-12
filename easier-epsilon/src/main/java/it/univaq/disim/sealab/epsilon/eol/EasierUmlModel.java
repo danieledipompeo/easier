@@ -7,6 +7,7 @@ import org.eclipse.epsilon.emc.emf.CachedResourceSet;
 import org.eclipse.epsilon.emc.emf.CachedResourceSet.Cache;
 import org.eclipse.epsilon.emc.uml.UmlModel;
 import org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage;
+import org.eclipse.papyrus.MARTE.MARTE_DesignModel.HLAM.HLAMPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.Alloc.AllocPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.CoreElements.CoreElementsPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.GRM.GRMPackage;
@@ -34,6 +35,8 @@ public class EasierUmlModel extends UmlModel {
     private static final String MARTE_ALLOC_FRAGMENT = "_ar8OsAPMEdyuUt-4qHuVvQ";
     private static final String MARTE_CORE_ELEMENTS_FRAGMENT = "_-wEewECLEd6UTJZnztgOLw";
     private static final String MARTE_GQAM_FRAGMENT = "_4bV20APMEdyuUt-4qHuVvQ";
+
+    private static final String MARTE_HLAM_FRAGMENT = "_yNSZIAPMEdyuUt-4qHuVvQ";
 
     // DAM
     private static final String DAM_BASE_PATHMAP = "pathmap://DAM_PROFILES/";
@@ -121,6 +124,11 @@ public class EasierUmlModel extends UmlModel {
         UMLPlugin.getEPackageNsURIToProfileLocationMap()
                 .put(GQAMPackage.eNS_URI, URI.createURI(MARTE_PROFILES_PATHMAP + MARTE_GQAM_FRAGMENT));
         resourceSet.getPackageRegistry().put(GQAMPackage.eNS_URI, GQAMPackage.eINSTANCE);
+
+        //HLAM
+        UMLPlugin.getEPackageNsURIToProfileLocationMap()
+                .put(HLAMPackage.eNS_URI, URI.createURI(MARTE_PROFILES_PATHMAP + MARTE_HLAM_FRAGMENT));
+        resourceSet.getPackageRegistry().put(HLAMPackage.eNS_URI, HLAMPackage.eINSTANCE);
 
         return resourceSet;
     }
