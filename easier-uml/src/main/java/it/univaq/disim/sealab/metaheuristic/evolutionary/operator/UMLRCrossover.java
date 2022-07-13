@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 //public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
-public class UMLRCrossover extends RCrossover<UMLRSolution> {
+public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
 
     /**

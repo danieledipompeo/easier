@@ -28,20 +28,18 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
     private float prematureConvergenceThreshold;
     private int _evaluations;
 
-    private EasierResourcesLogger eResourcesLogger;
 
     public CustomPESA2(Problem<S> problem, int maxEvaluations, int populationSize, int archiveSize, int biSections,
                        CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
                        SolutionListEvaluator<S> evaluator) {
 
-        super((Problem<S>) problem, maxEvaluations, populationSize, archiveSize, biSections, crossoverOperator,
+        super(problem, maxEvaluations, populationSize, archiveSize, biSections, crossoverOperator,
                 mutationOperator, evaluator);
         _maxEvaluations = maxEvaluations;
 
         durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
         prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
         oldPopulation = new ArrayList<S>();
-//        eResourcesLogger = new EasierResourcesLogger(this.getName());
     }
 
     /**
@@ -68,9 +66,9 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected void initProgress() {
-        eResourcesLogger.checkpoint(getName(),"initProgress_start");
+        EasierResourcesLogger.checkpoint(getName(),"initProgress_start");
         super.initProgress();
-        eResourcesLogger.checkpoint(getName(),"initProgress_end");
+        EasierResourcesLogger.checkpoint(getName(),"initProgress_end");
 
         _evaluations = this.getMaxPopulationSize();
         this.getPopulation().forEach(s -> s.refactoringToCSV());
@@ -113,11 +111,11 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected void updateProgress() {
-        eResourcesLogger.checkpoint(getName(),"updateProgress_start");
+        EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
         // store the duration and the occupied memory by each step
-        eResourcesLogger.checkpoint(getName(),"updateProgress_end");
-        eResourcesLogger.checkpoint(getName(),"iteration_end");
+        EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
+        EasierResourcesLogger.checkpoint(getName(),"iteration_end");
 
         populationToCSV();
         _evaluations += this.getMaxPopulationSize();
@@ -128,50 +126,50 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected List<S> createInitialPopulation() {
-        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
+        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
         List<S> pop = super.createInitialPopulation();
-        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
         return pop;
     }
 
     @Override
     protected List<S> selection(List<S> pop) {
-        eResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
-        eResourcesLogger.checkpoint(getName(),"selection_start");
+        EasierResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
+        EasierResourcesLogger.checkpoint(getName(),"selection_start");
         List<S> matingPopulation = super.selection(pop);
-        eResourcesLogger.checkpoint(getName(),"selection_end");
+        EasierResourcesLogger.checkpoint(getName(),"selection_end");
         return matingPopulation;
     }
 
     @Override
     protected List<S> reproduction(List<S> matingPool) {
-        eResourcesLogger.checkpoint(getName(),"reproduction_start");
+        EasierResourcesLogger.checkpoint(getName(),"reproduction_start");
         List<S> offspringPopulation = super.reproduction(matingPool);
-        eResourcesLogger.checkpoint(getName(),"reproduction_end");
+        EasierResourcesLogger.checkpoint(getName(),"reproduction_end");
         return offspringPopulation;
     }
 
     @Override
     protected List<S> replacement(List<S> population, List<S> offspringPopulation) {
-        eResourcesLogger.checkpoint(getName(),"replacement_start");
+        EasierResourcesLogger.checkpoint(getName(),"replacement_start");
         List<S> replacedPop = super.replacement(population, offspringPopulation);
-        eResourcesLogger.checkpoint(getName(),"replacement_end");
+        EasierResourcesLogger.checkpoint(getName(),"replacement_end");
         return replacedPop;
     }
 
     @Override
     protected List<S> evaluatePopulation(List<S> population) {
-        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
         List<S> evaluatedPop = super.evaluatePopulation(population);
-        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
         return evaluatedPop;
     }
 
     @Override
     public void run() {
-        eResourcesLogger.checkpoint(getName(),"run_start");
+        EasierResourcesLogger.checkpoint(getName(),"run_start");
         super.run();
-        eResourcesLogger.checkpoint(getName(),"run_end");
+        EasierResourcesLogger.checkpoint(getName(),"run_end");
 
 //        eResourcesLogger.toCSV();
 

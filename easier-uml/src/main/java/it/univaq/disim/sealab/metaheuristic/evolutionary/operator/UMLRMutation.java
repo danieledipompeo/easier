@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UMLRMutation extends RMutation<UMLRSolution> {
+public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
 
     /**
      * Constructor
