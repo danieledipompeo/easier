@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomAlgorithmTest;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomGeneticAlgorithmTest;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
@@ -12,7 +13,7 @@ import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2Builder;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class CustomPESA2Test<S extends RSolution<?>> extends CustomAlgorithmTest<S> {
+public class CustomPESA2Test<S extends UMLRSolution> extends CustomGeneticAlgorithmTest<S> {
 
 //	PESA2<UMLRSolution> algorithm;
 
@@ -26,7 +27,7 @@ public class CustomPESA2Test<S extends RSolution<?>> extends CustomAlgorithmTest
     public void setUp() {
         super.setUp();
 
-        PESA2Builder<UMLRSolution> customBuilder = new CustomPESA2Builder<>(p, crossoverOperator,
+        PESA2Builder<S> customBuilder = new CustomPESA2Builder<>(p, crossoverOperator,
                 mutationOperator).setMaxEvaluations(4).setPopulationSize(2)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
