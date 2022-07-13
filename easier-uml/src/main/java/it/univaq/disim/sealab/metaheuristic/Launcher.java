@@ -1,10 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic;
 
 import com.beust.jcommander.JCommander;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.*;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperiment;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.UMLRExecuteAlgorithms;
@@ -176,6 +173,9 @@ public class Launcher {
                 modelPath.getName(modelPath.getNameCount() - 2), brf, eval, probPas,
                 Configurator.eINSTANCE.getSearchBudget(), Configurator.eINSTANCE.getSearchBudgetThreshold(),
                 Configurator.eINSTANCE.getAlgorithm());
+
+        if("rs".equals(Configurator.eINSTANCE.getAlgorithm()))
+            return new RandomSearchUMLRProblem<>(modelPath,pName);
 
         return new UMLRProblem<>(modelPath, pName);
     }
