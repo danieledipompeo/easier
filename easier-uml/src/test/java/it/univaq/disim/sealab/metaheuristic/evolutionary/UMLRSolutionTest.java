@@ -8,6 +8,8 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.junit.jupiter.api.*;
 
@@ -34,7 +36,7 @@ public class UMLRSolutionTest {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
-    @AfterAll
+//    @AfterAll
     public static void tearDownClass() throws IOException {
         Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
@@ -42,9 +44,6 @@ public class UMLRSolutionTest {
     @BeforeEach
     public void setUp() throws URISyntaxException {
         String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-//        p = new UMLRProblem<>(Paths.get(modelPath), "simplied-cocome__test");
-//
-//        solution = (UMLRSolution) p.createSolution();
         solution = new UMLRSolution(Paths.get(modelPath), "simplied-cocome__test");
     }
 
@@ -202,12 +201,7 @@ public class UMLRSolutionTest {
         assertTrue(solution.isLocalOptmimalPoint(solution2));
     }
 
-    @Test
-    public void countingPAs() {
-        solution.countingPAs();
 
-        assertEquals(13d, solution.getPAs(), 1, String.format("Expected 12 PAs \t found: %s.", solution.getPAs()));
-    }
 
     @Test
     public void createRandomRefactoring() {
@@ -216,29 +210,8 @@ public class UMLRSolutionTest {
         assertFalse(solution.getVariable(0).hasMultipleOccurrence());
     }
 
-    @Test
-    public void testTryRandomPush() throws UnexpectedException, EolRuntimeException {
 
-        Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
-        EasierModel eModel = ref.getEasierModel();
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        ref.getActions().add(clone);//, mvopncnn, clone1, mvcpnn));
-        solution.setVariable(0, ref);
 
-        eModel.getTargetRefactoringElement().get(UMLRSolution.SupportedType.NODE.toString()).add(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
-
-        solution.tryRandomPush();
-
-        assertTrue(eModel.getAvailableElements().values().stream().flatMap(Set::stream).anyMatch(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString())::contains));
-    }
-
-    @Test
-    public void evaluatePerformance() {
-        solution.evaluatePerformance();
-    }
 
     @Test
     public void computeReliability() {

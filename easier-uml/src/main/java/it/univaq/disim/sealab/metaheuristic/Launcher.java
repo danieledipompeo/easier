@@ -10,7 +10,6 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util.RGenera
 import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
@@ -24,6 +23,7 @@ import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,8 +62,8 @@ public class Launcher {
                     rProblems.add(createProblems(m, eval[j]));
 
                     if (!m.getParent().resolve("output.xml").toFile().exists()) {
-                        new WorkflowUtils().applyTransformation(m);
-                        new WorkflowUtils().invokeSolver(m);
+                        WorkflowUtils.applyTransformation(m);
+                        WorkflowUtils.invokeSolver(m);
                     }
                     List<GenericIndicator<UMLRSolution>> qIndicators = new ArrayList<>();
                     FactoryBuilder<UMLRSolution> factory = new FactoryBuilder<>();
@@ -150,7 +150,10 @@ public class Launcher {
 
         List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithms = new ArrayList<>();
         FactoryBuilder<UMLRSolution> fBuilder = new FactoryBuilder<>();
-        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
+//        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
+
+        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new SequentialSolutionListEvaluator<>();
+
         final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
 
         String algo = Configurator.eINSTANCE.getAlgorithm();
@@ -174,8 +177,8 @@ public class Launcher {
                 Configurator.eINSTANCE.getSearchBudget(), Configurator.eINSTANCE.getSearchBudgetThreshold(),
                 Configurator.eINSTANCE.getAlgorithm());
 
-        if("rs".equals(Configurator.eINSTANCE.getAlgorithm()))
-            return new RandomSearchUMLRProblem<>(modelPath,pName);
+//        if ("rs".equals(Configurator.eINSTANCE.getAlgorithm()))
+//            return new RandomSearchUMLRProblem<>(modelPath, pName);
 
         return new UMLRProblem<>(modelPath, pName);
     }

@@ -14,12 +14,9 @@ import java.net.URISyntaxException;
 
 public class UMLRefactoring extends Refactoring {
 
-
-
     public UMLRefactoring(String mPath) {
         super(mPath);
         easierModel = new UMLEasierModel(mPath);
-//        easierResourcesLogger = new EasierResourcesLogger("UMLRefactoring");
     }
 
     public UMLRefactoring(Refactoring rfSource) {
@@ -49,25 +46,6 @@ public class UMLRefactoring extends Refactoring {
             return false;
         }
         JMetalLogger.logger.info("Refactoring executed");
-        return true;
-    }
-
-    public boolean isFeasible() {
-
-        EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_start");
-        if (hasMultipleOccurrence())
-            return false;
-
-        for (RefactoringAction action : getActions()) {
-//            Set<String> actionTargetElements =
-//                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
-//            if (easierModel.getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
-            if (!easierModel.contains(action.getTargetElements())) {
-                EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_end");
-                return false;
-            }
-        }
-        EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_end");
         return true;
     }
 

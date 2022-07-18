@@ -6,6 +6,8 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,15 +17,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class UMLRSolutionListEvaluatorTest {
+class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
-    UMLRSolution sol;
+    S sol;
 
-    UMLRProblem<UMLRSolution> problem;
+    UMLRProblem<S> problem;
 
-    UMLRSolutionListEvaluator<UMLRSolution> solutionListEvaluator;
+    SolutionListEvaluator<S> solutionListEvaluator;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -32,7 +34,7 @@ class UMLRSolutionListEvaluatorTest {
                 "simplied-cocome__test");
         sol = problem.createSolution();
 
-        solutionListEvaluator = new UMLRSolutionListEvaluator<>();
+        solutionListEvaluator = new SequentialSolutionListEvaluator<S>();
 
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
@@ -40,9 +42,9 @@ class UMLRSolutionListEvaluatorTest {
     @AfterEach
     void tearDown() throws IOException {
         Files.walk(Configurator.eINSTANCE.getOutputFolder())
-	    .sorted(Comparator.reverseOrder())
-	    .map(Path::toFile)
-	    .forEach(File::delete);
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
     @Test

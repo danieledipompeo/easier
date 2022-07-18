@@ -1,19 +1,10 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.junit.jupiter.api.BeforeAll;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
-import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
-import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,7 +48,6 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
         String modelpath = getClass().getResource("/models/train-ticket/train-ticket.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
     }
-
 
 
     public void runTest() throws IOException {

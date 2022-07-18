@@ -25,6 +25,8 @@ public class FileUtilsTest {
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv"));
+        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_composition.csv"));
+        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("performance_antipatter_dump.csv"));
 
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder());
 
