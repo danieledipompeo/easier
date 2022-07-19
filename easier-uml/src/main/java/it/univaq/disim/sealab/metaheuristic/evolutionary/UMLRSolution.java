@@ -32,6 +32,7 @@ import org.uma.jmetal.util.solutionattribute.impl.CrowdingDistance;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.UnexpectedException;
@@ -189,13 +190,13 @@ public class UMLRSolution extends RSolution<Refactoring> {
         algorithm = this.problemName.substring(this.problemName.lastIndexOf('_') + 1);
 
         try {
+//            Files.copy(sourceModelPath, modelPath);
             org.apache.commons.io.FileUtils.copyFile(sourceModelPath.toFile(), modelPath.toFile());
-        } catch (IOException e) {
-            System.out.println("[ERROR] The problem's model copy generated an error!!!");
-            e.printStackTrace();
-        } catch (RuntimeException eRun) {
-            System.out.println(eRun.getMessage());
+        } catch (IOException | RuntimeException e) {
+            String msg = String.format("Coping the source model %s to %s has generated the error: %s", sourceModelPath, folderPath, e.getMessage());
+            JMetalLogger.logger.severe(msg);
         }
+
         Refactoring refactoring = new UMLRefactoring(modelPath.toString());
         refactoring.setSolutionID(this.name);
         this.setVariable(0, refactoring);
