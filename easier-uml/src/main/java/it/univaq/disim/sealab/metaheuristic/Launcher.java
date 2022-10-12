@@ -63,7 +63,7 @@ public class Launcher {
 
                     if (!m.getParent().resolve("output.xml").toFile().exists()) {
                         new WorkflowUtils().applyTransformation(m);
-                        new WorkflowUtils().invokeSolver(m);
+                        new WorkflowUtils().invokeSolver(m.getParent());
                     }
                     List<GenericIndicator<UMLRSolution>> qIndicators = new ArrayList<>();
                     FactoryBuilder<UMLRSolution> factory = new FactoryBuilder<>();
