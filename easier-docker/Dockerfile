@@ -5,4 +5,5 @@ COPY ./easier-refactoringLibrary /opt/easier/easier-refactoringLibrary
 COPY ./easier-uml2lqn /opt/easier/easier-uml2lqn 
 COPY ./easier-uml2lqnCaseStudy /opt/easier/easier-uml2lqnCaseStudy
 WORKDIR /opt/easier/easier-uml/ 
-ENTRYPOINT ["sh", "easier.sh"]
+ENTRYPOINT ["bash", "-x", "./easier.sh"]
+#ENTRYPOINT ["./easier.sh"]
