@@ -237,7 +237,14 @@ public class UMLRSolutionTest {
 
     @Test
     public void evaluatePerformance() {
+        solution.executeRefactoring();
+
         solution.evaluatePerformance();
+
+        System.out.printf("target: %s \t initial: %s \t perfQ: %s", solution.getModelPath(),
+                Configurator.eINSTANCE.getInitialModelPath(),
+                solution.getPerfQ());
+        assertNotEquals(0.0, solution.getPerfQ(), "Expected a perfq not equal to 0.0.");
     }
 
     @Test
@@ -339,4 +346,5 @@ public class UMLRSolutionTest {
 //
 //        assertTrue(solution.isFeasible());
 //    }
+
 }

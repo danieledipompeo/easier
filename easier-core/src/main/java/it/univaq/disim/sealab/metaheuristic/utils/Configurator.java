@@ -102,6 +102,10 @@ public class Configurator {
 	
 	@Parameter(names = {"-probPAS","--probToBePerfAntipattern"}, description = "The probability to be a performance antipattern")
 	private double probPas = 0.95f;
+
+	@Parameter(names= {"-initialModelPath", "--initModelPath"}, description = "The file path of the initial model " +
+			"used by the perfQ evaluator.")
+	private String initialModelPath = "cocome/simplified-cocome/cocome.uml";
 	
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
@@ -253,5 +257,9 @@ public class Configurator {
 	public double[] getLocalOptimalPointEpsilon() {
 		return optimalPointEpsilon.stream().mapToDouble(Number::doubleValue).toArray();
 	}
-	
+
+	public Path getInitialModelPath() {
+		return Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier" +
+				"-uml2lqnCaseStudy", initialModelPath);
+	}
 }

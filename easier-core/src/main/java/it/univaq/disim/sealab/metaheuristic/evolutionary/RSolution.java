@@ -21,7 +21,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
      */
     private static final long serialVersionUID = 1L;
 
-    protected Path modelPath, sourceModelPath;
+    protected Path modelPath, sourceModelPath, initialModelPath;
 
     protected boolean refactored;
     protected boolean isCrossover;
