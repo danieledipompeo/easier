@@ -38,6 +38,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 //        easierResourcesLogger = new EasierResourcesLogger("UMLCrossoverOperator");
     }
 
+    int crossoverPoint;
     /**
      * Perform the crossover operation.
      * <p>
@@ -85,7 +86,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             Map<Integer, List<List<RefactoringAction>>> parent2IndependentSequence = independentSequence(parent2);
 
             // Find a feasible crossover point.
-            int crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
+            crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
 
             // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
             if (crossoverPoint == -1) {
