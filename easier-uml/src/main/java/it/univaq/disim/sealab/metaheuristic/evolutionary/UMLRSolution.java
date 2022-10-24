@@ -534,6 +534,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
                 architecturalChanges += brf * aw;
             }
+            architecturalChanges += Configurator.eINSTANCE.getInitialChanges();
 
         } catch (URISyntaxException | EolModelLoadingException e) {
             throw new RuntimeException(e);

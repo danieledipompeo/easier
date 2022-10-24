@@ -205,7 +205,7 @@ public class UMLRSolutionTest {
     @Test
     public void countingPAs() {
         solution.countingPAs();
-
+        System.out.printf("PAs \t %s\r",solution.getPAs());
         assertEquals(13d, solution.getPAs(), 1, String.format("Expected 12 PAs \t found: %s.", solution.getPAs()));
     }
 
@@ -241,15 +241,17 @@ public class UMLRSolutionTest {
 
         solution.evaluatePerformance();
 
-        System.out.printf("target: %s \t initial: %s \t perfQ: %s", solution.getModelPath(),
+        System.out.printf("target: %s \t initial: %s \t perfQ: %s\n", solution.getModelPath(),
                 Configurator.eINSTANCE.getInitialModelPath(),
                 solution.getPerfQ());
+        assertNotEquals(Double.NaN, solution.getPerfQ(), "Perfq should not be NaN");
         assertNotEquals(0.0, solution.getPerfQ(), "Expected a perfq not equal to 0.0.");
     }
 
     @Test
     public void computeReliability() {
         solution.computeReliability();
+        System.out.printf("Reliability \t %s\r",solution.getReliability());
     }
 
     @Test
@@ -338,7 +340,19 @@ public class UMLRSolutionTest {
         assertTrue(solution.isIndependent(List.of(a1, a2, a3, a4)), "Expected that 4 MvOpNCNN are independent");
     }
 
-//    @ParameterizedTest
+    @Test
+    void computeArchitecturalChanges() {
+        solution.createRandomRefactoring();
+        solution.executeRefactoring();
+
+        solution.computeArchitecturalChanges();
+
+        assertTrue(solution.getArchitecturalChanges() > Configurator.eINSTANCE.getInitialChanges(), "Expected an " +
+                "architectural changes >= the initial one");
+
+    }
+
+    //    @ParameterizedTest
 //    @ValueSource(ints = {0, 1, 2, 3})
 //    public void doAlter(int point) {
 //        RefactoringAction candidate = ((point == 0) ? solution.getActionAt(point + 1) : solution.getActionAt(point - 1));

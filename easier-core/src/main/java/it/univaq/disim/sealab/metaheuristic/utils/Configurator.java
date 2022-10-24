@@ -106,6 +106,8 @@ public class Configurator {
 	@Parameter(names= {"-initialModelPath", "--initModelPath"}, description = "The file path of the initial model " +
 			"used by the perfQ evaluator.")
 	private String initialModelPath = "cocome/simplified-cocome/cocome.uml";
+
+	private double initialChanges = 0d;
 	
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
@@ -261,5 +263,9 @@ public class Configurator {
 	public Path getInitialModelPath() {
 		return Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier" +
 				"-uml2lqnCaseStudy", initialModelPath);
+	}
+
+	public double getInitialChanges(){
+		return initialChanges;
 	}
 }
