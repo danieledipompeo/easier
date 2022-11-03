@@ -7,11 +7,11 @@
 
 ```bash
 cd ..
-docker build -t easier:<tag> -f easier-docker/Dockerfile
+docker build -t easier:<tag> -f easier-docker/Dockerfile .
 ```
 ## Run a Docker image
 
 ```bash
 cd ..
-docker run -v /mnt/data/<tag>:$outputFolder [conig file URL]
+docker run -it --rm easier:<tag> [config url] [case study github branch]
 ```

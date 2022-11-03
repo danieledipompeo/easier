@@ -3,7 +3,7 @@ COPY ./easier-uml/target/easier-uml-0.6.3-jar-with-dependencies.jar /opt/easier/
 COPY ./easier-docker/easier.sh /opt/easier/easier-uml/easier.sh 
 COPY ./easier-refactoringLibrary /opt/easier/easier-refactoringLibrary
 COPY ./easier-uml2lqn /opt/easier/easier-uml2lqn 
-COPY ./easier-uml2lqnCaseStudy /opt/easier/easier-uml2lqnCaseStudy
+#COPY ./easier-uml2lqnCaseStudy /opt/easier/easier-uml2lqnCaseStudy
 WORKDIR /opt/easier/easier-uml/ 
 ENTRYPOINT ["bash", "-x", "./easier.sh"]
 #ENTRYPOINT ["./easier.sh"]
