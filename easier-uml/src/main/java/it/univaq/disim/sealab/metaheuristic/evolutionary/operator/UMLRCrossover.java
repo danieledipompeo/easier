@@ -53,7 +53,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
      * @param parent2     The second parent
      * @return A list containing the two solutions
      */
-    public List<UMLRSolution> doCrossover(double probability, UMLRSolution parent1, UMLRSolution parent2) {
+    public List<S> doCrossover(double probability, UMLRSolution parent1, UMLRSolution parent2) {
 
         // Store elapsed time and consumed memory before applying the crossover
         easierResourcesLogger.checkpoint("UMLCrossoverOperator", "doCrossover_start");
@@ -91,7 +91,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
             if (crossoverPoint == -1) {
                 JMetalLogger.logger.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
-                return offspring;
+                return (List<S>) offspring;
             }
 
             // Create offspring refactoring by combining the two parents using the crossover point
@@ -101,7 +101,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             // Safety check
             if (child1Refactoring == null || child2Refactoring == null) {
                 JMetalLogger.logger.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
-                return offspring;
+                return (List<S>) offspring;
             }
 
             child1Refactoring.setSolutionID(child1.getName());
@@ -126,7 +126,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 //        easierResourcesLogger.toCSV();
 
         // It can be equal to parent1, parent2; child1,child2;
-        return offspring;
+        return (List<S>) offspring;
     }
 
     /**

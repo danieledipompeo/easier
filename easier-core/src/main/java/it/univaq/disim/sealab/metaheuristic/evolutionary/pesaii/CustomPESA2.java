@@ -103,7 +103,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
      * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
      */
     public void populationToCSV() {
-        for (RSolution<?> sol : population) {
+        for (RSolution<?> sol : this.getResult()) {
             String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
             new FileUtils().solutionDumpToCSV(line);
         }
@@ -170,8 +170,6 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
         EasierResourcesLogger.checkpoint(getName(),"run_start");
         super.run();
         EasierResourcesLogger.checkpoint(getName(),"run_end");
-
-//        eResourcesLogger.toCSV();
 
         /*
          * prints the number of iterations until the search budget is not reached.

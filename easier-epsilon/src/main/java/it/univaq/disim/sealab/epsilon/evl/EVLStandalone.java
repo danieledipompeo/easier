@@ -72,6 +72,35 @@ public class EVLStandalone extends EpsilonStandalone {
 			e.printStackTrace();
 		}
 
+		/*
+			mapOfPas is a Map<String, EolMap<String, EolMap<String,Double>>>
+		 */
+		org.eclipse.epsilon.eol.types.EolMap<?, ?> mapOfPas = ((org.eclipse.epsilon.eol.types.EolMap<?, ?>) ((EvlModule) this.module)
+				.getContext().getFrameStack().get("fuzzy_values").getValue());
+
+		Map<String, Map<String, Double>> perfAntipaternsClassification = new HashMap<>();
+		for (Object key : mapOfPas.keySet()) {
+			Map<String, Double> perfAntipatternMap = new HashMap<>();
+			org.eclipse.epsilon.eol.types.EolMap<?, ?> antipatternMap = ((org.eclipse.epsilon.eol.types.EolMap<?, ?>) mapOfPas.get(key));
+
+			for(Object modelElement : antipatternMap.keySet()) {
+				double fuzzyValue = (double) antipatternMap.get(modelElement);
+				perfAntipatternMap.put((String) modelElement, fuzzyValue < 1 ? fuzzyValue : 1);
+			}
+
+			perfAntipaternsClassification.put((String)key, perfAntipatternMap);
+		}
+		return perfAntipaternsClassification;
+	}
+	/*public Map<String, Map<String, Double>> _extractFuzzyValues() {
+		try {
+			preProcess();
+			execute();
+		} catch (Exception e) {
+			System.err.println("Error in Performance antipattern detection using the file " + model.toString());
+			e.printStackTrace();
+		}
+
 		org.eclipse.epsilon.eol.types.EolMap<?, ?> mapOfPas = ((org.eclipse.epsilon.eol.types.EolMap<?, ?>) ((EvlModule) this.module)
 				.getContext().getFrameStack().get("fuzzy_values").getValue());
 
@@ -94,7 +123,7 @@ public class EVLStandalone extends EpsilonStandalone {
 			perfAntippaternsClassification.put((String)key, perfAntipatternMap);
 		}
 		return perfAntippaternsClassification;
-	}
+	}*/
 
 	@Override
 	public void preProcess() {

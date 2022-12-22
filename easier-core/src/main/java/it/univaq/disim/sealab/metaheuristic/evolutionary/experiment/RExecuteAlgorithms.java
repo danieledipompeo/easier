@@ -1,27 +1,26 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputFilter.Config;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> {
 
     protected RExperiment<S, Result> experiment;
-    protected List<Map.Entry<Algorithm<Result>, long[]>> computingTimes;
 
     /**
      * Constructor
@@ -37,34 +36,16 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
         System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
                 "" + this.experiment.getNumberOfCores());
 
-        computingTimes = new ArrayList<>();
+        for (ExperimentAlgorithm<S, Result> algo : experiment.getAlgorithmList()) {
+            algo.runAlgorithm(this.experiment);
+            List<RSolution<?>> population = (List<RSolution<?>>) algo.getAlgorithm().getResult();
 
-        // TODO if parallelStream is set, it throws NPE after a while
-        computingTimes.addAll(experiment.getAlgorithmList().stream()
-                .map(algorithm -> getComputingTime((RExperimentAlgorithm<S, Result>) algorithm))
-                .collect(Collectors.toList()));
+            EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO(population, algo.getRunId()));
+        }
 
         FileUtils.moveTmpFile(Configurator.eINSTANCE.getTmpFolder(),
                 Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "tmp"));
         return this;
-    }
-
-    /**
-     * It returns an Algorithm and its computational time along with total and free
-     * memory stats It flushes experiment data to "algo-perf-stats.csv" file within
-     * the output folder
-     *
-     * @param algorithm
-     * @return
-     */
-    protected Map.Entry<Algorithm<Result>, long[]> getComputingTime(RExperimentAlgorithm<S, Result> algorithm) {
-        long total = Runtime.getRuntime().totalMemory();
-        long initTime = System.currentTimeMillis();
-        algorithm.runAlgorithm(this.experiment);
-        long computingTime = System.currentTimeMillis() - initTime;
-        long free = Runtime.getRuntime().freeMemory();
-        return new AbstractMap.SimpleEntry<Algorithm<Result>, long[]>(algorithm.getAlgorithm(),
-                new long[]{computingTime, total, free});// new
     }
 
     protected void prepareOutputDirectory() {
@@ -108,7 +89,4 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
         }
     }
 
-    public List<Map.Entry<Algorithm<Result>, long[]>> getComputingTimes() {
-        return computingTimes;
-    }
 }

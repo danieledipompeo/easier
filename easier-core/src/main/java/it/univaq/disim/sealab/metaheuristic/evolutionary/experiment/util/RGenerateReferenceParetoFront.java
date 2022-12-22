@@ -14,34 +14,24 @@
 
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.uma.jmetal.lab.experiment.Experiment;
 import org.uma.jmetal.lab.experiment.component.ExperimentComponent;
 import org.uma.jmetal.lab.experiment.component.impl.ExecuteAlgorithms;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.archive.impl.NonDominatedSolutionListArchive;
-import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 import org.uma.jmetal.util.point.PointSolution;
 import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
 
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class computes a reference Pareto front from a set of files. Once the
@@ -80,22 +70,19 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 
 		List<String> referenceFrontFileNames = new LinkedList<>();
 		for (ExperimentProblem<?> problem : experiment.getProblemList()) {
-			NonDominatedSolutionListArchive<RPointSolution> nonDominatedSolutionArchive = new NonDominatedSolutionListArchive<RPointSolution>();
+			NonDominatedSolutionListArchive<RPointSolution> nonDominatedSolutionArchive = new NonDominatedSolutionListArchive<>();
 
 			for (ExperimentAlgorithm<?, ?> algorithm : experiment.getAlgorithmList()) {
 				String problemDirectory = experiment.getExperimentBaseDirectory() + "/data/"
 						+ algorithm.getAlgorithmTag() + "/" + problem.getTag();
 
 				for (int i = 0; i < experiment.getIndependentRuns(); i++) {
-					String frontFileName = problemDirectory + "/" + experiment.getOutputParetoFrontFileName() + i;// +
-																													// ".csv";
+					String frontFileName = problemDirectory + "/" + experiment.getOutputParetoFrontFileName() + i;
 					frontFileName += "__" + problem.getTag() + ".csv";
 
-//	          Front front = new ArrayFront(frontFileName, ",") ;
-					List<RPointSolution> solutionList = generateRPointSolutionList(frontFileName);// FrontUtils.convertFrontToSolutionList(front)
-																									// ;
+					List<RPointSolution> solutionList = generateRPointSolutionList(frontFileName);
 
-					GenericSolutionAttribute<RPointSolution, String> solutionAttribute = new GenericSolutionAttribute<RPointSolution, String>();
+					GenericSolutionAttribute<RPointSolution, String> solutionAttribute = new GenericSolutionAttribute<>();
 
 					for (RPointSolution solution : solutionList) {
 						solutionAttribute.setAttribute(solution, algorithm.getAlgorithmTag());
@@ -105,9 +92,7 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 			}
 			String referenceSetFileName = outputDirectoryName + "/" + problem.getTag() + ".csv";
 			referenceFrontFileNames.add(problem.getTag() + ".csv");
-//			new RSolutionListOutput(nonDominatedSolutionArchive.getSolutionList())
-//					.printObjectivesToFile(referenceSetFileName, ",");
-			
+
 			printReferenceFrontToFile(getFileWriter(referenceSetFileName),
 					nonDominatedSolutionArchive.getSolutionList());
 
@@ -152,8 +137,8 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 	}
 
 	private void writeFilesWithTheSolutionsContributedByEachAlgorithm(String outputDirectoryName,
-			ExperimentProblem<?> problem, List<RPointSolution> nonDominatedSolutions) throws IOException {
-		GenericSolutionAttribute<PointSolution, String> solutionAttribute = new GenericSolutionAttribute<PointSolution, String>();
+			ExperimentProblem<?> problem, List<RPointSolution> nonDominatedSolutions) {
+		GenericSolutionAttribute<PointSolution, String> solutionAttribute = new GenericSolutionAttribute<>();
 
 		for (ExperimentAlgorithm<?, ?> algorithm : experiment.getAlgorithmList()) {
 			List<RPointSolution> solutionsPerAlgorithm = new ArrayList<>();
@@ -163,9 +148,6 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 				}
 			}
 
-//			new SolutionListOutput(solutionsPerAlgorithm).printObjectivesToFile(
-//					outputDirectoryName + "/" + problem.getTag() + "." + algorithm.getAlgorithmTag() + ".csv", ",");
-			
 			printReferenceFrontToFile(getFileWriter(
 					outputDirectoryName + "/" + problem.getTag() + "." + algorithm.getAlgorithmTag() + ".csv"), solutionsPerAlgorithm);
 		}
@@ -203,9 +185,6 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 				for (int i = 0; i < solutionList.size(); i++) {
 					bufferedWriter.write(solutionList.get(i).getID() + separator);
 					for (int j = 0; j < numberOfObjectives-1; j++) {
-//						if (j == 0 && !RPointSolution.isWorsen())
-//							bufferedWriter.write((-1 * solutionList.get(i).getObjective(j)) + context.getSeparator());
-//						else
 						bufferedWriter.write(solutionList.get(i).getObjective(j) + separator);
 					}
 					bufferedWriter.write(""+solutionList.get(i).getObjective(numberOfObjectives - 1));

@@ -25,26 +25,24 @@ import java.util.stream.Collectors;
 
 public class WorkflowUtils {
 
-    private EasierResourcesLogger easierResourcesLogger;
 
-    public WorkflowUtils(){
-//        easierResourcesLogger = new EasierResourcesLogger("WorkflowUtils");
+    public WorkflowUtils() {
     }
 
     public void applyTransformation(Path sourceModelPath) {
 
-        ETLStandalone executor = null;
+        ETLStandalone executor;
         String uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-uml2lqn").toString();
 
         try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString())) {
-//			uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString());
 
             executor = new ETLStandalone(sourceModelPath.getParent());
             executor.setSource(Paths.get(uml2lqnModule, "uml2lqn.etl"));
             executor.setModel(uml);
             executor.setModel(executor.createXMLModel("LQN", sourceModelPath.getParent().resolve("output.xml"),
-                    org.eclipse.emf.common.util.URI.createFileURI(Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString()),
+                    org.eclipse.emf.common.util.URI.createFileURI(
+                            Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString()),
                     false, true));
             executor.execute();
             executor.clearMemory();
@@ -55,8 +53,6 @@ public class WorkflowUtils {
             throw new RuntimeException(e);
         }
         new UMLMemoryOptimizer().cleanup();
-//        uml = null;
-//        executor = null;
         JMetalLogger.logger.info("UML2LQN done");
     }
 
@@ -68,11 +64,13 @@ public class WorkflowUtils {
         XMLUtil.conformanceChecking(lqnModelPath);
 
         // Allow cycles in the lqn model as well as support MVA convergence faults
-        final List<String> command = List.of(lqnSolverPath.toString(), "-P", "cycles=yes", "-P", "stop-on-message-loss=false", lqnModelPath.toString());
+        final List<String> command =
+                List.of(lqnSolverPath.toString(), "-P", "cycles=yes", "-P", "stop-on-message-loss=false",
+                        lqnModelPath.toString());
 
         Process process;
         try {
-            ProcessBuilder pb =new ProcessBuilder(command);
+            ProcessBuilder pb = new ProcessBuilder(command);
             process = pb.start();
             process.waitFor();
 
@@ -83,7 +81,7 @@ public class WorkflowUtils {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e1){
+        } catch (InterruptedException e1) {
             e1.printStackTrace();
             Thread.currentThread().interrupt();
         }
@@ -92,51 +90,40 @@ public class WorkflowUtils {
 
     public void backAnnotation(Path sourceModelPath) throws URISyntaxException, EolRuntimeException {
 
-		EOLStandalone bckAnn = new EOLStandalone();
-		EasierUmlModel uml = null;
+        EOLStandalone bckAnn = new EOLStandalone();
+        EasierUmlModel uml;
 
-//		try {
-			uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString());
-//		} catch (URISyntaxException | EolRuntimeException e) {
-//			e.printStackTrace();
-//		}
+        uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString());
 
-		bckAnn.setModel(uml);
+        bckAnn.setModel(uml);
 
-		String uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-				"easier-uml2lqn").toString();
+        String uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
+                "easier-uml2lqn").toString();
 
-		bckAnn.setSource(Paths.get(uml2lqnModule, "backAnnotation.eol"));
+        bckAnn.setSource(Paths.get(uml2lqnModule, "backAnnotation.eol"));
 
-		// Points to lqn schema file and stores pacakges into the global package
-		// registry
-		XSDEcoreBuilder xsdEcoreBuilder = new XSDEcoreBuilder();
-		String schema = Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString();
-//		String schema = Configurator.eINSTANCE.getUml2Lqn().resolve("org.univaq.uml2lqn").resolve("lqnxsd")
-//				.resolve("lqn.xsd").toString();
-		Collection<EObject> generatedPackages = xsdEcoreBuilder
-				.generate(org.eclipse.emf.common.util.URI.createURI(schema));
-		for (EObject generatedEObject : generatedPackages) {
-			if (generatedEObject instanceof EPackage) {
-				EPackage generatedPackage = (EPackage) generatedEObject;
-				EPackage.Registry.INSTANCE.put(generatedPackage.getNsURI(), generatedPackage);
-			}
-		}
-		bckAnn.setModel(bckAnn.createPlainXMLModel("LQXO", sourceModelPath.getParent().resolve("output.lqxo"), true,
-				false, true));
+        // Points to lqn schema file and stores pacakges into the global package
+        // registry
+        XSDEcoreBuilder xsdEcoreBuilder = new XSDEcoreBuilder();
+        String schema = Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString();
+        Collection<EObject> generatedPackages = xsdEcoreBuilder
+                .generate(org.eclipse.emf.common.util.URI.createURI(schema));
+        for (EObject generatedEObject : generatedPackages) {
+            if (generatedEObject instanceof EPackage) {
+                EPackage generatedPackage = (EPackage) generatedEObject;
+                EPackage.Registry.INSTANCE.put(generatedPackage.getNsURI(), generatedPackage);
+            }
+        }
+        bckAnn.setModel(bckAnn.createPlainXMLModel("LQXO", sourceModelPath.getParent().resolve("output.lqxo"), true,
+                false, true));
 
-//		try {
-			bckAnn.execute();
-//		} catch (EolRuntimeException e) {
-//			e.printStackTrace();
-//		}
+        bckAnn.execute();
 
-		bckAnn.clearMemory();
-		new UMLMemoryOptimizer().cleanup();
-		bckAnn = null;
+        bckAnn.clearMemory();
+        new UMLMemoryOptimizer().cleanup();
 
         JMetalLogger.logger.info("UML model back annotated");
 
-	}
+    }
 
 }
