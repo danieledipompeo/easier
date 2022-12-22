@@ -167,14 +167,15 @@ public abstract class Refactoring implements Cloneable {
     }
 
     /**
-     * Prints a single semicolon delimited line with actions belong to the refactoring
+     * Print actions belong to the refactoring a semi-column string.
+     * Add as prefix the solutionID
      *
      * @return
      */
     @Override
     public String toString() {
         return getActions().stream().map(RefactoringAction::toCSV)
-                .collect(Collectors.joining(";"));
+                .collect(Collectors.joining("\n"+this.solutionID+",", this.solutionID+",",""));
     }
 
     public void flushResourcesUsageStats(){
