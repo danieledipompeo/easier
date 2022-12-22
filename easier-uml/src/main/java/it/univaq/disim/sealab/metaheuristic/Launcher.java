@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic;
 
 import com.beust.jcommander.JCommander;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.*;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperiment;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentBuilder;
@@ -11,10 +12,7 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
@@ -122,6 +120,8 @@ public class Launcher {
         try {
             List<Entry<Algorithm<List<UMLRSolution>>, long[]>> computingTimes = new UMLRExecuteAlgorithms<UMLRSolution, List<UMLRSolution>>(
                     experiment).run().getComputingTimes();
+
+            new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
             experiment.setComputingTime(computingTimes);
 

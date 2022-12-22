@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierPopulationDAO;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.problem.Problem;
 
@@ -44,6 +46,8 @@ public class UMLRSolutionListEvaluator <S extends RSolution<?>> extends RSolutio
 		});
 
 		easierResourcesLogger.checkpoint("UMLRSolutionListEvaluator","evaluate_end");
+
+		EasierExperimentDAO.eINSTANCE.addPopulation(new EasierPopulationDAO((List<RSolution<?>>) solutionList));
 
 		return solutionList;
 	}
