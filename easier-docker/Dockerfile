@@ -1,4 +1,4 @@
-FROM danieledipompeo/lqn_solver:v5
+FROM danieledipompeo/lqn_solver:v5-openjdk-17
 COPY ./easier-uml/target/easier-uml-0.6.3-jar-with-dependencies.jar /opt/easier/easier-uml/easier.jar 
 COPY ./easier-docker/easier.sh /opt/easier/easier-uml/easier.sh 
 COPY ./easier-refactoringLibrary /opt/easier/easier-refactoringLibrary
