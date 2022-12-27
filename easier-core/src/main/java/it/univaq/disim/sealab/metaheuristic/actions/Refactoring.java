@@ -1,8 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import org.eclipse.emf.common.util.EList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +45,7 @@ public abstract class Refactoring implements Cloneable {
         return actions;
     }
 
-    public void setActions(EList<RefactoringAction> actions) {
+    public void setActions(List<RefactoringAction> actions) {
         this.actions = actions;
     }
 
