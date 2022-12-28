@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.qualityindicator.impl.Epsilon;
 import org.uma.jmetal.qualityindicator.impl.GeneralizedSpread;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
@@ -50,12 +50,12 @@ public class RGenerateReferenceParetoFrontTest {
 
 	private RGenerateReferenceParetoFront _claz;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		_claz = new RGenerateReferenceParetoFront();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void generateRPointSolutionList() throws IOException {
 
@@ -133,7 +133,7 @@ public class RGenerateReferenceParetoFrontTest {
 		}
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void computeIndicators() throws FileNotFoundException {
 

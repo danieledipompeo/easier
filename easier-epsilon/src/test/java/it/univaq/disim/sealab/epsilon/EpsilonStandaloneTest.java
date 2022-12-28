@@ -3,9 +3,9 @@ package it.univaq.disim.sealab.epsilon;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
@@ -16,8 +16,8 @@ public class EpsilonStandaloneTest {
 	String refactoringLibraryModule, uml2lqnModule, GQAM_NAMESPACE;
 	String modelPath;
 	EVLStandalone evlModule;
-	
-	@Before
+
+	@BeforeEach
 	public void setUp() {
 		
 		refactoringLibraryModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
@@ -40,15 +40,16 @@ public class EpsilonStandaloneTest {
 		evlModule.setModel(uml);
 		evlModule.setSource(Paths.get(refactoringLibraryModule));
 		evlModule.setParameter(0.95f, "float", "prob_to_be_pa");
-		
+
 	}
-	
+
 
 	// requires the updated module
-	@Ignore
+
+	@Disabled
 	@Test
 	public void extractFuzzyValuesTest() {
 		evlModule.extractFuzzyValues();
 	}
-	
+
 }

@@ -44,7 +44,7 @@ public class FileUtilsTest {
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(2, lnr.getLineNumber());
 
     }
 
@@ -61,7 +61,7 @@ public class FileUtilsTest {
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(2, lnr.getLineNumber());
     }
 
     private String extractLineFromFile(Path file) throws IOException {

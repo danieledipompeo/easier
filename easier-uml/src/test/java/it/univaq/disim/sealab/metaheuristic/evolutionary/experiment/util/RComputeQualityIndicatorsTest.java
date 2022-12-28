@@ -2,9 +2,9 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.JMetalException;
@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-@Ignore
+@Disabled
 public class RComputeQualityIndicatorsTest<S extends Solution> {
 
 	List<GenericIndicator<S>> qIndicators;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		List<String> qualityIndicators = Arrays.asList("SPREAD", "IGD+", "IGD", "EPSILON", "HYPER_VOLUME",
 				"GENERALIZED_SPREAD");

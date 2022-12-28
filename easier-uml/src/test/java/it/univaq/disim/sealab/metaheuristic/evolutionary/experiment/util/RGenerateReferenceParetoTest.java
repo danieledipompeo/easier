@@ -1,7 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.util.archive.impl.NonDominatedSolutionListArchive;
 import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Ignore
+@Disabled
 public class RGenerateReferenceParetoTest {
 
 	@Test

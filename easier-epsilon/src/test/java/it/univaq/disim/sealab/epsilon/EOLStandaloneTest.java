@@ -3,14 +3,14 @@ package it.univaq.disim.sealab.epsilon;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.uml2.common.util.CacheAdapter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 
 public class EOLStandaloneTest {
 
-	@Before
+	@BeforeEach
 	public void init() {
 	}
 

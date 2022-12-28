@@ -6,9 +6,10 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -21,28 +22,25 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
-
 public class FactoryBuilderTest {
 
     Path modelPath;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         modelPath = Paths.get(getClass().getResource("/models/model/automatedGuidedVehicle.uml").getFile());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
-    @Test
+    @org.testng.annotations.Test
     public void createQualityIndicatorTest(){
         GenericIndicator<UMLRSolution> indicator = new FactoryBuilder<UMLRSolution>().createQualityIndicators("HYPER_VOLUME");
-        assertNotNull("Expected non null indicator",indicator);
+        Assertions.assertNotNull(indicator, "Expected non null indicator");
         String expectedName = "HV";
-        assertEquals(String.format("Expected %s \t created %s",expectedName, indicator.getName()), expectedName, indicator.getName());
+        Assertions.assertEquals(expectedName, indicator.getName(), String.format("Expected %s \t created %s",expectedName, indicator.getName()));
     }
 
     @Test
@@ -62,7 +60,7 @@ public class FactoryBuilderTest {
                 experimentProblem, eval, crossoverOperator, solutionListEvaluator, mutationOperator, algo
         );
 
-        assertFalse("Expected a not empty experiment algorithm list", experimentAlgorithms.isEmpty());
+        Assertions.assertFalse(experimentAlgorithms.isEmpty(), "Expected a not empty experiment algorithm list");
 
     }
 

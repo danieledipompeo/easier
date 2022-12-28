@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 public class ProgessBarTest {
 	
