@@ -104,8 +104,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         scenarioRTs = new double[3];
 
         this.setName();
-
-        //        initMap();
+        
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
                 String.valueOf(getName()));
         modelPath = folderPath.resolve(getName() + ".uml");
@@ -279,7 +278,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         // The elements of the source model;
         List<EObject> nodes = null;
         List<EObject> scenarios = null;
-        //        try (EasierUmlModel source = (EasierUmlModel) EpsilonStandalone.createUmlModel(sourceModelPath.toString());
         try (EasierUmlModel source = EpsilonStandalone.createUmlModel(initialModelPath.toString());
              EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
             nodes = (List<EObject>) source.getAllOfType("Node");
@@ -351,65 +349,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         }
         EasierResourcesLogger.checkpoint("UMLRSolution", "computeArchitecturalChanges_end");
         JMetalLogger.logger.info(String.format("Architectural changes computed : %s", architecturalChanges));
-    }
-
-    @Override
-    public void computeScenarioRT() {
-
-        /*
-         * The updated model can have more nodes than the source node since original
-         * nodes can be cloned. The benefits of cloning nodes is taken into account by
-         * the performance model. For this reason, the perfQ analyzes only the
-         * performance metrics of the nodes common among the models
-         */
-
-        // Represent the reference point index of each UML scenario
-        final int rebook_index = 0;
-        final int update_user_index = 1;
-        final int login_index = 2;
-
-        int scenarioIndex = 0;
-
-        // The elements of the source model;
-        List<EObject> scenarios = null;
-
-        // The function considers only the elements having the stereotypes GaScenario
-        try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-            scenarios = (List<EObject>) uml.getAllOfType("UseCase");
-            scenarios = filterByStereotype(scenarios, GQAM_NAMESPACE + "GaScenario");
-
-            // for each element of the source model, it is picked the element with the same
-            // id in the refactored one
-            for (EObject element : scenarios) {
-                Stereotype stereotype = ((Element) element).getAppliedStereotype(GQAM_NAMESPACE + "GaScenario");
-                EList<?> values = (EList<?>) ((Element) element).getValue(stereotype, "respT");
-
-                if (!values.isEmpty()) {
-                    if ("Rebook a ticket".equals(((UseCase) element).getName())) {
-                        scenarioIndex = rebook_index;
-                    } else if ("Update user details".equals(((UseCase) element).getName())) {
-                        scenarioIndex = update_user_index;
-                    } else if ("Login".equals(((UseCase) element).getName())) {
-                        scenarioIndex = login_index;
-                    } else {
-                        throw new RuntimeException("Scenario name does not support yet!");
-                    }
-
-                    scenarioRTs[scenarioIndex] = Double.parseDouble(values.get(0).toString());
-                }
-
-            }
-            uml.dispose();
-            new UMLMemoryOptimizer().cleanup();
-        } catch (Exception e) {
-            JMetalLogger.logger.severe(
-                    String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
-            e.printStackTrace();
-        }
-    }
-
-    public double[] getScenarioRTs() {
-        return scenarioRTs;
     }
 
     private double computePerfQValue(final Element source, final Element ref, final String stereotypeName,
