@@ -1,8 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,16 +11,17 @@ import java.io.LineNumberReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class FileUtilsTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() throws IOException {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws IOException {
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
         Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
@@ -87,7 +88,7 @@ public class FileUtilsTest {
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(2, lnr.getLineNumber());
     }
 
 }
