@@ -26,10 +26,6 @@ public class RefactoringTest {
 
     @BeforeEach
     public void setUp() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 

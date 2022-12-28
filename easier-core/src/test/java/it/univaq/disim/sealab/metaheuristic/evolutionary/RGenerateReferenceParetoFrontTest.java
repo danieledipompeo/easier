@@ -59,7 +59,6 @@ public class RGenerateReferenceParetoFrontTest {
 	@Test
 	public void generateRPointSolutionList() throws IOException {
 
-//		String outputDirectoryName = "/mnt/store/research/uml2lqn/21102020/easier-output";
 		String outputDirectoryName = "/home/peo/Downloads/mnt/ramdisk/easier-output";
 		
 		String baseDirectory = outputDirectoryName + "/referenceFront/Exp";
@@ -93,10 +92,6 @@ public class RGenerateReferenceParetoFrontTest {
 
 		String referenceSetFileName = outputDirectoryName + "/" + problemTag + ".rf";
 		referenceFrontFileNames.add(problemTag + ".rf");
-
-//		new RSolutionListOutput(nonDominatedSolutionArchive.getSolutionList())
-//				.printObjectivesToFile(referenceSetFileName);
-
 		writeFilesWithTheSolutionsContributedByEachAlgorithm(outputDirectoryName, problemTag,
 				nonDominatedSolutionArchive.getSolutionList());
 
@@ -135,9 +130,6 @@ public class RGenerateReferenceParetoFrontTest {
 					solutionsPerAlgorithm.add(solution);
 				}
 			}
-
-//			new RSolutionListOutput(solutionsPerAlgorithm)
-//					.printObjectivesToFile(outputDirectoryName + "/" + problemName + "." + algorithmTags[j] + ".rf");
 		}
 	}
 
@@ -149,12 +141,10 @@ public class RGenerateReferenceParetoFrontTest {
 
 		String[] algorithmTags = { "NSGAII", "SPEA2" };
 
-//		String outputDirectoryName = "/mnt/store/research/uml2lqn/21102020/easier-output";
 		String outputDirectoryName = "/tmp/easier-output-24";
 		String baseDirectory = outputDirectoryName + "/referenceFront/Exp";
 
 		List<GenericIndicator<PointSolution>> qIndicators = new ArrayList<>();
-//		FactoryBuilder<RSolution> factory = new FactoryBuilder<RSolution>();
 		List<String> qIs = Arrays.asList("SPREAD","IGD+","IGD","EPSILON","HYPER_VOLUME","GENERALIZED_SPREAD");
 		qIndicators.add(new Spread<>());
 		qIndicators.add(new InvertedGenerationalDistancePlus<>());
@@ -209,7 +199,6 @@ public class RGenerateReferenceParetoFrontTest {
 				} catch (JMetalException e) {
 					e.printStackTrace();
 				}
-//				}
 			}
 		}
 		try{
@@ -306,7 +295,6 @@ public class RGenerateReferenceParetoFrontTest {
 		String[] algorithmTags = { "NSGAII", "SPEA2" };
 		String problemTag = "train-ticket_Length_4_CloningWeight_1.5_MaxCloning_3";
 
-//		String outputDirectoryName = "/mnt/store/research/uml2lqn/21102020/easier-output";
 		String outputDirectoryName = "/tmp/easier-output-24";
 		String baseDirectory = outputDirectoryName + "/referenceFront/Exp";
 
@@ -315,7 +303,6 @@ public class RGenerateReferenceParetoFrontTest {
 				String algorithmDirectory;
 				algorithmDirectory = baseDirectory + "/data/" + algorithmTags[j];
 
-//				for (ExperimentProblem<?> problem : experiment.getProblemList()) {
 				String indicatorFileName = algorithmDirectory + "/" + problemTag + "/" + indicator.getName();
 				Path indicatorFile = Paths.get(indicatorFileName);
 				if (indicatorFile != null && Files.exists(indicatorFile)) {

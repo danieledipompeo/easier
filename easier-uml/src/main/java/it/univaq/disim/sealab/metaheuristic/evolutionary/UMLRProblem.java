@@ -3,7 +3,6 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import org.uma.jmetal.util.JMetalLogger;
 
 import java.nio.file.Path;
 

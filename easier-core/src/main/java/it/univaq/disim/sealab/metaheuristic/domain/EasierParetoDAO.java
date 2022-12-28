@@ -2,7 +2,6 @@ package it.univaq.disim.sealab.metaheuristic.domain;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EasierParetoDAO extends EasierPopulationDAO {

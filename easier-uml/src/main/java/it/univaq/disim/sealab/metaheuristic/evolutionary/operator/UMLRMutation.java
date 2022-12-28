@@ -22,7 +22,6 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
      */
     public UMLRMutation(double mutationProbability, double distributionIndex) {
         super(mutationProbability, distributionIndex);
-//        easierResourcesLogger = new EasierResourcesLogger("UMLMutationOperator");
     }
 
     /**
@@ -31,7 +30,7 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
     @Override
     protected void doMutation(double probability, UMLRSolution solution, int allowed_failures) {
 
-        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
+        EasierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
 
         for (int i = 0; i < solution.getNumberOfVariables(); i++) {
 
@@ -50,14 +49,6 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
 
                     Map<String, Set<String>> filteredAvailableElements = filterOutElementOf(solution, candidateToBeMutated);
 
-                    // filter out elements belong to the candidateToBeRemoved from the availableElements
-//                    for (String k : availableElements.keySet()) {
-//                        Set<String> kFilteredElements = availableElements.get(k);
-//                        if (candidateToBeMutated.getCreatedElements().get(k) != null)
-//                            kFilteredElements = availableElements.get(k).stream().filter(aElem -> !candidateToBeMutated.getCreatedElements().get(k).contains(aElem)).collect(Collectors.toSet());
-//                        filteredAvailableElements.put(k, kFilteredElements);
-//                    }
-
                     RefactoringAction newCandidate = RefactoringActionFactory.getRandomAction(filteredAvailableElements, initialElements);
                     ref.getActions().set(randomPosition, newCandidate);
 
@@ -71,7 +62,7 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
                 }
             }
         }
-        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_end");
+        EasierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_end");
     }
 
     private Map<String, Set<String>> filterOutElementOf(UMLRSolution solution, RefactoringAction refactoringAction) {

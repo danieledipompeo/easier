@@ -45,9 +45,4 @@ public abstract class RProblem<S> extends AbstractGenericProblem<S> {
 	public String toString() {
 		return this.getName();
 	}
-
-	public void flushResourcesUsageStats(){
-//		easierResourcesLogger.toCSV();
-	}
-
 }

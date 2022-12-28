@@ -7,7 +7,6 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.Paths;

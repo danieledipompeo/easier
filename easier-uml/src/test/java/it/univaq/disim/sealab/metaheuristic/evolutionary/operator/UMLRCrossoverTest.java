@@ -1,22 +1,15 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

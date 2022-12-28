@@ -1,13 +1,12 @@
 package it.univaq.disim.sealab.epsilon.eol;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-
+import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class EOLStandalone extends EpsilonStandalone {
 

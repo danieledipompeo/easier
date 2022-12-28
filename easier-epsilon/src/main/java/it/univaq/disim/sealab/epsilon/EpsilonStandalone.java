@@ -1,13 +1,6 @@
 package it.univaq.disim.sealab.epsilon;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryRegistryImpl;
@@ -26,9 +19,14 @@ import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
-import org.eclipse.uml2.common.util.CacheAdapter;
 
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class EpsilonStandalone {
 
@@ -312,8 +310,5 @@ public abstract class EpsilonStandalone {
 		this.getModule().getContext().dispose();
 		this.getModule().getContext().getModelRepository().dispose();
 		this.getModule().getContext().getFrameStack().dispose();
-
-		
 	}
-
 }

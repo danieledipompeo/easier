@@ -1,16 +1,13 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierPopulationDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.problem.Problem;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import java.util.List;
 
 public class UMLRSolutionListEvaluator <S extends RSolution<?>> extends RSolutionListEvaluator<S> {
 	
@@ -21,13 +18,12 @@ public class UMLRSolutionListEvaluator <S extends RSolution<?>> extends RSolutio
 	private static final long serialVersionUID = 1L;
 
 	public UMLRSolutionListEvaluator(){
-//		easierResourcesLogger = new EasierResourcesLogger("UMLRSolutionListEvaluator");
 	}
 
 	@Override
 	public List<S> evaluate(List<S> solutionList, Problem<S> problem) {
 
-		easierResourcesLogger.checkpoint("UMLRSolutionListEvaluator","evaluate_start");
+		EasierResourcesLogger.checkpoint("UMLRSolutionListEvaluator","evaluate_start");
 
 		solutionList.stream().forEach(sol -> {
 			sol.executeRefactoring();
@@ -38,14 +34,10 @@ public class UMLRSolutionListEvaluator <S extends RSolution<?>> extends RSolutio
 			sol.evaluatePerformance();
 			sol.computeReliability();
 			sol.computeArchitecturalChanges();
-//			sol.computeScenarioRT();
 			problem.evaluate(sol);
-
-			// Dump to file resources usage stats
-//			sol.flushResourcesUsageStats();
 		});
 
-		easierResourcesLogger.checkpoint("UMLRSolutionListEvaluator","evaluate_end");
+		EasierResourcesLogger.checkpoint("UMLRSolutionListEvaluator","evaluate_end");
 
 		EasierExperimentDAO.eINSTANCE.addPopulation(new EasierPopulationDAO((List<RSolution<?>>) solutionList));
 

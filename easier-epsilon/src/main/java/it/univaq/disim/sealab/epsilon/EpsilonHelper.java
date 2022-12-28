@@ -1,13 +1,9 @@
 package it.univaq.disim.sealab.epsilon;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URL;
+import it.univaq.disim.sealab.epsilon.egl.EGLStandalone;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import it.univaq.disim.sealab.epsilon.egl.EGLStandalone;
-import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 
 public class EpsilonHelper {
 
@@ -20,12 +16,6 @@ public class EpsilonHelper {
 	public static synchronized void generateAemFile(Path mmaemiliaFilePath, Path destFilePath) {
 
 		try {
-			// TODO NPE
-//			final String easierEpsilonProject = Paths
-//					.get(EpsilonHelper.class.getClassLoader().getResource("/").getFile(),
-//							"../../../easier-epsilon/target/classes/")
-//					.toString();
-
 			EGLStandalone eglModule = new EGLStandalone();
 			eglModule.setMetamodelPath(Paths.get("/tmp/mmAemlia.ecore"));
 			eglModule.setModel(mmaemiliaFilePath);

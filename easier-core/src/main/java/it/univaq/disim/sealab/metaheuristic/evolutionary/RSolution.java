@@ -1,20 +1,14 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.solution.AbstractSolution;
 
-import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
-import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import java.nio.file.Path;
 
-public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGenericSolution<Refactoring, RProblem<?>> {
+public abstract class RSolution<T> extends AbstractSolution<T> {
 
     /**
      *
@@ -51,6 +45,9 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
         VARIABLE_INDEX = 0;
     }
 
+    /**
+     * Constructor
+     */
     protected RSolution(Path srcModelPath, String pName) {
         super(1, Configurator.eINSTANCE.getObjectives());
         allowedFailures = Configurator.eINSTANCE.getAllowedFailures();
@@ -59,21 +56,6 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
         problemName = pName;
     }
 
-    /**
-     * Constructor
-     */
-//    protected RSolution(int numberOfVariables, int numberOfObjectives, int numberOfConstraints, RProblem<?> p) {
-//        super(numberOfVariables, numberOfObjectives, numberOfConstraints);
-//
-//    }
-
-//	public RSolution(RProblem<T> p) {
-////		super(problem);
-//		problem = p;
-//		crossovered = false;
-//		mutated = false;
-//		refactored = false;
-//	}
     public abstract void countingPAs();
 
     public abstract double evaluatePerformance();
@@ -86,17 +68,9 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
 
     public abstract void computeArchitecturalChanges();
 
-    public abstract void computeScenarioRT();
-
-//    public abstract boolean alter(int i);
-
     public abstract void invokeSolver();
 
     public abstract boolean isFeasible();
-
-    public RefactoringAction getActionAt(int index) {
-        return ((Refactoring) getVariable(VARIABLE_INDEX)).getActions().get(index);
-    }
 
     public Path getModelPath() {
         return modelPath;
@@ -164,40 +138,9 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
         this.name = getCounter();
     }
 
-    protected void resetParents() {
-        if (this.parents != null) {
-            this.parents[0] = null;
-            this.parents[1] = null;
-        }
-    }
-
-    public RSolution[] getParents() {
-        return parents;
-    }
-
     public void setParents(RSolution parent1, RSolution parent2) {
         this.parents[0] = parent1;
         this.parents[1] = parent2;
-    }
-
-    /**
-     * Prints a VAR file
-     */
-    public String getVariableString(int index) {
-
-        String strValue = this.getName() + ";";
-
-        List<Double> objs = new ArrayList<>();
-        for (int i = 0; i < getNumberOfObjectives(); i++) {
-            objs.add(getObjective(i));
-        }
-
-        strValue += objs.stream().map(o -> String.valueOf(o)).collect(Collectors.joining(";"));
-        strValue += ";";
-        strValue += getName() + ",";
-        strValue += ((Refactoring) this.getVariable(0)).getActions().stream().map(act -> act.toCSV())
-                .collect(Collectors.joining(","));
-        return strValue;
     }
 
     @Override
@@ -236,28 +179,14 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
 
 
     public void setRefactoring(Refactoring ref){
-
         setVariable(0, (T) ref);
-//
-//        Refactoring ref = new Refactoring(this.modelPath.toString());
-//        ref.setSolutionID(this.name);
-//
-//        for(RefactoringAction act : listOfActions){
-//            RefactoringAction clonedAct = act.clone();
-//            clonedAct.
-//            ref.getActions().add()
-//        }
-
-
-
-
     }
 
     public double getArchitecturalChanges() {
         return architecturalChanges;
     }
 
-    /*
+    /**
      * Returns the solution data as a CSV format
      * "solID,perfQ,#changes,pas,reliability"
      */
@@ -292,10 +221,5 @@ public abstract class RSolution<T> extends AbstractSolution<T> {// AbstractGener
                 && Math.abs(this.getPerfQ()) >= Math.abs(rSolution.getPerfQ()) / ePerfQ)
                 && (Math.abs(this.getReliability()) <= Math.abs(rSolution.getReliability()) * eRel
                 && Math.abs(this.getReliability()) >= Math.abs(rSolution.getReliability()) / eRel);
-    }
-
-    public void flushResourcesUsageStats(){
-        ((Refactoring)this.getVariable(0)).flushResourcesUsageStats();
-//        easierResourcesLogger.toCSV();
     }
 }

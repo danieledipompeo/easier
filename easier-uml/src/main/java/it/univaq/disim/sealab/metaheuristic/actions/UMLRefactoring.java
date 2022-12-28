@@ -19,7 +19,6 @@ public class UMLRefactoring extends Refactoring {
     public UMLRefactoring(String mPath) {
         super(mPath);
         easierModel = new UMLEasierModel(mPath);
-//        easierResourcesLogger = new EasierResourcesLogger("UMLRefactoring");
     }
 
     public UMLRefactoring(Refactoring rfSource) {
@@ -59,9 +58,6 @@ public class UMLRefactoring extends Refactoring {
             return false;
 
         for (RefactoringAction action : getActions()) {
-//            Set<String> actionTargetElements =
-//                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
-//            if (easierModel.getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
             if (!easierModel.contains(action.getTargetElements())) {
                 EasierResourcesLogger.checkpoint("UMLRefactoring","isFeasible_end");
                 return false;

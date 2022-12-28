@@ -1,14 +1,11 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii;
 
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2;
 import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2Builder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.problem.Problem;
-
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 
 public class CustomPESA2Builder<S extends RSolution<?>> extends PESA2Builder<S> {
 

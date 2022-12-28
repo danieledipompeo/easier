@@ -1,10 +1,12 @@
 package it.univaq.disim.sealab.epsilon.eol;
 
+import com.masdes.dam.Core.CorePackage;
+import com.masdes.dam.DAM.DAMPackage;
+import com.masdes.dam.Maintenance.MaintenancePackage;
+import com.masdes.dam.Threats.ThreatsPackage;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.emc.emf.CachedResourceSet;
-import org.eclipse.epsilon.emc.emf.CachedResourceSet.Cache;
 import org.eclipse.epsilon.emc.uml.UmlModel;
 import org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage;
 import org.eclipse.papyrus.MARTE.MARTE_DesignModel.HLAM.HLAMPackage;
@@ -17,11 +19,6 @@ import org.eclipse.uml2.common.util.CacheAdapter;
 import org.eclipse.uml2.uml.UMLPlugin;
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
-
-import com.masdes.dam.Core.CorePackage;
-import com.masdes.dam.DAM.DAMPackage;
-import com.masdes.dam.Maintenance.MaintenancePackage;
-import com.masdes.dam.Threats.ThreatsPackage;
 
 public class EasierUmlModel extends UmlModel {
 
@@ -69,9 +66,9 @@ public class EasierUmlModel extends UmlModel {
 
         resourceSet = UMLResourcesUtil.init(resourceSet);
 
-        // stores UML model and UML profile extensions to the ExtensionToFactoryMap
-        // {@see
-        // org.eclipse.emf.ecore.resource.Resource.Factory.Registry.getExtensionToFactoryMap()}
+        /* stores UML model and UML profile extensions to the ExtensionToFactoryMap
+         * {@see org.eclipse.emf.ecore.resource.Resource.Factory.Registry.getExtensionToFactoryMap()}
+         */
         resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(UMLResource.PROFILE_FILE_EXTENSION,
                 UMLResource.Factory.INSTANCE);
 

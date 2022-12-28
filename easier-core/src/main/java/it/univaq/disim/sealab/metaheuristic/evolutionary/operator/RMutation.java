@@ -42,7 +42,6 @@ public abstract class RMutation<S extends RSolution<?>> implements MutationOpera
         }
         int allowed = Configurator.eINSTANCE.getAllowedFailures();
         doMutation(mutationProbability, solution, allowed);
-//        easierResourcesLogger.toCSV();
         return solution;
     }
 

@@ -1,17 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
-
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,10 +14,11 @@ import org.uma.jmetal.util.front.util.FrontNormalizer;
 import org.uma.jmetal.util.front.util.FrontUtils;
 import org.uma.jmetal.util.point.PointSolution;
 
-import com.beust.jcommander.Strings;
-
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Ignore
 public class RComputeQualityIndicatorsTest<S extends Solution> {
@@ -58,10 +49,6 @@ public class RComputeQualityIndicatorsTest<S extends Solution> {
 		for (GenericIndicator<S> indicator : qIndicators) {
 			for (int a = 0; a < algorithms.length; a++) {
 				for (int i = 0; i < iterations.length; i++) {
-
-//					String referenceFrontName = String.format("%s/%s%d__reference_pareto.csv", baseDir, algorithms[a],
-//							iterations[i]);
-					
 					Front referenceFront = new ArrayFront(removeSolID(referenceFrontName), ",");
 					FrontNormalizer frontNormalizer = new FrontNormalizer(referenceFront);
 					Front normalizedReferenceFront = frontNormalizer.normalize(referenceFront);

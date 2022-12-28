@@ -78,8 +78,7 @@ public class RSolutionListOutput {
 				int numberOfVariables = solutionList.get(0).getNumberOfVariables();
 				for (int i = 0; i < solutionList.size(); i++) {
 					for (int j = 0; j < numberOfVariables; j++) {
-						bufferedWriter.write(solutionList.get(i).getVariable(j).toString());// +
-																							// context.getSeparator());
+						bufferedWriter.write(solutionList.get(i).getVariable(j).toString());
 					}
 					bufferedWriter.newLine();
 				}
@@ -155,7 +154,7 @@ public class RSolutionListOutput {
 		}
 	}
 
-	/*
+	/**
 	 * Wrappers for printing with default configuration
 	 */
 	public void printObjectivesToFile(String fileName) throws IOException {

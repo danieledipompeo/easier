@@ -1,5 +1,12 @@
 package it.univaq.disim.sealab.epsilon.egl;
 
+import it.univaq.disim.sealab.epsilon.EpsilonHelper;
+import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
+import it.univaq.disim.sealab.epsilon.utility.Utility;
+import org.eclipse.epsilon.egl.EglTemplateFactory;
+import org.eclipse.epsilon.egl.EglTemplateFactoryModuleAdapter;
+import org.eclipse.epsilon.eol.IEolModule;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -7,21 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import org.eclipse.epsilon.egl.EglTemplateFactory;
-import org.eclipse.epsilon.egl.EglTemplateFactoryModuleAdapter;
-import org.eclipse.epsilon.eol.IEolModule;
-import org.eclipse.epsilon.eol.models.IModel;
-
-import it.univaq.disim.sealab.epsilon.EpsilonHelper;
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
-import it.univaq.disim.sealab.epsilon.utility.Utility;
-
 public class EGLStandalone extends EpsilonStandalone{
 
-//	public static void main(String[] args) throws Exception {
-//		new EGLStandalone().execute();
-//	}
-	
 	public EGLStandalone() {
 		module = createModule();
 		model = new ArrayList<>();
@@ -32,18 +26,6 @@ public class EGLStandalone extends EpsilonStandalone{
 	public IEolModule createModule() {
 		return new EglTemplateFactoryModuleAdapter(new EglTemplateFactory());
 	}
-	
-//	public IModel getModel(Path mmaemiliaFilePath, Path metamodelPath) throws Exception {
-//		this.metamodelPath = metamodelPath;
-//		return getModel(mmaemiliaFilePath);
-//	}
-
-//	@Override
-////	public IModel getModel(Path mmaemiliaFilePath) throws Exception {
-//	public IModel getModel() {
-////		return createEmfModel("aemilia", mmaemiliaFilePath, this.metamodelPath.toString(), true, true);
-//		return model;
-//	}
 	
 	public EpsilonStandalone setModel(Path modelPath) {
 		model.add(createEmfModel("aemilia", modelPath, this.metamodelPath.toString(), true, true));
@@ -66,7 +48,6 @@ public class EGLStandalone extends EpsilonStandalone{
 			}
 		}
 		return source;
-//		return "egl/mmaemilia2aem.egl";
 	}
 
 	@Override

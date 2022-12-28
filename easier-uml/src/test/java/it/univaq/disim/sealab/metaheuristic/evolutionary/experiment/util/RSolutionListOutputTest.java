@@ -1,6 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
-import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +9,6 @@ import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class RSolutionListOutputTest {
 

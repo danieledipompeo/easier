@@ -154,7 +154,6 @@ public class RComputeQualityIndicators<S extends Solution<?>, Result extends Lis
 				BufferedWriter writer = new BufferedWriter(new FileWriter(tmpFile))) {
 			while ((readLine = reader.readLine()) != null) {
 				if (!readLine.contains("solID")) {
-//				} else {
 					String line = readLine.split(",", 2)[1];
 					writer.write(line);
 					writer.newLine();
@@ -284,20 +283,7 @@ public class RComputeQualityIndicators<S extends Solution<?>, Result extends Lis
 							bestVarFile = outputDirectory + "/" + experiment.getOutputParetoSetFileName()
 									+ list.get(0).getRight();// + ".tsv";
 
-//							Files.copy(Paths.get(bestFunFile), Paths.get(bestFunFileName), REPLACE_EXISTING);
-//							Files.copy(Paths.get(bestVarFile), Paths.get(bestVarFileName), REPLACE_EXISTING);
 						}
-						
-//						else {
-//							String bestFunFile = outputDirectory + "/" + experiment.getOutputParetoFrontFileName()
-//									+ list.get(list.size() - 1).getRight() + ".tsv";
-//							String bestVarFile = outputDirectory + "/" + experiment.getOutputParetoSetFileName()
-//									+ list.get(list.size() - 1).getRight() + ".tsv";
-//
-//							Files.copy(Paths.get(bestFunFile), Paths.get(bestFunFileName), REPLACE_EXISTING);
-//							Files.copy(Paths.get(bestVarFile), Paths.get(bestVarFileName), REPLACE_EXISTING);
-//						}
-						
 						
 						bestFunFile += suffix + ".csv";
 						bestVarFile += suffix + ".csv";
@@ -323,8 +309,7 @@ public class RComputeQualityIndicators<S extends Solution<?>, Result extends Lis
 		JMetalLogger.logger.info("Writing org.uma.jmetal.experiment summary file");
 		String headerOfCSVFile = "Algorithm,Problem,IndicatorName,ExecutionId,IndicatorValue";
 		String csvFileName = this.experiment.getExperimentBaseDirectory() + "/QualityIndicatorSummary.csv";
-//		resetFile(csvFileName);
-		
+
 		try (FileWriter os = new FileWriter(csvFileName, true)) {
 			if(new File(csvFileName).length() == 0) {
 				os.write("" + headerOfCSVFile + "\n");

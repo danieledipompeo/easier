@@ -2,7 +2,6 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.factory;
 
 import it.univaq.disim.sealab.metaheuristic.Launcher;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
@@ -10,9 +9,6 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -24,6 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 public class FactoryBuilderTest {
@@ -52,7 +50,7 @@ public class FactoryBuilderTest {
         int eval = 12;
         List<ExperimentProblem<UMLRSolution>> problemList = new ArrayList<>();
 
-        problemList.add(new ExperimentProblem<UMLRSolution>(Launcher.createProblems(modelPath, eval)));
+        problemList.add(new ExperimentProblem<>(Launcher.createProblems(modelPath, eval)));
 
         ExperimentProblem<UMLRSolution> experimentProblem = problemList.get(0);
         CrossoverOperator<UMLRSolution> crossoverOperator = new UMLRCrossover(Configurator.eINSTANCE.getXoverProbabiliy());

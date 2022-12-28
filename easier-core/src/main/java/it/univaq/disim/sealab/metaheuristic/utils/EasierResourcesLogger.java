@@ -14,11 +14,6 @@ public class EasierResourcesLogger {
     private static List<Integer> iterationIDs = new ArrayList<>();
     private static int ITERATION_COUNTER = 0;
 
-//    public EasierResourcesLogger(String aName) {
-//        freeBefore = Runtime.getRuntime().freeMemory();
-//        totalBefore = Runtime.getRuntime().totalMemory();
-//    }
-
     /**
      * Compute the execution time
      */
@@ -61,7 +56,6 @@ public class EasierResourcesLogger {
     public static void iterationCheckpointStart(String label, String stp) {
         ITERATION_COUNTER++;
         checkpoint(label, stp);
-//        checkpoint("ID_" + ITERATION_COUNTER + "_" + stp);
     }
 
     /**

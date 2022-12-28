@@ -10,8 +10,6 @@ import java.io.IOException;
 
 public class CustomRandomSearchTest<S extends UMLRSolution> extends CustomAlgorithmTest<S> {
 
-//    CustomNSGAII<UMLRSolution> algorithm;
-
     @BeforeEach
     public void setUp() {
         super.setUp();

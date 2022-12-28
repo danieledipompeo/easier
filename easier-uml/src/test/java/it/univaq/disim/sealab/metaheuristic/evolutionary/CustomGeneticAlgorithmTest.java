@@ -35,8 +35,6 @@ public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAl
             sol.setPerfQ(-10);
             sol.setReliability(-10);
             sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
@@ -53,8 +51,6 @@ public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAl
             sol.setPerfQ(-10);
             sol.setReliability(-10);
             sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
@@ -70,8 +66,6 @@ public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAl
             sol.setPAs(0);
             if (i % 2 == 0)
                 sol.setPAs(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
@@ -85,7 +79,6 @@ public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAl
         sol.setPAs(0);
         solutions.add(sol);
 
-//		sol.getVariable(0).setNumOfChanges(10);
         ((AbstractGeneticAlgorithm<S, List<S>>) algorithm).setPopulation(solutions);
 
     }

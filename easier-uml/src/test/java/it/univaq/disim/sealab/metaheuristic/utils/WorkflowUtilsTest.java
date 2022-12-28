@@ -17,7 +17,6 @@ public class WorkflowUtilsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-//        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
         modelPath = Paths.get(getClass().getResource("/models/train-ticket/train-ticket.uml").getFile());
     }
 

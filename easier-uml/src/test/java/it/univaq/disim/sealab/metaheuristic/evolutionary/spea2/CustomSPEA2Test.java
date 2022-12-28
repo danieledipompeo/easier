@@ -21,8 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgorithmTest<S> {
 
-
-
     @BeforeEach
     public void setUp() {
         super.setUp();
@@ -36,15 +34,13 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
 
     @Test
     public void isLocalOptimalPointSolutionWithListOfSolution() {
-        List<UMLRSolution> solutions = new ArrayList<UMLRSolution>();
+        List<UMLRSolution> solutions = new ArrayList<>();
         int i = 0;
         while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
+            UMLRSolution sol = p.createSolution();
             sol.setPerfQ(-10);
             sol.setReliability(-10);
             sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
@@ -60,29 +56,25 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         List<UMLRSolution> solutions = new ArrayList<UMLRSolution>();
         int i = 0;
         while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
+            UMLRSolution sol = p.createSolution();
             sol.setPerfQ(-10);
             sol.setReliability(-10);
             sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
         ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(solutions);
 
-        solutions = new ArrayList<UMLRSolution>();
+        solutions = new ArrayList<>();
 
         i = 0;
         while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
+            UMLRSolution sol = p.createSolution();
             sol.setPerfQ(-10);
             sol.setReliability(-10);
             sol.setPAs(0);
             if (i % 2 == 0)
                 sol.setPAs(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
             solutions.add(sol);
             i++;
         }
@@ -99,7 +91,6 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         sol.setPerfQ(-10);
         sol.setReliability(-10);
         sol.setPAs(0);
-//		sol.getVariable(0).setNumOfChanges(10);
         ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(List.of(sol));
 
         ((CustomSPEA2<UMLRSolution>) algorithm).populationToCSV();

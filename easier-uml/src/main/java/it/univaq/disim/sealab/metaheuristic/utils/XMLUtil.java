@@ -17,7 +17,6 @@ public class XMLUtil {
 		try {
 			result = Files.readAllLines(file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -37,22 +36,6 @@ public class XMLUtil {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-//			writer.close();
 		}
-
-		/*
-		 * try (BufferedReader br = new BufferedReader(new FileReader(file))) { String
-		 * line = br.readLine(); while (line != null) {
-		 * 
-		 * System.out.println(line); line.replaceAll(INITIAL_TAG_TO_CHANGE,
-		 * INITIAL_TAG);
-		 * 
-		 * line = br.readLine();
-		 * 
-		 * } } catch (IOException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
-
 	}
-
 }

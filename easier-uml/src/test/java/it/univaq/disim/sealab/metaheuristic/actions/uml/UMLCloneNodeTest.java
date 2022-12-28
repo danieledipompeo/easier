@@ -40,8 +40,6 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
 
     @Test
     public void testToCSV() {
-//        String generatedCSV = action.toCSV();
-//        System.out.println(generatedCSV);
         numberOfCSVField = 3;
         actionName = "UMLCloneNode";
         super.testToCSV();
@@ -74,7 +72,6 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
         map2.put(UMLRSolution.SupportedType.COMPONENT.toString(), Set.of("test_component"));
 
         assertTrue(map2.equals(map1));
-
     }
 
 

@@ -1,5 +1,10 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util;
 
+import org.junit.Ignore;
+import org.junit.Test;
+import org.uma.jmetal.util.archive.impl.NonDominatedSolutionListArchive;
+import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,30 +17,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.uma.jmetal.util.archive.impl.NonDominatedSolutionListArchive;
-import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
-
 @Ignore
 public class RGenerateReferenceParetoTest {
 
 	@Test
 	public void generateSuperReferenceParetoTest() throws IOException {
 
-//		new RGenerateReferenceParetoFront(experiment).run();
-
 		List<RPointSolution> ptList = new ArrayList<>();
 		List<String> referenceFronts;
 		NonDominatedSolutionListArchive<RPointSolution> nonDominatedSolutionArchive = new NonDominatedSolutionListArchive<RPointSolution>();
 
-//		String problemName = "train-ticket_Length_4_CloningWeight_1.5_MaxCloning_3_MaxEval_72";
-//		String problemFolderName = "/mnt/store/research/easier/uml_case_studies/performance_comparison/nsga_72/";
 		String problemFolderName = "/mnt/store/research/easier/uml_case_studies/performance_comparison";
 		try (Stream<Path> walk = Files.walk(Paths.get(problemFolderName))){
-				//String.format("%s/%s/referenceFront", problemFolderName, problemName)))) {
 			referenceFronts = walk.filter(p -> !Files.isDirectory(p)) // not a directory
-					.map(p -> p.toString())// .toLowerCase()) // convert path to string
+					.map(p -> p.toString()) // convert path to string
 					.filter(f -> f.endsWith("csv") && f.contains("reference_pareto")) // check end with
 					.collect(Collectors.toList()); // collect all matched to a List
 		}
@@ -68,10 +63,6 @@ public class RGenerateReferenceParetoTest {
 			solutionAttribute.setAttribute(solution, "NSGAII");
 			nonDominatedSolutionArchive.add(solution);
 		}
-
-//		new RSolutionListOutput(nonDominatedSolutionArchive.getSolutionList()).printObjectivesToFile(problemFolderName+"/super-reference-pareto.csv");
-//				String.format("/mnt/store/research/easier/uml_case_studies/tuning/%s/referenceFront/super-reference-pareto.rf",problemName));
-
 	}
 
 	@Test
@@ -96,9 +87,8 @@ public class RGenerateReferenceParetoTest {
 
 				try (Stream<Path> walk = Files.walk(Paths.get(solutionFolder))) {
 					funSolutions = walk.filter(p -> !Files.isDirectory(p)) // not a directory
-							.map(p -> p.toString())// .toLowerCase()) // convert path to string
-							.filter(f -> f.endsWith("csv") && f.contains("FUN") && !f.contains("IGD+")) // check end
-																										// with
+							.map(p -> p.toString()) // convert path to string
+							.filter(f -> f.endsWith("csv") && f.contains("FUN") && !f.contains("IGD+")) // check end with
 							.collect(Collectors.toList()); // collect all matched to a List
 				}
 
@@ -112,13 +102,8 @@ public class RGenerateReferenceParetoTest {
 						nonDominatedSolutionArchive.add(solution);
 					}
 				}
-
-//				new RSolutionListOutput(nonDominatedSolutionArchive.getSolutionList()).printObjectivesToFile(String
-//						.format("%s/%s%d/train-ticket_Length_4_CloningWeight_1.5_MaxCloning_3_MaxEval_%d_gen.rf",
-//								problemFolderName, problemName[j], evals[i], evals[i]));
 			}
 		}
-//		}
 	}
 
 	public List<RPointSolution> generateRPointSolutionList(String sol) {

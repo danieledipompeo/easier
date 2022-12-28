@@ -1,18 +1,15 @@
 package it.univaq.disim.sealab.epsilon;
 
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.eclipse.epsilon.evl.parse.EvlParser.evlModule_return;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 
 public class EpsilonStandaloneTest {
 

@@ -28,14 +28,6 @@ public abstract class Refactoring implements Cloneable {
     }
 
     public abstract Refactoring clone();
-//    @Override
-//    public Refactoring clone() {
-//        try {
-//            return (Refactoring) super.clone();
-//        } catch (CloneNotSupportedException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     public void setSolutionID(int id) {
         solutionID = id;
@@ -64,7 +56,6 @@ public abstract class Refactoring implements Cloneable {
             for (int j = i + 1; j < refactoringLength; j++) {
                 RefactoringAction a2 = actions.get(j);
                 if (a.equals(a2)) {
-//                    System.out.printf("found multiple occurrences of %s%n", a.getName());
                     return true;
                 }
             }
@@ -76,16 +67,9 @@ public abstract class Refactoring implements Cloneable {
     public boolean isIndependent(List<RefactoringAction> listOfActions){
         if (listOfActions.size() == 1) {
             RefactoringAction act = listOfActions.get(0);
-//            for (String k : act.getTargetElements().keySet()) {
                if (!easierModel.contains(act.getTargetElements())){
                         return false;
-//                for (String elemName : act.getTargetElements().get(k)) {
-
-                    // check if the target element of a refactoring action is within the original set of elements
-//                    if (!easierModel.contains(elemName))
-//                        return false;
-//                }
-            }
+               }
         } else {
             for (int i = 0; i < listOfActions.size(); i++) {
                 RefactoringAction act = listOfActions.get(i);
@@ -96,20 +80,6 @@ public abstract class Refactoring implements Cloneable {
                         if(easierModel.contains(act.getCreatedElements())){
                             return false;
                         }
-                        /*for (String k : act.getCreatedElements().keySet()) {
-
-                            // check whether an action target element type is equal to the created type of a previous
-                            // refactoring action
-                            if (listOfActions.get(j).getTargetElements().get(k) != null) {
-                                for (String elemName : listOfActions.get(j).getTargetElements().get(k)) {
-
-                                    // check whether a target element of a refactoring action belongs to the created
-                                    // elements of previous refactoring actions
-                                    if (act.getCreatedElements().get(k).contains(elemName))
-                                        return false;
-                                }
-                            }
-                        }*/
                     }
                 }
             }
@@ -175,9 +145,4 @@ public abstract class Refactoring implements Cloneable {
         return getActions().stream().map(RefactoringAction::toCSV)
                 .collect(Collectors.joining("\n"+this.solutionID+",", this.solutionID+",",""));
     }
-
-    public void flushResourcesUsageStats(){
-//        easierResourcesLogger.toCSV();
-    }
-
 }

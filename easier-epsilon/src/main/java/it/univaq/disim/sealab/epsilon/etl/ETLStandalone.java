@@ -1,13 +1,12 @@
 package it.univaq.disim.sealab.epsilon.etl;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-
+import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.etl.EtlModule;
 
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class ETLStandalone extends EpsilonStandalone {
 

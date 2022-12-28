@@ -1,12 +1,10 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.rnsgaii;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-
+import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.algorithm.multiobjective.rnsgaii.RNSGAII;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -14,11 +12,8 @@ import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements EasierAlgorithm {
 

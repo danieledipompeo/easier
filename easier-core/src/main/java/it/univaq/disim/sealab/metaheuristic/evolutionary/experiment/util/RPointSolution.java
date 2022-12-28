@@ -32,10 +32,7 @@ public class RPointSolution extends PointSolution {
 	public RPointSolution setPointSolution(final List<String> obj) {
 
 		for (int i = 0; i < obj.size(); i++) {
-//			if (i==0 !worsen) 
-//				super.setObjective(i, (-1 * Double.parseDouble(obj.get(i))));
-//			else
-				super.setObjective(i, Double.parseDouble(obj.get(i)));
+			super.setObjective(i, Double.parseDouble(obj.get(i)));
 		}
 
 		return this;

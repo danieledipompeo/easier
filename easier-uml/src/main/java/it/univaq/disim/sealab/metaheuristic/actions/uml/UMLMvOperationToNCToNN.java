@@ -98,9 +98,6 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
         EOLStandalone executor = new EOLStandalone();
 
         try {
-//            EasierUmlModel contextModel = EpsilonStandalone.createUmlModel(sourceModelPath);
-//            contextModel.setStoredOnDisposal(true);
-
             executor.setModel(contextModel);
             executor.setSource(Paths.get(eolModulePath));
 
@@ -117,7 +114,6 @@ public class UMLMvOperationToNCToNN implements UMLRefactoringAction {
             executor.execute();
         } catch (EolRuntimeException e) {
             String message = String.format("Error in execution the eolmodule %s%n", eolModulePath);
-//            message += String.format("No Node called \t %s %n", targetObject.getName());
             message += e.getMessage();
             throw new EasierException(message);
         }

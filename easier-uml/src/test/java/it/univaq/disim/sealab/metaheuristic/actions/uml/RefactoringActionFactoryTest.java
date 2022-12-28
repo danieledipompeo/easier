@@ -20,10 +20,6 @@ public class RefactoringActionFactoryTest {
 
     @BeforeEach
     public void init() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
         String modelpath = getClass().getResource("/models/model/automatedGuidedVehicle.uml").getFile();
         UMLRProblem<RSolution<?>> p = new UMLRProblem<>(Paths.get(modelpath), "agv__test");
         sol = (UMLRSolution) p.createSolution();

@@ -153,7 +153,7 @@ public class Configurator {
 		if("searchBudgetPrematureConvergenceThreshold".equals(searchBudget))
 			return String.valueOf(searchBudgetPrematureConvergenceThreshold);
 		if ("byBoth".equals(searchBudget))
-			return String.valueOf(searchBudgetTimeThreshold) + "-" +  String.valueOf(searchBudgetPrematureConvergenceThreshold);
+			return searchBudgetTimeThreshold + "-" +  searchBudgetPrematureConvergenceThreshold;
 		return String.valueOf(searchBudgetTimeThreshold);		
 	}
 	
@@ -229,10 +229,7 @@ public class Configurator {
 
 	public List<Path> getModelsPath() {
 		List<Path> paths = new ArrayList<>();
-		
 		modelsPath.forEach(m -> paths.add(Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier-uml2lqnCaseStudy", m)));
-		
-//		modelsPath.forEach(m -> paths.add(Paths.get(m)));
 		return paths;
 	}
 

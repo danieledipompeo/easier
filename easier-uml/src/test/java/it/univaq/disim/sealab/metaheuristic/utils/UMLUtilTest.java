@@ -1,6 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import it.univaq.disim.sealab.metaheuristic.utils.UMLUtil;
 import org.eclipse.uml2.uml.Message;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.jupiter.api.AfterEach;
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UMLUtilTest {
 

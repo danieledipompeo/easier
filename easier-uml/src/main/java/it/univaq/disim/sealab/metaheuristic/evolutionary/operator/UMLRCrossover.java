@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-//public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
 
@@ -34,8 +33,6 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
      */
     public UMLRCrossover(double crossoverProbability) {
         super(crossoverProbability);
-
-//        easierResourcesLogger = new EasierResourcesLogger("UMLCrossoverOperator");
     }
 
     int crossoverPoint;
@@ -122,8 +119,6 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
         // Store elapsed time and consumed memory by the crossover operator
         easierResourcesLogger.checkpoint("UMLCrossoverOperator", "do_crossover_end");
-
-//        easierResourcesLogger.toCSV();
 
         // It can be equal to parent1, parent2; child1,child2;
         return (List<S>) offspring;

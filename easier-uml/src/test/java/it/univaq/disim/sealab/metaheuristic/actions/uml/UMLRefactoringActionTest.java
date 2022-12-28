@@ -35,10 +35,6 @@ public class UMLRefactoringActionTest {
     protected EasierModel eModel;
 
     public void setUp() throws Exception {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
         solution = p.createSolution();
@@ -80,7 +76,6 @@ public class UMLRefactoringActionTest {
     }
 
     public void testClone() {
-//        RefactoringAction clonedAction = action.clone(solution);
         RefactoringAction clonedAction = (RefactoringAction) action.clone();
         assertEquals(action, clonedAction);
     }

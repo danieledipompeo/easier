@@ -40,7 +40,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         oldPopulation = new ArrayList<>();
     }
 
-    /*
+    /**
      * Prints to CSV each generated population
      * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
      *

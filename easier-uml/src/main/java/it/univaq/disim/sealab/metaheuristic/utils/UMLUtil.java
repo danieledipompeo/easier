@@ -1,14 +1,14 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UMLUtil {
 

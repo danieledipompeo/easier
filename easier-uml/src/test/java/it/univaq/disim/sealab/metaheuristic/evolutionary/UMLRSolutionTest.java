@@ -42,9 +42,6 @@ public class UMLRSolutionTest {
     @BeforeEach
     public void setUp() throws URISyntaxException {
         String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
-//        p = new UMLRProblem<>(Paths.get(modelPath), "simplied-cocome__test");
-//
-//        solution = (UMLRSolution) p.createSolution();
         solution = new UMLRSolution(Paths.get(modelPath), "simplied-cocome__test");
     }
 
@@ -87,22 +84,6 @@ public class UMLRSolutionTest {
         assertFalse(solution.isFeasible(), "Expected a unfeasible solution.");
     }
 
-//    @Test
-//    public void testInit() {
-//        Set<String> componentNames = solution.getComponents();
-//        assertFalse(componentNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).stream().map(String.class::cast).noneMatch(componentNames::contains));
-//
-//        Set<String> operationNames = solution.getOperations();
-//        assertFalse(operationNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.OPERATION.toString()).stream().map(String.class::cast).noneMatch(operationNames::contains));
-//
-//        Set<String> nodeNames = solution.getNodes();
-//        assertFalse(nodeNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().map(String.class::cast).noneMatch(nodeNames::contains));
-//    }
-
-
     @Test
     public void testSetRefactoring() {
         Map<String, Set<String>> expectedCreatedElements = new HashMap<>();
@@ -128,17 +109,6 @@ public class UMLRSolutionTest {
 
     }
 
-//    @ParameterizedTest
-//    @CsvSource({"true,1", "true,2", "true,3", "false,0", "false,2", "false,3"})
-//    void testConstructorForXover(boolean left, int point) {
-//
-//        UMLRSolution solution1 = (UMLRSolution) p.createSolution();
-//
-//        List<UMLRSolution> children = solution.createChildren(solution1, point);
-//        children.forEach(c -> assertTrue(c.isFeasible(), "It is expected a feasible child solution"));
-//
-//    }
-
     @Disabled
     @Test
     public void isLocalOptmimalPointTrueTest() {
@@ -152,13 +122,10 @@ public class UMLRSolutionTest {
         solution.numPAs = 0;
         solution2.numPAs = 0;
 
-//        solution.getVariable(0).setNumOfChanges(0);
-//        solution2.getVariable(0).setNumOfChanges(0);
-
         assertTrue(solution.isLocalOptmimalPoint(solution2));
     }
 
-    /*
+    /**
      * PerfQ of solution2 is greater than the perfQ of solution The test should
      * return FALSE
      */
@@ -175,9 +142,6 @@ public class UMLRSolutionTest {
         solution.numPAs = 0;
         solution2.numPAs = 4;
 
-//        solution.getVariable(0).setNumOfChanges(0);
-//        solution2.getVariable(0).setNumOfChanges(0);
-
         assertFalse(solution.isLocalOptmimalPoint(solution2));
     }
 
@@ -193,11 +157,6 @@ public class UMLRSolutionTest {
 
         solution.numPAs = 1;
         solution2.numPAs = 0;
-
-//        solution.getVariable(0).setNumOfChanges(10);
-//        solution2.getVariable(0).setNumOfChanges(10);
-
-//        solution2.getReliability(), solution2.getPAs(), solution2.getVariable(0).getNumOfChanges());
 
         assertTrue(solution.isLocalOptmimalPoint(solution2));
     }
@@ -293,37 +252,6 @@ public class UMLRSolutionTest {
         assertEquals(solution.getVariable(0), cloneSolution.getVariable(0));
     }
 
-
-//    @ParameterizedTest
-//    @ValueSource(ints = {1, 2, 3, 0, 4})
-//    public void createChild(int point) {
-//        UMLRSolution solution2 = (UMLRSolution) p.createSolution();
-//        UMLRSolution childSolution = solution.createChild(solution2, point);
-//
-//        childSolution.setVariable(0, new Refactoring()); // clear the old refactoring
-//        // clear created element and target element maps
-//        childSolution.createdRefactoringElement.clear();
-//        childSolution.targetRefactoringElement.clear();
-//        childSolution.createChild(solution, solution2, point);
-//
-//        assertFalse(childSolution.isFeasible());
-//
-//        for (int i = 0; i < point; i++) {
-//            assertEquals(childSolution.getActionAt(i), solution.getActionAt(i));
-//        }
-//        for (int i = point; i < solution.refactoringLength; i++) {
-//            assertEquals(childSolution.getActionAt(i), solution2.getActionAt(i));
-//        }
-//    }
-
-//    @RepeatedTest(5)
-//    void alter(TestInfo testInfo) {
-//        int alterPoint = 2;
-//        solution.alter(alterPoint);
-//
-//        assertTrue(solution.isFeasible(), "Expected a feasible solution after the alter operation.");
-//    }
-
     @Test
     public void testIsIndependent() {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
@@ -351,14 +279,5 @@ public class UMLRSolutionTest {
                 "architectural changes >= the initial one");
 
     }
-
-    //    @ParameterizedTest
-//    @ValueSource(ints = {0, 1, 2, 3})
-//    public void doAlter(int point) {
-//        RefactoringAction candidate = ((point == 0) ? solution.getActionAt(point + 1) : solution.getActionAt(point - 1));
-//        assertFalse(solution.doAlter(point, candidate), String.format("Expected unfeasible solution %s%n", solution.toString()));
-//
-//        assertTrue(solution.isFeasible());
-//    }
 
 }

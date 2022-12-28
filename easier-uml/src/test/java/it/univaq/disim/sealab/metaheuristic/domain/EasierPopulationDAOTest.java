@@ -3,13 +3,14 @@ package it.univaq.disim.sealab.metaheuristic.domain;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EasierPopulationDAOTest {
 

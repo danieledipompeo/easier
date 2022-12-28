@@ -49,14 +49,9 @@ public abstract class EasierModel implements Cloneable {
                         flatMap(Set::stream).collect(Collectors.toSet())::contains);
     }
 
-//    public boolean contains(Set<String> actionTargetElements) {
-//        return actionTargetElements.stream().allMatch(targetRefactoringElement.values().stream().flatMap(Set::stream).collect(Collectors.toSet())::contains);
-//    }
-
     public void store(Map<String, Set<String>> elemToBeStored) {
         elemToBeStored.keySet().stream().forEach(k ->
                 createdRefactoringElement.get(k).addAll(elemToBeStored.get(k)));
-
     }
 
     @Override
@@ -76,7 +71,6 @@ public abstract class EasierModel implements Cloneable {
         return Objects.equals(initialElements, that.initialElements) &&
                 Objects.equals(targetRefactoringElement, that.targetRefactoringElement) &&
                 Objects.equals(createdRefactoringElement, that.createdRefactoringElement);
-//                && Objects.equals(modelPath, that.modelPath);
     }
 
     @Override
