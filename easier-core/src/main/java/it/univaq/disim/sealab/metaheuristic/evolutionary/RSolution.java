@@ -7,13 +7,10 @@ import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.solution.AbstractSolution;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Objects;
 
 public abstract class RSolution<T> extends AbstractSolution<T> {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     protected Path modelPath, sourceModelPath, initialModelPath;
 
@@ -27,6 +24,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
 
     protected double perfQ;
     protected int numPAs;
+
     protected double reliability;
     protected double architecturalChanges;
     public static final int VARIABLE_INDEX;
@@ -39,7 +37,6 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
     protected int allowedFailures;
     protected int refactoringLength;
     protected String problemName;
-    protected EasierResourcesLogger easierResourcesLogger;
 
     static {
         VARIABLE_INDEX = 0;
@@ -149,12 +146,11 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
             return true;
         if (getClass() != obj.getClass())
             return false;
+
         RSolution<T> other = (RSolution<T>) obj;
+
         if (isCrossover != other.isCrossover)
             return false;
-        if (modelPath == null ^ other.modelPath == null) {
-            return false;
-        }
         if (mutated != other.mutated)
             return false;
         if (numPAs != other.numPAs)
@@ -163,22 +159,24 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
             return false;
         if (Double.doubleToLongBits(reliability) != Double.doubleToLongBits(other.reliability))
             return false;
-        if (parents.length != other.parents.length)
+
+        if(!parents.equals(other.parents))
             return false;
-        for (int i = 0; i < parents.length; i++) {
-            if (parents[i] != other.parents[i]) {
-                return false;
-            }
-        }
-        if (getVariable(VARIABLE_INDEX) == null ^ other.getVariable(VARIABLE_INDEX) == null){
-                return false;
-        } else if (!getVariable(VARIABLE_INDEX).equals(other.getVariable(VARIABLE_INDEX)))
+
+        if (getVariable(VARIABLE_INDEX) != null && !getVariable(VARIABLE_INDEX).equals(other.getVariable(VARIABLE_INDEX)))
             return false;
+
         return true;
     }
 
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(super.hashCode(), modelPath, sourceModelPath, initialModelPath, refactored, isCrossover, mutated, name, perfQ, numPAs, reliability, architecturalChanges, allowedFailures, refactoringLength, problemName);
+        result = 31 * result + Arrays.hashCode(parents);
+        return result;
+    }
 
-    public void setRefactoring(Refactoring ref){
+    public void setRefactoring(Refactoring ref) {
         setVariable(0, (T) ref);
     }
 
