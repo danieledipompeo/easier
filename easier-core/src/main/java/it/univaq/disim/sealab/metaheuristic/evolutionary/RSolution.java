@@ -144,6 +144,9 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
+        if(obj == null)
+            return false;
+        
         if (getClass() != obj.getClass())
             return false;
 
