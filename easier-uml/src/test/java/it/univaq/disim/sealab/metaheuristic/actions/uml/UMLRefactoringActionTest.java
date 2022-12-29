@@ -54,7 +54,7 @@ public class UMLRefactoringActionTest {
         RefactoringAction action2 = action;
         assertEquals(action, action2);
 
-        action2 = action.clone();
+        action2 = action.copy();
         assertEquals(action, action2);
 
     }
@@ -75,8 +75,8 @@ public class UMLRefactoringActionTest {
                 expectedName, action.getTargetType()));
     }
 
-    public void testClone() {
-        RefactoringAction clonedAction = (RefactoringAction) action.clone();
+    public void copy_method_should_return_equals_solutions() {
+        RefactoringAction clonedAction = action.copy();
         assertEquals(action, clonedAction);
     }
 

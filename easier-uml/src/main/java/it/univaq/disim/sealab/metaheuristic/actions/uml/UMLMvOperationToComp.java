@@ -11,29 +11,23 @@ import org.eclipse.uml2.uml.Message;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class UMLMvOperationToComp implements UMLRefactoringAction {
+public class UMLMvOperationToComp extends UMLRefactoringAction {
 
     private final static String eolModulePath;
 
-    private final static double BFR = 1.23;
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
                 "easier-refactoringLibrary", "easier-ref-operations", "mv_op_comp.eol").toString();
     }
 
-    Map<String, Set<String>> targetElements = new HashMap<>();
-    Map<String, Set<String>> createdElements = new HashMap<>();
-    private String sourceModelPath;
-    private double numOfChanges;
-    private String name;
-    private long msgs;
-    private boolean isIndependent = true;
-
     public UMLMvOperationToComp() {
-        this.name = "moc";
+        super("moc");
+    }
+
+    public UMLMvOperationToComp(UMLRefactoringAction other){
+        super(other);
     }
 
     public UMLMvOperationToComp(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements) {
@@ -66,22 +60,6 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
     }
 
     @Override
-    public boolean isIndependent() {
-        return isIndependent;
-    }
-
-    @Override
-    public void setIndependent(Map<String, Set<String>> initialElements) {
-        Set<String> candidateTargetValues =
-                this.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-        Set<String> flattenSourceElement =
-                initialElements.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        if (!flattenSourceElement.containsAll(candidateTargetValues))
-            isIndependent = false;
-    }
-
-    @Override
     public void execute(EasierUmlModel contextModel) throws EasierException {
 
         EOLStandalone executor = new EOLStandalone();
@@ -107,12 +85,8 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
     }
 
     @Override
-    public RefactoringAction clone() {
-        try {
-            return (RefactoringAction) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+    public RefactoringAction copy() {
+        return new UMLMvOperationToComp(this);
     }
 
     @Override
@@ -121,64 +95,15 @@ public class UMLMvOperationToComp implements UMLRefactoringAction {
     }
 
     @Override
-    public Map<String, Set<String>> getTargetElements() {
-        return targetElements;
-    }
-
-    @Override
-    public Map<String, Set<String>> getCreatedElements() {
-        return createdElements;
-    }
-
-
-    @Override
     public String toString() {
         return "Move Operation --> " + targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next() + " to" +
                 " Component " +
                 "-->  " + targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
     }
 
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
-    }
-
-
     public String toCSV() {
         return String.format("Move_Operation_Component,%s,%s,",
                 targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next(),
                 targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next());
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        UMLMvOperationToComp other = (UMLMvOperationToComp) obj;
-        if (sourceModelPath == null && other.sourceModelPath != null)
-            return false;
-
-        if (!targetElements.equals(other.targetElements))
-            return false;
-
-        for (String k : createdElements.keySet()) {
-            for (String elemName : createdElements.get(k)) {
-                if (!other.createdElements.get(k).contains(elemName))
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
 }

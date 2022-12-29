@@ -54,7 +54,7 @@ public class RefactoringActionTest {
         RefactoringAction action2 = action;
         assertEquals(action, action2);
 
-        action2 = action.clone();
+        action2 = action.copy();
         assertEquals(action, action2);
 
     }
@@ -77,7 +77,7 @@ public class RefactoringActionTest {
 
     public void testClone() {
 //        RefactoringAction clonedAction = action.clone(solution);
-        RefactoringAction clonedAction = (RefactoringAction) action.clone();
+        RefactoringAction clonedAction = (RefactoringAction) action.copy();
         assertEquals(action, clonedAction);
     }
 

@@ -51,8 +51,8 @@ public class UMLMvOperationToCompTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    public void testClone() {
-        super.testClone();
+    public void copy_method_should_return_equals_solutions() {
+        super.copy_method_should_return_equals_solutions();
     }
 
     @Test
