@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class Refactoring implements Cloneable {
@@ -23,7 +24,7 @@ public abstract class Refactoring implements Cloneable {
         this(rfSource.modelPath);
         this.solutionID = rfSource.solutionID;
         for (RefactoringAction a : rfSource.getActions()) {
-            this.getActions().add(a.clone());
+            this.getActions().add(a.copy());
         }
     }
 
@@ -93,6 +94,11 @@ public abstract class Refactoring implements Cloneable {
 
 
     @Override
+    public int hashCode() {
+        return Objects.hash(easierModel, actions, solutionID, modelPath);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -100,22 +106,17 @@ public abstract class Refactoring implements Cloneable {
             return false;
         if (getClass() != obj.getClass())
             return false;
+
         Refactoring other = (Refactoring) obj;
-        if (actions == null && other.actions != null) {
+
+        if(!actions.equals(other.actions))
             return false;
-        } else {
-            if (actions.size() != other.actions.size())
-                return false;
-            for (int i = 0; i < actions.size(); i++) {
-                if (!actions.get(i).equals(other.actions.get(i))) {
-                    return false;
-                }
-            }
-        }
-        if(easierModel == null && other.easierModel != null) {
+
+        if(easierModel != null && !easierModel.equals(other.easierModel)) {
             return false;
         }
-        return easierModel.equals(other.easierModel);
+
+        return true;
     }
 
     /**
