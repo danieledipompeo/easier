@@ -162,12 +162,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return getVariable(VARIABLE_INDEX).isFeasible();
     }
 
-    protected void copyRefactoringVariable(Refactoring refactoring) {
-        Refactoring refactoringCloned = refactoring.clone();
-        refactoringCloned.setSolutionID(this.getName());
-        this.setVariable(VARIABLE_INDEX, refactoringCloned);
-    }
-
     @Override
     public Solution<Refactoring> copy() {
         return new UMLRSolution(this);
@@ -430,19 +424,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         new UMLMemoryOptimizer().cleanup();
         EasierResourcesLogger.checkpoint("UMLRSolution", "computeReliability_end");
         JMetalLogger.logger.info(String.format("Reliability computed : %s", this.reliability));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        UMLRSolution other = (UMLRSolution) obj;
-
-        if (folderPath == null ^ other.folderPath == null)
-            return false;
-        return true;
     }
 
     // Set Reliability.

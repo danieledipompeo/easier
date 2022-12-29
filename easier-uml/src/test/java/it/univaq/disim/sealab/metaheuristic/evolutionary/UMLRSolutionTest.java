@@ -265,15 +265,6 @@ public class UMLRSolutionTest {
     }
 
     @Test
-    public void copyRefactoringVariable() {
-        UMLRSolution cloneSolution = (UMLRSolution) solution.copy();
-        assertEquals(solution, cloneSolution);
-
-        cloneSolution.copyRefactoringVariable(solution.getVariable(0));
-        assertEquals(solution.getVariable(0), cloneSolution.getVariable(0));
-    }
-
-    @Test
     public void testIsIndependent() {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
         RefactoringAction a1 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());

@@ -163,7 +163,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
         if (Double.doubleToLongBits(reliability) != Double.doubleToLongBits(other.reliability))
             return false;
 
-        if(!parents.equals(other.parents))
+        if(Arrays.stream(parents).allMatch(Objects::nonNull) && !parents.equals(other.parents))
             return false;
 
         if (getVariable(VARIABLE_INDEX) != null && !getVariable(VARIABLE_INDEX).equals(other.getVariable(VARIABLE_INDEX)))
