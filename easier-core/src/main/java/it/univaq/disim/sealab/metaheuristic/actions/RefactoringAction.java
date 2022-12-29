@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public interface RefactoringAction extends Cloneable {
+public interface RefactoringAction {
 
-	RefactoringAction clone();
+	RefactoringAction copy();
 
 	String getTargetType();
 
@@ -27,4 +27,5 @@ public interface RefactoringAction extends Cloneable {
 	void setIndependent(Map<String, Set<String>> initialElements);
 
 	boolean isIndependent();
+
 }
