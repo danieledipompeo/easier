@@ -80,7 +80,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         // create a new refactoring and clone refactoring actions from the source solution
         Refactoring ref = new UMLRefactoring(this.getModelPath().toString());
         ref.setSolutionID(this.getName());
-        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone)
+        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::copy)
                 .collect(Collectors.toList()));
         this.setVariable(0, ref);
 
