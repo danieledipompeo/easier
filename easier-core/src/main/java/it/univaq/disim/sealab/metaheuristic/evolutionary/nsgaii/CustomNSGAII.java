@@ -50,7 +50,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         this.getPopulation().forEach(s -> {
             s.refactoringToCSV();
             String line = this.getName() + ',' + this.getProblem().getName() + ',' + s.objectiveToCSV();
-            new FileUtils().solutionDumpToCSV(line);
+            FileUtils.solutionDumpToCSV(line);
         });
     }
 
@@ -175,7 +175,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
          * iterations has been updated just before checking the stopping criteria
          * !!!Attn!!!
          */
-        new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(),
+        FileUtils.searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(),
                 this.getProblem().getName(), Configurator.eINSTANCE.getSearchBudgetType(),
                 evaluations / getMaxPopulationSize() - 1, maxEvaluations / getMaxPopulationSize()));
     }

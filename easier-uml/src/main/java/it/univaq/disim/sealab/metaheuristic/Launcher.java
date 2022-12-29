@@ -122,7 +122,7 @@ public class Launcher {
         try {
             new RExecuteAlgorithms<>(experiment).run();
 
-            new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
+            FileUtils.experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
             if (Configurator.eINSTANCE.generateRF())
                 new RGenerateReferenceParetoFront(experiment).run();

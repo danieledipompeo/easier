@@ -118,7 +118,7 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
     public void populationToCSV() {
         for (RSolution<?> sol : population) {
             String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
-            new FileUtils().solutionDumpToCSV(line);
+            FileUtils.solutionDumpToCSV(line);
         }
     }
 
@@ -175,7 +175,7 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
          * is required because iterations has been updated just before checking the stopping criteria
          * !!!Attn!!!
          */
-        new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(), this.getProblem().getName(),
+        FileUtils.searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(), this.getProblem().getName(),
                 Configurator.eINSTANCE.getSearchBudgetType(), iterations - 1, maxIterations));
     }
 

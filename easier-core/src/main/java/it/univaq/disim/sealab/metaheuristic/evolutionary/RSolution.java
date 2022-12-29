@@ -146,7 +146,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
             return true;
         if(obj == null)
             return false;
-        
+
         if (getClass() != obj.getClass())
             return false;
 
@@ -197,7 +197,7 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
     }
 
     public void refactoringToCSV() {
-        new FileUtils().refactoringDumpToCSV(((Refactoring) getVariable(0)).toCSV());
+        FileUtils.refactoringDumpToCSV(((Refactoring) getVariable(0)).toCSV());
     }
 
     /**

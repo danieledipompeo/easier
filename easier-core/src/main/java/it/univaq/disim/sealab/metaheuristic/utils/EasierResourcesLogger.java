@@ -63,9 +63,8 @@ public class EasierResourcesLogger {
      */
     public static void dumpToCSV() {
         // duration and memoryOccupation should have the same length by construction
-        FileUtils fUtil = new FileUtils();
         for (int i = 0; i < execTimeMillisi.size(); i++) {
-            fUtil.algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s,%s", iterationIDs.get(i), labels.get(i),
+            FileUtils.algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s,%s", iterationIDs.get(i), labels.get(i),
                     steps.get(i), execTimeMillisi.get(i), memoryOccupation.get(i)[1], memoryOccupation.get(i)[0], memoryOccupation.get(i)[3], memoryOccupation.get(i)[2]));
         }
     }

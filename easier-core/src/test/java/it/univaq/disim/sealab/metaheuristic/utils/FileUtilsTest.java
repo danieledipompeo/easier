@@ -9,11 +9,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.nio.file.Files;
-import java.io.File;
 import java.nio.file.Path;
-import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 public class FileUtilsTest {
@@ -32,7 +31,7 @@ public class FileUtilsTest {
     @Test
     public void solutionDumpTestIfDumpFileContains2Lines() throws IOException {
         String line = "NSGA-II,problemTest,1,0.15,7,9,0.99";
-        new FileUtils().solutionDumpToCSV(line);
+        FileUtils.solutionDumpToCSV(line);
 
         //Check the correct header
         String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
@@ -49,7 +48,7 @@ public class FileUtilsTest {
     @Test
     public void searchBudgetDumpTestIfDumpFileContains2Lines() throws IOException {
         String line = "NSGAII,simplified-cocome__BRF_clone_1.23__moc_1.23__mcnn_1.23__moncnn_1.23__MaxEval_12__ProbPAs_0.00,byPrematureConvergence,1,12";
-        new FileUtils().searchBudgetDumpToCSV(line);
+        FileUtils.searchBudgetDumpToCSV(line);
 
         //Check the correct header
         String header = "algorithm,problem_tag,search_budget,iteration,max_iteration";
@@ -74,7 +73,7 @@ public class FileUtilsTest {
     @Test
     public void algoPerfDumpTestIfDumpFileContains2Lines() throws IOException {
         String line = "PESA2,simplified-cocome__BRF_clone_1.23__moc_1.64__mcnn_1.45__moncnn_1.80__MaxEval_102__ProbPAs_0.95,86805,622854144,449879328,1363148800,969885368";
-        new FileUtils().algoPerfStatsDumpToCSV(line);
+        FileUtils.algoPerfStatsDumpToCSV(line);
 
         //Check the correct header
         String EXPECTED_HEADER = "iteration_id,label,step,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";

@@ -134,7 +134,7 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 			long freeAfter = Runtime.getRuntime().freeMemory();
 			long totalAfter = Runtime.getRuntime().totalMemory();
 
-			new FileUtils().algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.getName(),
+			FileUtils.algoPerfStatsDumpToCSV(String.format("%s,%s,%s,%s,%s,%s,%s", this.getName(),
 					this.getProblem().getName(), computingTime, totalBefore, freeBefore, totalAfter, freeAfter));
 
 			updateProgress();
@@ -151,7 +151,7 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 	public void populationToCSV() {
 		for (RSolution<?> sol : population) {
 			String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
-			new FileUtils().solutionDumpToCSV(line);
+			FileUtils.solutionDumpToCSV(line);
 		}
 	}
 

@@ -44,7 +44,7 @@ public class UMLFileUtilsTest {
     public void backAnnotationErrorLogToCSVTest() throws IOException {
 
         String expectedLine = "1,error_message," + sol.getVariable(0).toString();
-        new FileUtils().backAnnotationErrorLogToCSV(expectedLine);
+        FileUtils.backAnnotationErrorLogToCSV(expectedLine);
 
         String line = "";
         String header = "";
