@@ -3,9 +3,7 @@ package it.univaq.disim.sealab.epsilon.evl;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.evl.EvlModule;
-import org.eclipse.epsilon.evl.dom.Constraint;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,32 +24,6 @@ public class EVLStandalone extends EpsilonStandalone {
 		return new EvlModule();
 	}
 
-	public EpsilonStandalone setModel(Path mmaemiliaFilePath) {
-		model.add(createEmfModel("aemilia", mmaemiliaFilePath, this.metamodelPath.toString(), true, true));
-		return this;
-	}
-
-	@Override
-	public void postProcess(Path destFilePath) {
-	}
-
-	/**
-	 * It returns a map of unsatisfied constraints in descending order.
-	 * 
-	 * @return A sorted entry of Constraints with the number of unsatisfied
-	 *         instances, in descending order.
-	 */
-	public Map<Constraint, Integer> getUnsatisfiedConstraints() {
-		try {
-			preProcess();
-			execute();
-		} catch (Exception e) {
-			System.err.println("Error in Performance antipattern detection using the file " + model.toString());
-			e.printStackTrace();
-		}
-
-		return ((EvlModule) this.module).getContext().getUnsatisfiedConstraintsBySize();
-	}
 
 	/**
 	 * Extracts a map<performance antipattern type, map<target.name, fuzzy_value>>
@@ -60,7 +32,6 @@ public class EVLStandalone extends EpsilonStandalone {
 	 */
 	public Map<String, Map<String, Double>> extractFuzzyValues() {
 		try {
-			preProcess();
 			execute();
 		} catch (Exception e) {
 			System.err.println("Error in Performance antipattern detection using the file " + model.toString());
@@ -86,8 +57,4 @@ public class EVLStandalone extends EpsilonStandalone {
 		return perfAntipaternsClassification;
 	}
 
-	@Override
-	public void preProcess() {
-
-	}
 }

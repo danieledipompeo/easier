@@ -10,16 +10,9 @@ import java.util.ArrayList;
 
 public class ETLStandalone extends EpsilonStandalone {
 
-	final static String lqnMetamodel = "/home/peo/git/sealab/uml2lqn/org.univaq.uml2lqn/lqnxsd/lqn_renamed.xsd.ecore";
-
 	public ETLStandalone() {
-		source = Paths.get("/home/peo/git/sealab/uml2lqn/org.univaq.uml2lqn", "uml2lqn.etl");
 		module = new EtlModule();
 		model = new ArrayList<>();
-	}
-
-	public ETLStandalone(Path dest) {
-		this();
 	}
 
 	@Override
@@ -27,18 +20,6 @@ public class ETLStandalone extends EpsilonStandalone {
 		return new EtlModule();
 	}
 
-	@Override
-	public void postProcess(Path destFilePath) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void preProcess() {
-		// TODO Auto-generated method stub
-
-	}
-	
 	@Override
 	public void clearMemory() {
 		super.clearMemory();

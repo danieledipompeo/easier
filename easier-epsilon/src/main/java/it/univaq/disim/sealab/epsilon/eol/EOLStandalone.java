@@ -25,26 +25,7 @@ public class EOLStandalone extends EpsilonStandalone {
 		return source;
 	}
 
-	@Override
-	public void postProcess(Path destFilePath) {
-	}
-
 	public Object getTarget() {
-
 		return module.getContext().getFrameStack().get("target").getValue();
-
 	}
-
-	@Override
-	public void preProcess() {
-	}
-
-	public void execute() throws EolRuntimeException {
-		super.doExecute();
-	}
-	
-	public void disposeModelRepository() {
-		module.getContext().getModelRepository().dispose();
-	}
-
 }

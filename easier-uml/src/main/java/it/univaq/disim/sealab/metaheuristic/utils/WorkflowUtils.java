@@ -37,7 +37,7 @@ public class WorkflowUtils {
 
         try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(sourceModelPath.toString())) {
 
-            executor = new ETLStandalone(sourceModelPath.getParent());
+            executor = new ETLStandalone();
             executor.setSource(Paths.get(uml2lqnModule, "uml2lqn.etl"));
             executor.setModel(uml);
             executor.setModel(executor.createXMLModel("LQN", sourceModelPath.getParent().resolve("output.xml"),

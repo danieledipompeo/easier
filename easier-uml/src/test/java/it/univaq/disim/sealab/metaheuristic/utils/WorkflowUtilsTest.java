@@ -31,14 +31,11 @@ public class WorkflowUtilsTest {
         Path lqnModelPath = modelPath.getParent().resolve("output.xml");
         assertTrue(Files.exists(lqnModelPath));
 
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(lqnModelPath.toFile()));
+        try(BufferedReader br = new BufferedReader(new FileReader(lqnModelPath.toFile()))) {
             assertNotEquals(String.format("Expected not empty %s file. ", lqnModelPath), br.readLine(), null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Test
