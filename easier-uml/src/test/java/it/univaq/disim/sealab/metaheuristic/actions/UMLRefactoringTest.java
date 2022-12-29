@@ -115,7 +115,7 @@ public class UMLRefactoringTest {
         EasierModel eModel = refactoring.getEasierModel();
 
         RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction clone1 = clone.clone();
+        RefactoringAction clone1 = clone.copy();
         RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());

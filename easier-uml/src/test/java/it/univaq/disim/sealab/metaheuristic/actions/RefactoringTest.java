@@ -68,6 +68,7 @@ public class RefactoringTest {
     @Test
     public void testEquals() {
         assertEquals(refactoring, refactoring);
+
         Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];
@@ -92,7 +93,7 @@ public class RefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
         RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction clone1 = clone.clone();
+        RefactoringAction clone1 = clone.copy();
         RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
         RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(), easierModel.getInitialElements());
         RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
