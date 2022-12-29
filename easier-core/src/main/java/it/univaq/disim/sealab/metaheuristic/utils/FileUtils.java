@@ -362,6 +362,14 @@ public class FileUtils {
      * @param line
      */
     private void dumpToFile(String fileName, String header, String line) {
+        if(!Files.exists(Configurator.eINSTANCE.getOutputFolder()))
+        try {
+            Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+        } catch (IOException e) {
+            EasierLogger.logger_.severe("Unable to create the output folder");
+            throw new RuntimeException(e);
+        }
+
         if (!Files.exists(Configurator.eINSTANCE.getOutputFolder().resolve(fileName))) {
             try (BufferedWriter writer = new BufferedWriter(
                     new FileWriter(Configurator.eINSTANCE.getOutputFolder().resolve(fileName).toString()))) {
@@ -437,6 +445,23 @@ public class FileUtils {
 
         }
 
+    }
+
+    /**
+     * Remove all files from the output folder, then remove the output folder itself
+     */
+    public static void removeOutputFolder(){
+        if (Files.exists(Configurator.eINSTANCE.getOutputFolder())) {
+            try {
+                Files.walk(Configurator.eINSTANCE.getOutputFolder())
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e) {
+                EasierLogger.logger_.severe("Unable to clean the output folder. \r" +e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }

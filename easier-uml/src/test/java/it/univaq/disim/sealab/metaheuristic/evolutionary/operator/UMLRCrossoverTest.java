@@ -56,24 +56,18 @@ public class UMLRCrossoverTest {
     }
 
     @Test
-    public void testExecuteWithDuplicatedSolution() {
+    public void crossover_is_not_allowed_with_same_parents() {
 
-        Path modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getPath());
-        UMLRProblem<RSolution<?>> p = new UMLRProblem<>(modelPath, "simplied-cocome__test");
+        Path modelPath = Paths.get(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
 
         UMLRSolution parent1 = new UMLRSolution(modelPath, "simplied-cocome__test");
         parent1.createRandomRefactoring();
 
         List<UMLRSolution> population = xOver.execute(List.of(parent1, parent1));
-        assertNotNull(population);
-        assertEquals(population.get(0), parent1, "Expected crossover operator cannot combine two identical parent");
+        assertNotNull(population, "The crossover must always return a not null population.");
 
-        if (population.get(0).isCrossover())
-            assertNotEquals(parent1, population.get(0), String.format("%s \t %s", parent1, population.get(0)));
-
-        for (UMLRSolution sol : population) {
-            System.out.println(sol.getVariable(0).toCSV());
-        }
+        population.stream().forEach(p -> assertFalse(p.isCrossover(), "Expected unfeasible crossover with two " +
+                "identical parents."));
     }
 
     @Test

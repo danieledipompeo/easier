@@ -104,7 +104,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         scenarioRTs = new double[3];
 
         this.setName();
-        
+
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
                 String.valueOf(getName()));
         modelPath = folderPath.resolve(getName() + ".uml");

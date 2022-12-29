@@ -16,8 +16,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgorithmTest<S> {
 
@@ -26,7 +25,7 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         super.setUp();
 
         SPEA2Builder<S> customBuilder = new CustomSPEA2Builder<>(p, crossoverOperator,
-                mutationOperator).setMaxIterations(72)
+                mutationOperator).setMaxIterations(2).setPopulationSize(2)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
         algorithm = customBuilder.build();
@@ -97,7 +96,7 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
 
         LineNumberReader lnr = new LineNumberReader(new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(2, lnr.getLineNumber());
         Files.delete(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
     }
 

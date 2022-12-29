@@ -14,7 +14,7 @@ import java.io.LineNumberReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CustomNSGAIITest<S extends UMLRSolution> extends CustomGeneticAlgorithmTest<S> {
 
@@ -44,36 +44,6 @@ public class CustomNSGAIITest<S extends UMLRSolution> extends CustomGeneticAlgor
 
         assertFalse(((CustomNSGAII<S>) algorithm).isStagnantState());
     }
-
-    @Test
-    public void updateProgressTest() throws IOException {
-        super.updateProgressTest();
-
-        ((CustomNSGAII<S>) algorithm).updateProgress();
-        Path output = Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv");
-        assertTrue("The algo_perf_stats.csv should exist", Files.exists(output));
-
-        String header = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
-        try (BufferedReader br = new BufferedReader(new FileReader(output.toFile()))) {
-            String line = br.readLine();
-            assertEquals(header, line); //The first must be the header
-        }
-
-        output = Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv");
-        assertTrue("The solution_dump.csv file should exist", Files.exists(output));
-        header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
-        try (BufferedReader br = new BufferedReader(new FileReader(output.toFile()))) {
-            String line = br.readLine();
-            assertEquals(header, line); // The first must be the header
-        }
-
-        LineNumberReader lnr = new LineNumberReader(
-                new FileReader(output.toFile()));
-
-        lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
-    }
-
 
     @Test
     public void runTest() throws IOException {

@@ -30,7 +30,7 @@ public class Configurator {
 	private String paretoFront;
 
 	@Parameter(names = { "-r", "--independent_runs" }, description = "Set the number of independent runs")
-	private int independetRuns = 31;
+	private int independetRuns = 1;
 
 	@Parameter(names = { "--cleaningTmp" }, description = "Set to true for removing all temporary files")
 	private boolean cleaningTmp = false;
@@ -39,7 +39,7 @@ public class Configurator {
 	private String outputFolder="/tmp/easier-output-test";
 
 	@Parameter(names = { "-maxEval", "--maxEvaluation" }, required = true, description = "Set the maximum evaluations")
-	private List<Integer> maxEval = List.of(72);
+	private List<Integer> maxEval = List.of(2);
 
 	@Parameter(names = { "-popSize", "--populationSize" }, required = true, description = "Set the population size")
 	private int popSize = 2;

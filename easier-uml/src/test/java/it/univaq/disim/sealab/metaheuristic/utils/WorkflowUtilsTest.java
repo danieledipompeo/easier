@@ -17,15 +17,12 @@ public class WorkflowUtilsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        modelPath = Paths.get(getClass().getResource("/models/train-ticket/train-ticket.uml").getFile());
+        modelPath = Paths.get(getClass().getResource("/train-ticket/train-ticket.uml").getFile());
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml.bak"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.lqxo"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.out"));
+        FileUtils.removeOutputFolder();
     }
 
     @Test
@@ -49,7 +46,7 @@ public class WorkflowUtilsTest {
         new WorkflowUtils().applyTransformation(modelPath);
         Path solverOutcome = modelPath.getParent().resolve("output.lqxo");
         new WorkflowUtils().invokeSolver(modelPath.getParent());
-        assertTrue(Files.exists(solverOutcome)); // check whether the file output.lqxo exists
+        assertTrue(Files.exists(solverOutcome)); // check whether exists the file output.lqxo
         try (BufferedReader br = new BufferedReader(new FileReader(solverOutcome.toFile()))) {
             // check whether the file output.lqxo is not empty
             assertNotEquals(String.format("Expected not empty %s file. ", solverOutcome), br.readLine(), null);

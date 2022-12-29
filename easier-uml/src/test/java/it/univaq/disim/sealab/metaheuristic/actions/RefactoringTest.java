@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +30,7 @@ public class RefactoringTest {
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 
         solution = p.createSolution();
+        refactoring = solution.getVariable(0);
     }
 
     @AfterEach
@@ -78,9 +79,8 @@ public class RefactoringTest {
         }
 
         otherRefactoring.getActions().addAll(List.of(actions[0], actions[2], actions[1],actions[3]));
+
         assertNotEquals(refactoring, otherRefactoring, "Expected two refactorings with different action order");
-
-
     }
     @Test
     /*

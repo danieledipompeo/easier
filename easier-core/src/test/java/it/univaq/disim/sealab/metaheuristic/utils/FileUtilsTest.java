@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
+import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,17 +20,13 @@ public class FileUtilsTest {
 
     @BeforeAll
     public static void setupClass() throws IOException {
+        FileUtils.removeOutputFolder();
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
     @AfterAll
-    public static void tearDown() throws IOException {
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv"));
-
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder());
-
+    public static void tearDownClass() throws IOException {
+        FileUtils.removeOutputFolder();
     }
 
     @Test

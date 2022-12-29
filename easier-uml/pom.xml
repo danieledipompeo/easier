@@ -170,5 +170,11 @@
             <artifactId>easier-epsilon</artifactId>
             <version>0.6.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

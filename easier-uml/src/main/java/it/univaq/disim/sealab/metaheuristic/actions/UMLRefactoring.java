@@ -80,6 +80,7 @@ public class UMLRefactoring extends Refactoring {
             getActions().remove(candidate);
             return false;
         }
+        easierModel.store(candidate.getCreatedElements());
         return true;
     }
 

@@ -2,6 +2,8 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
@@ -31,22 +33,20 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
 
     @BeforeAll
     public static void setUpClass() throws IOException {
+        FileUtils.removeOutputFolder();
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
         Files.createDirectories(Configurator.eINSTANCE.getTmpFolder());
     }
 
-    //    @AfterAll
+    @AfterAll
     public static void tearDownClass() throws IOException {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder())
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
-
+        FileUtils.removeOutputFolder();
     }
 
     public void setUp() {
-        String modelpath = getClass().getResource("/models/train-ticket/train-ticket.uml").getFile();
+        String modelpath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
+        solutions = new ArrayList<>();
     }
 
 

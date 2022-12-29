@@ -63,7 +63,8 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
         UMLRSolution parent2copy = new UMLRSolution(parent2);
         offspring.add(parent2copy);
 
-        if (JMetalRandom.getInstance().nextDouble() < probability) {
+
+        if (JMetalRandom.getInstance().nextDouble() < probability && !parent1.equals(parent2)) {
             // Get the length of a solution
             int refactoringLength = Configurator.eINSTANCE.getLength();
 

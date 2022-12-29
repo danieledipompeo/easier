@@ -8,16 +8,15 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.UnexpectedException;
 import java.util.*;
@@ -31,17 +30,18 @@ public class UMLRSolutionTest {
 
     @BeforeAll
     public static void beforeClass() throws IOException {
+        FileUtils.removeOutputFolder();
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
     @AfterAll
     public static void tearDownClass() throws IOException {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        FileUtils.removeOutputFolder();
     }
 
     @BeforeEach
     public void setUp() throws URISyntaxException {
-        String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
+        String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
         solution = new UMLRSolution(Paths.get(modelPath), "simplied-cocome__test");
     }
 
@@ -76,6 +76,7 @@ public class UMLRSolutionTest {
 
     @Test
     public void testIsFeasibleShouldFail() {
+        solution.createRandomRefactoring();
         EasierModel eModel = solution.getVariable(0).getEasierModel();
         RefactoringAction failedAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
         failedAction.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).clear();
@@ -91,22 +92,20 @@ public class UMLRSolutionTest {
         expectedCreatedElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), new HashSet<>());
         expectedCreatedElements.put(UMLRSolution.SupportedType.OPERATION.toString(), new HashSet<>());
 
-        solution.init();
-        Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
-        EasierModel eModel = ref.getEasierModel();
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        ref.getActions().addAll(List.of(clone, mvopncnn, clone1, mvcpnn));
-        solution.setRefactoring(ref);
+        solution.createRandomRefactoring();
+        Refactoring ref = solution.getVariable(0);
 
-        for (RefactoringAction refactoringAction : Arrays.asList(clone, mvopncnn, clone1, mvcpnn)) {
+        // get created element by each refactoringaction
+        for (RefactoringAction refactoringAction : ref.getActions()) {
             refactoringAction.getCreatedElements().forEach((k, v) -> expectedCreatedElements.get(k).addAll(v));
         }
+        // apply the refactoring and then store the created element
+        solution.executeRefactoring();
 
+        EasierModel eModel = ref.getEasierModel();
+
+        // check if the created elements by each ref action are the same of the ones stored in easier model
         assertEquals(expectedCreatedElements, eModel.getCreatedRefactoringElement(), "Expected the same created element map");
-
     }
 
     @Disabled
@@ -195,26 +194,41 @@ public class UMLRSolutionTest {
     }
 
     @Test
-    public void evaluatePerformance() {
-        solution.executeRefactoring();
-
+    public void empty_refactoring_should_return_perfq_0() {
         solution.evaluatePerformance();
-
         System.out.printf("target: %s \t initial: %s \t perfQ: %s\n", solution.getModelPath(),
                 Configurator.eINSTANCE.getInitialModelPath(),
                 solution.getPerfQ());
         assertNotEquals(Double.NaN, solution.getPerfQ(), "Perfq should not be NaN");
+        assertEquals(0.0, solution.getPerfQ(), "Expected a perfq equal to 0.0.");
+    }
+
+    @Test
+    void random_refactoring_should_not_return_perfq_0() {
+        // execute the workflow
+        solution.createRandomRefactoring();
+        solution.executeRefactoring();
+        solution.applyTransformation();
+        solution.invokeSolver();
+
+        solution.evaluatePerformance();
+        System.out.printf("target: %s \t initial: %s \t perfQ: %s\n", solution.getModelPath(),
+                Configurator.eINSTANCE.getInitialModelPath(),
+                solution.getPerfQ());
+
         assertNotEquals(0.0, solution.getPerfQ(), "Expected a perfq not equal to 0.0.");
     }
+
 
     @Test
     public void computeReliability() {
         solution.computeReliability();
-        System.out.printf("Reliability \t %s\r",solution.getReliability());
+        System.out.printf("Reliability \t %s\r", solution.getReliability());
     }
 
     @Test
     public void refactoringToCSV() throws IOException {
+        solution.createRandomRefactoring();
         solution.refactoringToCSV();
         LineNumberReader lnr = new LineNumberReader(new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_composition.csv").toString()));
         long readLine = lnr.lines().count();
@@ -224,23 +238,30 @@ public class UMLRSolutionTest {
 
     @Test
     public void testExecuteRefactoring() throws IOException {
+        solution.createRandomRefactoring();
         solution.executeRefactoring();
-        LineNumberReader lnr = new LineNumberReader(new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_stats.csv").toString()));
-        long readLine = lnr.lines().count();
-        //number of refactoring action + the header
-        assertEquals(Configurator.eINSTANCE.getLength() + 1, readLine);
+        assertTrue(solution.refactored);
     }
 
     @Test
-    public void testEquals() {
+    public void equals_should_return_true_with_two_identical_solution() {
 
-        assertEquals(solution, solution);
+        assertEquals(solution, solution, "Expected true when comparing two identical solutions");
+    }
 
-        solution2 = (UMLRSolution) p.createSolution();
-        assertNotEquals(solution, solution2);
+    @Test
+    void equals_should_return_false_with_different_solution(){
+        String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
+        solution2 = new UMLRSolution(Paths.get(modelPath), "simplied-cocome__test");
+        solution2.createRandomRefactoring();
 
+        assertNotEquals(solution, solution2, "Expected not equals solutions");
+    }
+
+    @Test
+    void copy_should_produce_equal_solution(){
         solution2 = (UMLRSolution) solution.copy();
-        assertEquals(solution, solution2);
+        assertEquals(solution, solution2, "The copy method should return an equal solution");
     }
 
     @Test

@@ -12,7 +12,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 
 import static org.junit.Assert.*;
 
@@ -25,15 +24,13 @@ public class UMLFileUtilsTest {
 
     @BeforeAll
     public static void beforeClass() throws IOException {
+        FileUtils.removeOutputFolder();
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
     @AfterAll
     public static void tearDownClass() throws IOException {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder())
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        FileUtils.removeOutputFolder();
     }
 
     @BeforeEach
@@ -52,8 +49,8 @@ public class UMLFileUtilsTest {
         String line = "";
         String header = "";
         Path file = Configurator.eINSTANCE.getOutputFolder().resolve("back_annotation_error_log.csv");
-        // Check the correct header
 
+        // Check the correct header
         String EXPECTED_HEADER = "solID,message,actions";
         try (BufferedReader br = new BufferedReader(new FileReader(file.toFile()))) {
 
@@ -70,7 +67,7 @@ public class UMLFileUtilsTest {
         LineNumberReader lnr = new LineNumberReader(new FileReader(
                 Configurator.eINSTANCE.getOutputFolder().resolve("back_annotation_error_log.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(5, lnr.getLineNumber());
     }
 
 }

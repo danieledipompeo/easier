@@ -28,7 +28,7 @@ class UMLRSolutionListEvaluatorTest {
     @BeforeEach
     void setUp() throws IOException {
 
-        problem = new UMLRProblem<>(Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile()),
+        problem = new UMLRProblem<>(Paths.get(getClass().getResource("/simplified-cocome/cocome.uml").getFile()),
                 "simplied-cocome__test");
         sol = problem.createSolution();
 
@@ -57,9 +57,5 @@ class UMLRSolutionListEvaluatorTest {
         assertNotEquals(0, sol.getArchitecturalChanges(), "Expected architectural changes != 0");
         assertNotEquals(0, sol.getPerfQ(), "Expected perfq != 0");
 
-    }
-
-    @Test
-    void testEvaluate() {
     }
 }
