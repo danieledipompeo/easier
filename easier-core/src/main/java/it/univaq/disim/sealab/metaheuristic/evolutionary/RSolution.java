@@ -9,6 +9,7 @@ import org.uma.jmetal.solution.AbstractSolution;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public abstract class RSolution<T> extends AbstractSolution<T> {
 
@@ -163,8 +164,12 @@ public abstract class RSolution<T> extends AbstractSolution<T> {
         if (Double.doubleToLongBits(reliability) != Double.doubleToLongBits(other.reliability))
             return false;
 
-        if(Arrays.stream(parents).allMatch(Objects::nonNull) && !parents.equals(other.parents))
-            return false;
+        if (Arrays.stream(parents).allMatch(Objects::nonNull)) {
+            if (parents.length != other.parents.length || IntStream.range(0,
+                            parents.length)
+                    .anyMatch(i -> !parents[i].equals(other.parents[i])))
+                return false;
+        }
 
         if (getVariable(VARIABLE_INDEX) != null && !getVariable(VARIABLE_INDEX).equals(other.getVariable(VARIABLE_INDEX)))
             return false;

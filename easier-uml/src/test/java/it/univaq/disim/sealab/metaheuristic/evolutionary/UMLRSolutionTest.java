@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.UnexpectedException;
 import java.util.*;
@@ -245,12 +246,11 @@ public class UMLRSolutionTest {
 
     @Test
     public void equals_should_return_true_with_two_identical_solution() {
-
         assertEquals(solution, solution, "Expected true when comparing two identical solutions");
     }
 
     @Test
-    void equals_should_return_false_with_different_solution(){
+    void equals_should_return_false_with_different_solution() {
         String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
         solution2 = new UMLRSolution(Paths.get(modelPath), "simplied-cocome__test");
         solution2.createRandomRefactoring();
@@ -259,7 +259,40 @@ public class UMLRSolutionTest {
     }
 
     @Test
-    void copy_should_produce_equal_solution(){
+    void equals_should_be_true_when_solutions_have_same_parents() {
+        String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
+        Path modelP = Path.of(modelPath);
+        UMLRSolution parent1 = new UMLRSolution(modelP, "simplied-cocome__test");
+        UMLRSolution parent2 = new UMLRSolution(modelP, "simplied-cocome__test");
+
+        solution.setParents(parent1, parent2);
+        solution2 = (UMLRSolution) solution.copy();
+
+        assertEquals(solution, solution2, "Expected equals solutions when both have same parents");
+
+    }
+
+
+    @Test
+    void equals_should_be_false_when_solutions_have_different_parents() {
+        String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
+        Path modelP = Path.of(modelPath);
+        solution2 = new UMLRSolution(modelP, "simplied-cocome__test");
+        solution2.createRandomRefactoring();
+
+        solution.setParents(new UMLRSolution(modelP, "simplied-cocome__test"),
+                new UMLRSolution(modelP, "simplied-cocome__test"));
+
+        assertNotEquals(solution, solution2, "Expected not equals solutions when one has null parents");
+
+        solution2.setParents(new UMLRSolution(modelP, "simplied-cocome__test"),
+                new UMLRSolution(modelP, "simplied-cocome__test"));
+
+        assertNotEquals(solution, solution2, "Expected not equals solutions when both have different parents");
+    }
+
+    @Test
+    void copy_should_produce_equal_solution() {
         solution2 = (UMLRSolution) solution.copy();
         assertEquals(solution, solution2, "The copy method should return an equal solution");
     }

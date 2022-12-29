@@ -77,6 +77,10 @@ public class UMLRSolution extends RSolution<Refactoring> {
     public UMLRSolution(UMLRSolution s) {
         this(s.sourceModelPath, s.problemName);
 
+        // if parents of s is not null and not empty it set s parents to this
+        if(s.parents != null && s.parents.length !=0 )
+            this.setParents(s.parents[0], s.parents[1]);
+
         // create a new refactoring and clone refactoring actions from the source solution
         Refactoring ref = new UMLRefactoring(this.getModelPath().toString());
         ref.setSolutionID(this.getName());
