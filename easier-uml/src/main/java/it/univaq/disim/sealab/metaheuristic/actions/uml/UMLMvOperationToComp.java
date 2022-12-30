@@ -35,17 +35,12 @@ public class UMLMvOperationToComp extends UMLRefactoringAction {
         Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
         String targetOperationName = availableOperations.stream().skip(new Random().nextInt(availableOperations.size())).findFirst().orElse(null);
 
-        targetElements.put(UMLRSolution.SupportedType.OPERATION.toString(),
-                new HashSet<>() {{
-                    add(targetOperationName);
-                }});
+        targetElements.put(UMLRSolution.SupportedType.OPERATION.toString(), Set.of(targetOperationName));
 
         setIndependent(initialElements);
         Set<String> availableComponents = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
         targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(),
-                new HashSet<>() {{
-                    add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size())).findFirst().orElse(null));
-                }});
+                Set.of(availableComponents.stream().skip(new Random().nextInt(availableComponents.size())).findFirst().orElse(null)));
 
     }
 

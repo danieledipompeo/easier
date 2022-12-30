@@ -113,28 +113,6 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
                 createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
     }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj)
-//            return true;
-//        if (obj == null)
-//            return false;
-//        if (getClass() != obj.getClass())
-//            return false;
-//        UMLMvComponentToNN other = (UMLMvComponentToNN) obj;
-//
-//        if (!targetElements.equals(other.targetElements))
-//            return false;
-//
-//        for (String k : createdElements.keySet()) {
-//            for (String elemName : createdElements.get(k)) {
-//                if (!other.createdElements.get(k).contains(elemName))
-//                    return false;
-//            }
-//        }
-//        return true;
-//    }
-
     public RefactoringAction copy() {
         return new UMLMvComponentToNN(this);
     }

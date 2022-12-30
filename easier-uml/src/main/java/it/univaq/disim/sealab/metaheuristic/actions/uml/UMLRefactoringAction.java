@@ -79,6 +79,11 @@ public abstract class UMLRefactoringAction implements RefactoringAction {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(isIndependent, numOfChanges, name, targetElements, createdElements);
+    }
+
+    @Override
     public Map<String, Set<String>> getTargetElements() {
         return targetElements;
     }

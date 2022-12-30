@@ -14,8 +14,6 @@ import java.net.URISyntaxException;
 
 public class UMLRefactoring extends Refactoring {
 
-
-
     public UMLRefactoring(String mPath) {
         super(mPath);
         easierModel = new UMLEasierModel(mPath);
@@ -83,11 +81,4 @@ public class UMLRefactoring extends Refactoring {
         easierModel.store(candidate.getCreatedElements());
         return true;
     }
-
-    public Refactoring clone(){
-        UMLRefactoring umlRefactoring = new UMLRefactoring(this);
-        return umlRefactoring;
-    }
-
-
 }

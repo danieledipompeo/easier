@@ -1,55 +1,39 @@
 package it.univaq.disim.sealab.epsilon;
 
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+
 import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 
-public class EpsilonStandaloneTest {
-
-	String refactoringLibraryModule, uml2lqnModule, GQAM_NAMESPACE;
-	String modelPath;
-	EVLStandalone evlModule;
+public class EOLStandaloneTest {
 
 	@BeforeEach
-	public void setUp() {
-		
-		refactoringLibraryModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-				"easier-refactoringLibrary", "evl", "AP-UML-MARTE.evl").toString();
-		uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-				"easier-uml2lqn", "org.univaq.uml2lqn").toString();
-
-		GQAM_NAMESPACE = "MARTE::MARTE_AnalysisModel::GQAM::";
-		
-		modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
-		
-		evlModule = new EVLStandalone();
-		EasierUmlModel uml = null;
-		try {
-			uml = EpsilonStandalone.createUmlModel(modelPath);
-		} catch (EolModelLoadingException | URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		evlModule.setModel(uml);
-		evlModule.setSource(Paths.get(refactoringLibraryModule));
-		evlModule.setParameter(0.95f, "float", "prob_to_be_pa");
-
+	public void init() {
 	}
 
-
-	// requires the updated module
-
-	@Disabled
 	@Test
-	public void extractFuzzyValuesTest() {
-		evlModule.extractFuzzyValues();
+	public void generateEasierModel() throws EolModelLoadingException, URISyntaxException {
+
+		String modelPath = getClass().getResource("/agv/automatedGuidedVehicle.uml").getFile();
+
+		EasierUmlModel model = EpsilonStandalone.createUmlModel(modelPath);
+
+		Assertions.assertNotNull(model);
+
+		ResourceSet rs = model.getResource().getResourceSet();
+		Assertions.assertEquals(14, rs.getPackageRegistry().size());
+
+		Assertions.assertTrue(rs.getPackageRegistry().containsKey("http://www.eclipse.org/papyrus/GQAM/1"), "The GQAM" +
+				" package must be loaded.");
+		
+		Assertions.assertTrue(rs.getPackageRegistry().containsKey("http://com.masdes.dam/profiles/DAM/1.0"), "The DAM" +
+				" package must be loaded.");
+
 	}
 
 }
