@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract class Refactoring implements Cloneable {
+public abstract class Refactoring {
 
     protected EasierModel easierModel;
 
@@ -15,20 +15,18 @@ public abstract class Refactoring implements Cloneable {
     protected int solutionID = -1;
     protected String modelPath;
 
-    public Refactoring(final String mPath) {
+    protected Refactoring(final String mPath) {
         actions = new ArrayList<>();
         this.modelPath = mPath;
     }
 
-    public Refactoring(Refactoring rfSource) {
+    protected Refactoring(Refactoring rfSource) {
         this(rfSource.modelPath);
         this.solutionID = rfSource.solutionID;
         for (RefactoringAction a : rfSource.getActions()) {
             this.getActions().add(a.copy());
         }
     }
-
-    public abstract Refactoring clone();
 
     public void setSolutionID(int id) {
         solutionID = id;
@@ -51,7 +49,7 @@ public abstract class Refactoring implements Cloneable {
     public boolean hasMultipleOccurrence() {
 
         int refactoringLength = this.getActions().size();
-        List<RefactoringAction> actions = this.getActions();
+//        List<RefactoringAction> actions = this.getActions();
         for (int i = 0; i < refactoringLength; i++) {
             RefactoringAction a = actions.get(i);
             for (int j = i + 1; j < refactoringLength; j++) {
@@ -77,10 +75,8 @@ public abstract class Refactoring implements Cloneable {
                 for (int j = i + 1; j < listOfActions.size(); j++) {
 
                     // only use independent actions
-                    if (listOfActions.get(j).isIndependent()) {
-                        if(easierModel.contains(act.getCreatedElements())){
+                    if (listOfActions.get(j).isIndependent() && easierModel.contains(act.getCreatedElements())){
                             return false;
-                        }
                     }
                 }
             }
@@ -127,7 +123,6 @@ public abstract class Refactoring implements Cloneable {
      */
     public String toCSV() {
         StringBuilder strBuilder = new StringBuilder();
-        final int solutionID = this.solutionID;
         for (int i = 0; i < getActions().size() - 1; i++) {
             strBuilder.append(solutionID).append(",").append(getActions().get(i).toCSV()).append("\n");
         }
