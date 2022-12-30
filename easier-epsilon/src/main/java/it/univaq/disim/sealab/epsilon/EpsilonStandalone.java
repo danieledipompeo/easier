@@ -94,25 +94,6 @@ public abstract class EpsilonStandalone {
 		return module.execute();
 	}
 
-	public synchronized EmfModel createEmfModel(String name, Path model, String metamodel, boolean readOnLoad,
-			boolean storeOnDisposal) {
-		EmfModel emfModel = new EmfModel();
-		StringProperties properties = new StringProperties();
-		properties.put(EmfModel.PROPERTY_NAME, name);
-		properties.put(EmfModel.PROPERTY_FILE_BASED_METAMODEL_URI, metamodel);
-		properties.put(EmfModel.PROPERTY_MODEL_URI, model.toUri().toString());
-		properties.put(EmfModel.PROPERTY_READONLOAD, readOnLoad + "");
-		properties.put(EmfModel.PROPERTY_STOREONDISPOSAL, storeOnDisposal + "");
-		try {
-			emfModel.load(properties, (IRelativePathResolver) null);
-		} catch (EolModelLoadingException e) {
-			System.err.println("Error in loading the model with properties!");
-			e.printStackTrace();
-		}
-		return emfModel;
-	}
-
-
 	/**
 	 * Loads the @param model as a UML model.
 	 * 
@@ -211,7 +192,7 @@ public abstract class EpsilonStandalone {
 		return module;
 	}
 
-	public synchronized void clearMemory() {
+	public void clearMemory() {
 		
 		this.getModule().getImports().clear();
 		this.getModule().getComments().clear();

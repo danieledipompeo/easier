@@ -20,6 +20,8 @@ import org.eclipse.uml2.uml.UMLPlugin;
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 
+import java.util.Objects;
+
 public class EasierUmlModel extends UmlModel {
 
 
@@ -164,10 +166,6 @@ public class EasierUmlModel extends UmlModel {
         return resourceSet;
     }
 
-    public ResourceSet getResourceSet() {
-        return this.resourceSet;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -176,13 +174,23 @@ public class EasierUmlModel extends UmlModel {
             return false;
         if (getClass() != obj.getClass())
             return false;
+
         EasierUmlModel other = (EasierUmlModel) obj;
-        if (resourceSet == null) {
-            if (other.resourceSet != null)
-                return false;
-        } else if (!resourceSet.equals(other.resourceSet))
+//        if (resourceSet == null) {
+//            if (other.resourceSet != null)
+//                return false;
+//        } else if (!resourceSet.equals(other.resourceSet))
+//            return false;
+
+        if(resourceSet != null && !resourceSet.equals(other.resourceSet))
             return false;
+
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resourceSet);
     }
 
     @Override
