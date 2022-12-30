@@ -1,7 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +30,10 @@ public class UMLRCrossoverTest {
     public void tearDown() throws Exception {
     }
 
-    //    @Test
     @RepeatedTest(1)
     public void execute() {
 
-        Path modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getPath());
-        UMLRProblem<RSolution<?>> p = new UMLRProblem<>(modelPath, "simplied-cocome__test");
+        Path modelPath = Paths.get(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
 
         UMLRSolution parent1 = new UMLRSolution(modelPath, "simplied-cocome__test");
         parent1.createRandomRefactoring();
@@ -49,10 +45,6 @@ public class UMLRCrossoverTest {
 
         if (population.get(0).isCrossover())
             assertNotEquals(parent1, population.get(0), String.format("%s \t %s", parent1, population.get(0)));
-
-        for (UMLRSolution sol : population) {
-            System.out.println(sol.getVariable(0).toCSV());
-        }
     }
 
     @Test

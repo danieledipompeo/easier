@@ -7,6 +7,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ public class RefactoringTest {
 
     @BeforeEach
     public void setUp() {
+        FileUtils.removeOutputFolder();
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 
@@ -35,7 +37,7 @@ public class RefactoringTest {
 
     @AfterEach
     public void tearDown() throws IOException {
-        Files.deleteIfExists(solution.getModelPath());
+        FileUtils.removeOutputFolder();
     }
 
     @Test
@@ -49,20 +51,6 @@ public class RefactoringTest {
         RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
         refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
         refactoring.execute();
-    }
-
-
-
-    @Test
-    public void testClone(){
-        Refactoring cloned = refactoring.clone();
-        assertEquals(refactoring, cloned);
-    }
-
-    @Test
-    public void testCloneDeprecated() {
-        Refactoring cloneRefactoring = refactoring.clone();
-        assertEquals(refactoring, cloneRefactoring);
     }
 
     @Test

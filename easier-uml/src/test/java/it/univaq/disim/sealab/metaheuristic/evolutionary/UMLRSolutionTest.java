@@ -228,13 +228,20 @@ public class UMLRSolutionTest {
     }
 
     @Test
-    public void refactoringToCSV() throws IOException {
+    public void refactoringToCSV_should_create_file_containing_ref_actions() throws IOException {
         solution.createRandomRefactoring();
         solution.refactoringToCSV();
-        LineNumberReader lnr = new LineNumberReader(new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_composition.csv").toString()));
-        long readLine = lnr.lines().count();
-        //number of refactoring action + the header
-        assertEquals(Configurator.eINSTANCE.getLength() + 1, readLine, String.format("Expected %s lines \t found: %s.", Configurator.eINSTANCE.getLength(), readLine));
+
+        List<String> csvLines = Files.readAllLines(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_composition.csv"));
+
+        assertEquals(Configurator.eINSTANCE.getLength() + 1, csvLines.size(), String.format("Expected %s lines \t found: " +
+                        "%s.", Configurator.eINSTANCE.getLength(), csvLines.size()));
+
+        String header = "solID,operation,target,to,where";
+        assertEquals(header, csvLines.get(0));
+
+        assertEquals(header.split(",").length, csvLines.get(0).split(",").length, "Line of a refactoring action must " +
+                "contain number of fields as the header");
     }
 
     @Test

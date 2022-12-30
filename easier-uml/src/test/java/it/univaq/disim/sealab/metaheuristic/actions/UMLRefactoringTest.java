@@ -39,7 +39,7 @@ public class UMLRefactoringTest {
 
     @BeforeEach
     public void setUp() {
-        String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
+        String modelPath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelPath), "simplied-cocome__test");
 
         solution = p.createSolution();
@@ -75,15 +75,9 @@ public class UMLRefactoringTest {
 
 
     @Test
-    public void testClone() {
-        Refactoring cloned = refactoring.clone();
+    public void copy_constructor_should_create_an_equals_refactoring() {
+        Refactoring cloned = new UMLRefactoring(refactoring);
         assertEquals(refactoring, cloned);
-    }
-
-    @Test
-    public void testCloneDeprecated() {
-        Refactoring cloneRefactoring = refactoring.clone();
-        assertEquals(refactoring, cloneRefactoring);
     }
 
     @Test
@@ -101,8 +95,6 @@ public class UMLRefactoringTest {
 
         otherRefactoring.getActions().addAll(List.of(actions[0], actions[2], actions[1], actions[3]));
         assertNotEquals(refactoring, otherRefactoring, "Expected two refactorings with different action order");
-
-
     }
 
     @Test
@@ -110,7 +102,8 @@ public class UMLRefactoringTest {
       It should find a multiple occurrence of  the first
       refactoring action.
       The refactoring has been built synthetically.
-     */ public void testHasMultipleOccurrence() {
+     */
+    public void refactoring_has_multiple_occurrence_of_the_first_action() {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
