@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class EasierModel implements Cloneable {
+public abstract class EasierModel {
 
     Map<String, Set<String>> initialElements;
     Map<String, Set<String>> targetRefactoringElement;
@@ -13,9 +13,16 @@ public abstract class EasierModel implements Cloneable {
 
     String modelPath;
 
-    public EasierModel(final String mPath) {
+    protected EasierModel(final String mPath) {
         modelPath = mPath;
         initMap();
+    }
+
+    protected EasierModel(EasierModel eModel){
+        this.modelPath = eModel.modelPath;
+        this.targetRefactoringElement = eModel.targetRefactoringElement;
+        this.createdRefactoringElement = eModel.createdRefactoringElement;
+        this.initialElements = eModel.initialElements;
     }
 
     protected abstract void initMap();
@@ -52,15 +59,6 @@ public abstract class EasierModel implements Cloneable {
     public void store(Map<String, Set<String>> elemToBeStored) {
         elemToBeStored.keySet().stream().forEach(k ->
                 createdRefactoringElement.get(k).addAll(elemToBeStored.get(k)));
-    }
-
-    @Override
-    public EasierModel clone() {
-        try {
-            return (EasierModel) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

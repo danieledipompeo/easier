@@ -17,7 +17,7 @@ public class EasierExperimentDAO {
         configuration = Configurator.eINSTANCE;
         population = new ArrayList<>();
         pareto = new ArrayList<>();
-    };
+    }
 
     public void addPopulation(EasierPopulationDAO populationDAO){
         population.add(populationDAO);

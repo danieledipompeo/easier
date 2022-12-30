@@ -16,6 +16,10 @@ public class UMLEasierModel extends EasierModel {
         super(mPath);
     }
 
+    public UMLEasierModel(EasierModel eModel){
+        super(eModel);
+    }
+
     @Override
     protected void initMap() {
         targetRefactoringElement = new HashMap<>();

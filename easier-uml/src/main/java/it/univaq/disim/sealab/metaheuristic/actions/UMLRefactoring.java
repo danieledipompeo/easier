@@ -21,7 +21,7 @@ public class UMLRefactoring extends Refactoring {
 
     public UMLRefactoring(Refactoring rfSource) {
         super(rfSource);
-        easierModel = rfSource.easierModel.clone();
+        easierModel = new UMLEasierModel(rfSource.easierModel);
     }
 
 

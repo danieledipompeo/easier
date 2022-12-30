@@ -49,7 +49,6 @@ public abstract class Refactoring {
     public boolean hasMultipleOccurrence() {
 
         int refactoringLength = this.getActions().size();
-//        List<RefactoringAction> actions = this.getActions();
         for (int i = 0; i < refactoringLength; i++) {
             RefactoringAction a = actions.get(i);
             for (int j = i + 1; j < refactoringLength; j++) {
@@ -108,11 +107,7 @@ public abstract class Refactoring {
         if(!actions.equals(other.actions))
             return false;
 
-        if(easierModel != null && !easierModel.equals(other.easierModel)) {
-            return false;
-        }
-
-        return true;
+        return easierModel != null && easierModel.equals(other.easierModel);
     }
 
     /**
