@@ -12,9 +12,7 @@ import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.junit.jupiter.api.*;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;

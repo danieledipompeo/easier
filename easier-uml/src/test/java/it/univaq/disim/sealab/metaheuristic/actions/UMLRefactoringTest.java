@@ -7,6 +7,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToComp;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
@@ -81,8 +82,12 @@ public class UMLRefactoringTest {
     }
 
     @Test
-    public void testEquals() {
+    public void equals_should_return_true_when_comparing_identical_refactoring() {
         assertEquals(refactoring, refactoring);
+    }
+
+    @Test
+    void equals_should_return_false_when_comparing_different_refactorings() {
         Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];
@@ -95,6 +100,16 @@ public class UMLRefactoringTest {
 
         otherRefactoring.getActions().addAll(List.of(actions[0], actions[2], actions[1], actions[3]));
         assertNotEquals(refactoring, otherRefactoring, "Expected two refactorings with different action order");
+    }
+
+    @Test
+    void equals_return_false_with_different_models(){
+        Refactoring otherRefactoring = new UMLRefactoring(refactoring);
+
+        String otherModel = getClass().getResource("/train-ticket/train-ticket.uml").getFile();
+        otherRefactoring.easierModel = new UMLEasierModel(otherModel);
+
+        assertNotEquals(refactoring, otherRefactoring);
     }
 
     @Test
