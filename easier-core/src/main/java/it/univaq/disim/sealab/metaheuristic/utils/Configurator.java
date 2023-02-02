@@ -107,6 +107,9 @@ public class Configurator {
 			"used by the perfQ evaluator.")
 	private String initialModelPath = "cocome/simplified-cocome/cocome.uml";
 
+
+	@Parameter(names= {"--initialChanges", "-iChanges"}, description = "The architectural changes computed in the " +
+			"previous iteration step. Default: 0.")
 	private double initialChanges = 0d;
 	
 	public long getStoppingCriterionTimeThreshold() {
