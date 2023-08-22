@@ -1,9 +1,9 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import org.uma.jmetal.util.JMetalLogger;
 
 import java.nio.file.Path;
 
@@ -29,6 +29,9 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
         sol.createRandomRefactoring();
         EasierResourcesLogger.checkpoint("UMLRProblem","createSolution_end");
         sol.refactoringToCSV();
+
+        // Add the solution to the population of the experiment for the export to JSON
+//        EasierExperimentDAO.eINSTANCE.addPopulation(sol);
         return (S) sol;
     }
 
@@ -54,6 +57,9 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
             solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
         }
         EasierResourcesLogger.checkpoint("UMLRProblem","evaluate_end");
+
+        // Add the solution to the population of the experiment for the export to JSON
+        EasierExperimentDAO.eINSTANCE.addPopulation(solution);
 
         EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
 
