@@ -28,7 +28,7 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         super.setUp();
 
         SPEA2Builder<S> customBuilder = new CustomSPEA2Builder<>(p, crossoverOperator,
-                mutationOperator).setMaxIterations(72)
+                mutationOperator).setMaxIterations(4).setPopulationSize(2)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
         algorithm = customBuilder.build();
