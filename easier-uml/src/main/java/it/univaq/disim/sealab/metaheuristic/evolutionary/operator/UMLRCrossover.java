@@ -3,6 +3,8 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.uma.jmetal.util.JMetalLogger;
@@ -118,12 +120,26 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
             // Add the offsprings to the list of candidates
             crossoverCandidates.addAll(offspring);
+
+            // Evaluate the offsprings
+            offspring.forEach(solution -> {
+                solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
+                solution.setObjective(1, solution.getArchitecturalChanges());
+                if (Configurator.eINSTANCE.getProbPas() != 0) {
+                    solution.setObjective(2, solution.getPAs());
+                    solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
+                } else {
+                    solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
+                }
+            });
         }
 
         // Store elapsed time and consumed memory by the crossover operator
         easierResourcesLogger.checkpoint("UMLCrossoverOperator", "do_crossover_end");
 
 //        easierResourcesLogger.toCSV();
+        // add the offsprings to the population of the experiment for the export to JSON
+        offspring.forEach(EasierExperimentDAO.eINSTANCE::addPopulation);
 
         // It can be equal to parent1, parent2; child1,child2;
         return (List<S>) offspring;
