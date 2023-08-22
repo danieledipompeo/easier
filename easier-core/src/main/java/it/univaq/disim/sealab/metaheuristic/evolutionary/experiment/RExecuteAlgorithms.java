@@ -40,7 +40,8 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
             algo.runAlgorithm(this.experiment);
             List<RSolution<?>> population = (List<RSolution<?>>) algo.getAlgorithm().getResult();
 
-            EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO(population, algo.getRunId()));
+            EasierExperimentDAO.eINSTANCE.addSuperPareto(new EasierParetoDAO(population,
+                    Configurator.eINSTANCE.getMaxEvaluation().get(0), algo.getRunId()));
         }
 
         FileUtils.moveTmpFile(Configurator.eINSTANCE.getTmpFolder(),

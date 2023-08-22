@@ -122,6 +122,7 @@ public class Launcher {
         try {
             new RExecuteAlgorithms<>(experiment).run();
 
+            // Print experiment results to JSON file
             new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
             if (Configurator.eINSTANCE.generateRF())

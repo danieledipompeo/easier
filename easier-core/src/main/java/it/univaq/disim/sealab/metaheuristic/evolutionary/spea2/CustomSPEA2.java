@@ -1,5 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.spea2;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
@@ -80,6 +82,8 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 
     @Override
     public void updateProgress() {
+        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
+                iterations ));
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");

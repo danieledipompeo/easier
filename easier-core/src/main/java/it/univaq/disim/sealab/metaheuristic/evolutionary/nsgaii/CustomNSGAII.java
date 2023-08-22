@@ -1,5 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierPopulationDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
@@ -40,7 +43,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         oldPopulation = new ArrayList<>();
     }
 
-    /*
+    /**
      * Prints to CSV each generated population
      * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
      *
@@ -91,6 +94,9 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 
     @Override
     protected void updateProgress() {
+        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
+                evaluations / getMaxPopulationSize() ));
+
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
