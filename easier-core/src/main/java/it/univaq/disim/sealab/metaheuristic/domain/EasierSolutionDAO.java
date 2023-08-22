@@ -31,6 +31,9 @@ public class EasierSolutionDAO {
         setSolution(sol);
     }
 
+    /**
+     * Check if the RSolution is already added
+     */
     public static boolean alreadyIn(int id) {
         return ADDED_SOLUTION.contains(id);
     }
