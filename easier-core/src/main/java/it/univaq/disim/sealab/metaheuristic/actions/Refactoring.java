@@ -1,6 +1,9 @@
 package it.univaq.disim.sealab.metaheuristic.actions;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.eclipse.emf.common.util.EList;
 
 import java.util.ArrayList;
@@ -28,14 +31,7 @@ public abstract class Refactoring implements Cloneable {
         }
     }
 
-    @Override
-    public Refactoring clone() {
-        try {
-            return (Refactoring) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public abstract Refactoring clone();
 
     public void setSolutionID(int id) {
         solutionID = id;
@@ -45,15 +41,46 @@ public abstract class Refactoring implements Cloneable {
         return actions;
     }
 
-    public void setActions(EList<RefactoringAction> actions) {
+    public void setActions(List<RefactoringAction> actions) {
         this.actions = actions;
     }
 
     public abstract boolean execute();
 
+
     public abstract boolean tryRandomPush();
 
-    public abstract boolean isFeasible();
+    public void createRandomRefactoring() throws EasierException {
+
+        int failures = 0;
+        int allowedFailures = Configurator.eINSTANCE.getAllowedFailures();
+        int refactoringLength = Configurator.eINSTANCE.getLength();
+
+        do {
+            if (!tryRandomPush())
+                failures++;
+            if (failures >= allowedFailures) {
+                throw new EasierException(String.format("Exceed %s failures \t %s ", allowedFailures, failures));
+            }
+
+        } while (getActions().size() < refactoringLength);
+    }
+
+     public boolean isFeasible() {
+
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(),"isFeasible_start");
+        if (hasMultipleOccurrence())
+            return false;
+
+        for (RefactoringAction action : getActions()) {
+            if (!easierModel.contains(action.getTargetElements())) {
+                EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(),"isFeasible_end");
+                return false;
+            }
+        }
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(),"isFeasible_end");
+        return true;
+    }
 
     public boolean hasMultipleOccurrence() {
 
@@ -73,15 +100,15 @@ public abstract class Refactoring implements Cloneable {
         return false;
     }
 
-    public boolean isIndependent(List<RefactoringAction> listOfActions){
+    public boolean isIndependent(List<RefactoringAction> listOfActions) {
         if (listOfActions.size() == 1) {
             RefactoringAction act = listOfActions.get(0);
 //            for (String k : act.getTargetElements().keySet()) {
-               if (!easierModel.contains(act.getTargetElements())){
-                        return false;
+            if (!easierModel.contains(act.getTargetElements())) {
+                return false;
 //                for (String elemName : act.getTargetElements().get(k)) {
 
-                    // check if the target element of a refactoring action is within the original set of elements
+                // check if the target element of a refactoring action is within the original set of elements
 //                    if (!easierModel.contains(elemName))
 //                        return false;
 //                }
@@ -93,7 +120,7 @@ public abstract class Refactoring implements Cloneable {
 
                     // only use independent actions
                     if (listOfActions.get(j).isIndependent()) {
-                        if(easierModel.contains(act.getCreatedElements())){
+                        if (easierModel.contains(act.getCreatedElements())) {
                             return false;
                         }
                         /*for (String k : act.getCreatedElements().keySet()) {
@@ -117,7 +144,7 @@ public abstract class Refactoring implements Cloneable {
         return true;
     }
 
-    public EasierModel getEasierModel(){
+    public EasierModel getEasierModel() {
         return easierModel;
     }
 
@@ -131,7 +158,7 @@ public abstract class Refactoring implements Cloneable {
         if (getClass() != obj.getClass())
             return false;
         Refactoring other = (Refactoring) obj;
-        if (actions == null && other.actions != null) {
+        if (actions == null ^ other.actions == null) {
             return false;
         } else {
             if (actions.size() != other.actions.size())
@@ -142,7 +169,7 @@ public abstract class Refactoring implements Cloneable {
                 }
             }
         }
-        if(easierModel == null && other.easierModel != null) {
+        if (easierModel == null ^ other.easierModel == null) {
             return false;
         }
         return easierModel.equals(other.easierModel);
@@ -165,14 +192,19 @@ public abstract class Refactoring implements Cloneable {
     }
 
     /**
-     * Prints a single semicolon line with actions belong to the refactoring
+     * Print actions belong to the refactoring a semi-column string.
+     * Add as prefix the solutionID
      *
      * @return
      */
     @Override
     public String toString() {
         return getActions().stream().map(RefactoringAction::toCSV)
-                .collect(Collectors.joining(";"));
+                .collect(Collectors.joining("\n"+this.solutionID+",", this.solutionID+",",""));
+    }
+
+    public void flushResourcesUsageStats() {
+//        easierResourcesLogger.toCSV();
     }
 
 }

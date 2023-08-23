@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.RefactoringActionFactory;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UMLRMutation extends RMutation<UMLRSolution> {
+public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
 
     /**
      * Constructor
@@ -21,6 +22,7 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
      */
     public UMLRMutation(double mutationProbability, double distributionIndex) {
         super(mutationProbability, distributionIndex);
+//        easierResourcesLogger = new EasierResourcesLogger("UMLMutationOperator");
     }
 
     /**
@@ -28,6 +30,9 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
      */
     @Override
     protected void doMutation(double probability, UMLRSolution solution, int allowed_failures) {
+
+        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
+
         for (int i = 0; i < solution.getNumberOfVariables(); i++) {
 
             // guard condition
@@ -40,7 +45,7 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
 
                     int randomPosition = JMetalRandom.getInstance().nextInt(0, ref.getActions().size() - 1);
 
-                    // the refactoring action that will change
+                    // the refactoring action that will be changed
                     RefactoringAction candidateToBeMutated = ref.getActions().get(randomPosition);
 
                     Map<String, Set<String>> filteredAvailableElements = filterOutElementOf(solution, candidateToBeMutated);
@@ -66,6 +71,7 @@ public class UMLRMutation extends RMutation<UMLRSolution> {
                 }
             }
         }
+        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_end");
     }
 
     private Map<String, Set<String>> filterOutElementOf(UMLRSolution solution, RefactoringAction refactoringAction) {

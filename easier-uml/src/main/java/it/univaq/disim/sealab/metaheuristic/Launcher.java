@@ -1,43 +1,34 @@
 package it.univaq.disim.sealab.metaheuristic;
 
 import com.beust.jcommander.JCommander;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.*;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExecuteAlgorithms;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperiment;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentBuilder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.UMLRExecuteAlgorithms;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util.RComputeQualityIndicators;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util.RGenerateReferenceParetoFront;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRSolutionListEvaluator;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class Launcher {
-
-//    private static final UMLRCrossover crossoverOperator = new UMLRCrossover(
-//            Configurator.eINSTANCE.getXoverProbabiliy());
 
     public static void main(String[] args) throws Exception {
 
@@ -68,8 +59,8 @@ public class Launcher {
                     rProblems.add(createProblems(m, eval[j]));
 
                     if (!m.getParent().resolve("output.xml").toFile().exists()) {
-                        new WorkflowUtils().applyTransformation(m);
-                        new WorkflowUtils().invokeSolver(m);
+                        WorkflowUtils.applyTransformation(m);
+                        WorkflowUtils.invokeSolver(m);
                     }
                     List<GenericIndicator<UMLRSolution>> qIndicators = new ArrayList<>();
                     FactoryBuilder<UMLRSolution> factory = new FactoryBuilder<>();
@@ -78,17 +69,19 @@ public class Launcher {
                         if (ind != null)
                             qIndicators.add(ind);
                     }
-                    referenceFront = runExperiment(rProblems, qIndicators, crossoverOperator, eval[j]);
+                    runExperiment(rProblems, qIndicators, crossoverOperator, eval[j]);
                     new UMLMemoryOptimizer().cleanup();
                     System.gc();
                 }
                 i++;
             }
         }
+        EasierResourcesLogger.dumpToCSV();
     }
 
     public static List<Path> runExperiment(final List<RProblem<UMLRSolution>> rProblems,
-                                           final List<GenericIndicator<UMLRSolution>> qualityIndicators, UMLRCrossover crossoverOperator, int eval) {
+                                           final List<GenericIndicator<UMLRSolution>> qualityIndicators,
+                                           UMLRCrossover crossoverOperator, int eval) {
         final int INDEPENDENT_RUNS = Configurator.eINSTANCE.getIndependetRuns(); // should be 31 or 51
         final int CORES = 1;
 
@@ -98,8 +91,9 @@ public class Launcher {
 
         rProblems.forEach(problem -> problemList.add(new ExperimentProblem<>(problem)));
 
-        List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithmList = configureAlgorithmList(problemList, crossoverOperator,
-                eval);
+        List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithmList =
+                configureAlgorithmList(problemList, crossoverOperator,
+                        eval);
 
         Path referenceFrontDirectory = Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "referenceFront");
 
@@ -114,27 +108,30 @@ public class Launcher {
             refFront.add(Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "referenceFront", tag));
         }
 
-        ExperimentBuilder<UMLRSolution, List<UMLRSolution>> experimentBuilder = new RExperimentBuilder<UMLRSolution, List<UMLRSolution>>(
-                "Exp").setAlgorithmList(algorithmList).setProblemList(problemList)
-                .setExperimentBaseDirectory(referenceFrontDirectory.toString())
-                .setReferenceFrontDirectory(referenceFrontDirectory.toString())
-                .setIndependentRuns(INDEPENDENT_RUNS).setNumberOfCores(CORES)
-                .setOutputParetoFrontFileName("FUN").setOutputParetoSetFileName("VAR")
-                .setIndicatorList(qualityIndicators);
+        ExperimentBuilder<UMLRSolution, List<UMLRSolution>> experimentBuilder =
+                new RExperimentBuilder<UMLRSolution, List<UMLRSolution>>(
+                        "Exp").setAlgorithmList(algorithmList).setProblemList(problemList)
+                        .setExperimentBaseDirectory(referenceFrontDirectory.toString())
+                        .setReferenceFrontDirectory(referenceFrontDirectory.toString())
+                        .setIndependentRuns(INDEPENDENT_RUNS).setNumberOfCores(CORES)
+                        .setOutputParetoFrontFileName("FUN").setOutputParetoSetFileName("VAR")
+                        .setIndicatorList(qualityIndicators);
 
-        RExperiment<UMLRSolution, List<UMLRSolution>> experiment = ((RExperimentBuilder<UMLRSolution, List<UMLRSolution>>) experimentBuilder)
-                .setReferenceFrontFileNames(tags).build();
+        RExperiment<UMLRSolution, List<UMLRSolution>> experiment =
+                ((RExperimentBuilder<UMLRSolution, List<UMLRSolution>>) experimentBuilder)
+                        .setReferenceFrontFileNames(tags).build();
         try {
-            List<Entry<Algorithm<List<UMLRSolution>>, long[]>> computingTimes = new UMLRExecuteAlgorithms<UMLRSolution, List<UMLRSolution>>(
-                    experiment).run().getComputingTimes();
+            new RExecuteAlgorithms<>(experiment).run();
 
-            experiment.setComputingTime(computingTimes);
+            // Print experiment results to JSON file
+            new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
             if (Configurator.eINSTANCE.generateRF())
                 new RGenerateReferenceParetoFront(experiment).run();
 
-            RComputeQualityIndicators<UMLRSolution, List<UMLRSolution>> qualityIndicator = new RComputeQualityIndicators<UMLRSolution, List<UMLRSolution>>(
-                    experiment);
+            RComputeQualityIndicators<UMLRSolution, List<UMLRSolution>> qualityIndicator =
+                    new RComputeQualityIndicators<>(
+                            experiment);
             try {
                 qualityIndicator.run();
             } catch (JMetalException e) {
@@ -155,13 +152,18 @@ public class Launcher {
 
         List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithms = new ArrayList<>();
         FactoryBuilder<UMLRSolution> fBuilder = new FactoryBuilder<>();
-        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
+//        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
+
+        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new SequentialSolutionListEvaluator<>();
+
         final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
 
         String algo = Configurator.eINSTANCE.getAlgorithm();
 
         for (ExperimentProblem<UMLRSolution> expProblem : problemList) {
-            algorithms.addAll(fBuilder.configureAlgorithmList(expProblem, eval, crossoverOperator, solutionListEvaluator, mutationOperator, algo));
+            algorithms.addAll(
+                    fBuilder.configureAlgorithmList(expProblem, eval, crossoverOperator, solutionListEvaluator,
+                            mutationOperator, algo));
         }
 
         return algorithms;
@@ -178,6 +180,9 @@ public class Launcher {
                 modelPath.getName(modelPath.getNameCount() - 2), brf, eval, probPas,
                 Configurator.eINSTANCE.getSearchBudget(), Configurator.eINSTANCE.getSearchBudgetThreshold(),
                 Configurator.eINSTANCE.getAlgorithm());
+
+//        if ("rs".equals(Configurator.eINSTANCE.getAlgorithm()))
+//            return new RandomSearchUMLRProblem<>(modelPath, pName);
 
         return new UMLRProblem<>(modelPath, pName);
     }

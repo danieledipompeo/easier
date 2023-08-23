@@ -4,12 +4,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WorkflowUtilsTest {
 
@@ -30,7 +34,7 @@ public class WorkflowUtilsTest {
     }
 
     @Test
-    public void applyTransformation() {
+    public void applyTransformation() throws EasierException {
         new WorkflowUtils().applyTransformation(modelPath);
         Path lqnModelPath = modelPath.getParent().resolve("output.xml");
         assertTrue(Files.exists(lqnModelPath));
@@ -61,8 +65,22 @@ public class WorkflowUtilsTest {
 
     @Test
     public void backAnnotation() throws Exception {
-        new WorkflowUtils().applyTransformation(modelPath);
-        new WorkflowUtils().invokeSolver(modelPath.getParent());
-        new WorkflowUtils().backAnnotation(modelPath);
+        WorkflowUtils.applyTransformation(modelPath);
+        WorkflowUtils.invokeSolver(modelPath.getParent());
+        WorkflowUtils.backAnnotation(modelPath);
+    }
+
+    @Test
+    public void countingPAs() {
+        int pas = WorkflowUtils.countPerformanceAntipattern(modelPath, 0);
+
+        assertEquals(1d, pas, 1, String.format("Expected 1 PAs \t found: %s.", pas));
+    }
+
+    @Test
+    public void evaluatePerformance() throws EasierException {
+        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
+        double perfQ = WorkflowUtils.perfQ(modelPath, modelPath);
+        assertEquals(0d, perfQ, String.format("Expected perfQ 0 \t computed: %s.", perfQ));
     }
 }

@@ -2,27 +2,26 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.factory;
 
 import it.univaq.disim.sealab.metaheuristic.Launcher;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 public class FactoryBuilderTest {
@@ -39,11 +38,11 @@ public class FactoryBuilderTest {
     }
 
     @Test
-    public void createQualityIndicatorTest(){
+    public void createQualityIndicatorTest() {
         GenericIndicator<UMLRSolution> indicator = new FactoryBuilder<UMLRSolution>().createQualityIndicators("HYPER_VOLUME");
-        assertNotNull("Expected non null indicator",indicator);
+        assertNotNull("Expected non null indicator", indicator);
         String expectedName = "HV";
-        assertEquals(String.format("Expected %s \t created %s",expectedName, indicator.getName()), expectedName, indicator.getName());
+        assertEquals(String.format("Expected %s \t created %s", expectedName, indicator.getName()), expectedName, indicator.getName());
     }
 
     @Test
@@ -55,7 +54,7 @@ public class FactoryBuilderTest {
 
         ExperimentProblem<UMLRSolution> experimentProblem = problemList.get(0);
         CrossoverOperator<UMLRSolution> crossoverOperator = new UMLRCrossover(Configurator.eINSTANCE.getXoverProbabiliy());
-        SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new RSolutionListEvaluator<>();
+        SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new SequentialSolutionListEvaluator<>();
         MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
         String algo = "nsgaii";
 

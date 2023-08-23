@@ -4,9 +4,13 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,6 +61,20 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     @Test
     public void testEquals() {
         super.testEquals();
+    }
+
+    @Test
+    @Disabled
+    public void testMapEquals(){
+        Map<String, Set<String>> map1 = new HashMap<>();
+        Map<String, Set<String>> map2 = new HashMap<>();
+
+        map1.put(UMLRSolution.SupportedType.NODE.toString(), Set.of("cloned_node"));
+        map2.put(UMLRSolution.SupportedType.NODE.toString(), Set.of("clned_node"));
+        map2.put(UMLRSolution.SupportedType.COMPONENT.toString(), Set.of("test_component"));
+
+        assertTrue(map2.equals(map1));
+
     }
 
 

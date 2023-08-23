@@ -10,9 +10,11 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentA
 import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii.CustomNSGAIIBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RMutation;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii.CustomPESA2Builder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.random.CustomRandomSearch;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.rnsgaii.CustomRNSGAIIBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.spea2.CustomSPEA2Builder;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.impl.AbstractGeneticAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
@@ -124,7 +126,7 @@ public class FactoryBuilder<S extends RSolution<?>> {
 
 //        String algo = Configurator.eINSTANCE.getAlgorithm();
 //        for (int i = 0; i < problemList.size(); i++) {
-        AbstractGeneticAlgorithm<S, List<S>> algorithm = null;
+        Algorithm<List<S>> algorithm = null;
         for (int j = 0; j < Configurator.eINSTANCE.getIndependetRuns(); j++) {
 
 
@@ -183,7 +185,7 @@ public class FactoryBuilder<S extends RSolution<?>> {
 //                            algorithm, algorithm.getName(), problemList, j);
 //                    algorithms.add(exp);
 //                }
-                } else {
+                }  else {
                     throw new RuntimeException("Reference points must be multiple of the number of objectives!!!");
 
                 }
@@ -208,7 +210,10 @@ public class FactoryBuilder<S extends RSolution<?>> {
 //                algorithms.add(exp);
 
 //            }
+            } else if("rs".equals(algo)){
+                algorithm = new CustomRandomSearch<S>(experimentProblem.getProblem(), eval);
             }
+
             if (algorithm == null) {
                 throw new NullPointerException("Algorithm must be not null.");
             }

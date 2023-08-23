@@ -1,73 +1,39 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
-import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
-import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import it.univaq.sealab.umlreliability.MissingTagException;
 import it.univaq.sealab.umlreliability.Reliability;
 import it.univaq.sealab.umlreliability.UMLReliability;
 import it.univaq.sealab.umlreliability.model.UMLModelPapyrus;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.eclipse.uml2.uml.*;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.solutionattribute.impl.CrowdingDistance;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.UnexpectedException;
-import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author peo
+ * @author Daniele Di Pompeo
+ * daniele.dipompeo@univaq.it
  */
 public class UMLRSolution extends RSolution<Refactoring> {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-    private final static String refactoringLibraryModule, uml2lqnModule;
-    private final static String GQAM_NAMESPACE;
     public static int FAILED_CROSSOVER = 0;
 
-    static {
-        refactoringLibraryModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-                "easier-refactoringLibrary", "evl", "AP-UML-MARTE.evl").toString();
-        uml2lqnModule = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-                "easier-uml2lqn", "org.univaq.uml2lqn").toString();
-
-        GQAM_NAMESPACE = "MARTE::MARTE_AnalysisModel::GQAM::";
-    }
-
-//    Map<String, Set<String>> initialElements;
-//    Map<String, Set<String>> targetRefactoringElement;
-//    Map<String, Set<String>> createdRefactoringElement;
     private Path folderPath;
     private double[] scenarioRTs;
     private String algorithm;
-    private Map<String, Map<String, Double>> extractFuzzyValues;
 
     public UMLRSolution(Path sourceModelPath, String problemName) {
         super(sourceModelPath, problemName);
@@ -80,7 +46,8 @@ public class UMLRSolution extends RSolution<Refactoring> {
         // create a new refactoring and clone refactoring actions from the source solution
         Refactoring ref = new UMLRefactoring(this.getModelPath().toString());
         ref.setSolutionID(this.getName());
-        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone).collect(Collectors.toList()));
+        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone)
+                .collect(Collectors.toList()));
         this.setVariable(0, ref);
 
         this.perfQ = s.perfQ;
@@ -97,80 +64,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     }
 
-//    /**
-//     * Initialize the internal maps for storing available and generated elements
-//     */
-//    void initMap() {
-//        targetRefactoringElement = new HashMap<>();
-//        createdRefactoringElement = new HashMap<>();
-//        initialElements = new HashMap<>();
-//        for (String k : List.of(SupportedType.NODE.toString(), SupportedType.COMPONENT.toString(),
-//                SupportedType.OPERATION.toString())) {
-//            this.targetRefactoringElement.put(k, new HashSet<>());
-//            this.createdRefactoringElement.put(k, new HashSet<>());
-//        }
-//    }
-
-//    protected UMLRSolution createChild(UMLRSolution parent, int point) {
-//
-//        UMLRSolution child = new UMLRSolution(this.sourceModelPath, this.problemName);
-//        child.allowedFailures = this.allowedFailures;
-//        child.refactoringLength = this.refactoringLength;
-//
-//        child.setParents(this, parent);
-//
-//        // the child can use the created element by the two parents
-//        for (String k : this.createdRefactoringElement.keySet()) {
-//            this.createdRefactoringElement.get(k).forEach(v -> child.createdRefactoringElement.get(k).add(v));
-//            parent.createdRefactoringElement.get(k).forEach(v -> child.createdRefactoringElement.get(k).add(v));
-//        }
-//
-//        // the child can use the target element of the two parents
-//        for (String k : this.targetRefactoringElement.keySet()) {
-//            this.targetRefactoringElement.get(k).forEach(v -> child.targetRefactoringElement.get(k).add(v));
-//            parent.targetRefactoringElement.get(k).forEach(v -> child.targetRefactoringElement.get(k).add(v));
-//        }
-//
-//        // create the child by combining the two parents using the crossover point
-//        for (int j = 0; j < point; j++) {
-//            RefactoringAction _new = this.getActionAt(j).clone();
-//            child.getVariable(0).getActions().add(j, _new);
-//        }
-//        for (int j = point; j < refactoringLength; j++) {
-//            RefactoringAction _new = parent.getActionAt(j).clone();
-//            child.getVariable(0).getActions().add(j, _new);
-//        }
-//        // whether the child is not feasible returns null
-//        if (!child.isFeasible())
-//            return null;
-//
-//        return child;
-//    }
-
-
-//    /**
-//     * Create two children from the calling object (this) and the parent param.
-//     * <ul>
-//     *     <li>Child 1: first point actions from this, and the last length - point actions from parent </li>
-//     *     <li>Child 2: first point actions from parent, and the last length - point actions from this </li>
-//     *
-//     * </ul>
-//     *
-//     * @param parent exploited during the mating process
-//     * @param point  is the point where split the chromosome of this and parent
-//     * @return an ArrayList of two UMLRSolutions generated by the mating process
-//     */
-//    public List<UMLRSolution> createChildren(UMLRSolution parent, int point) {
-//        List<UMLRSolution> children = new ArrayList<>(2);
-//        children.add(this.createChild(parent, point));
-//        children.add(parent.createChild(this, point));
-//
-//        if (children.stream().anyMatch(Objects::isNull))
-//            throw new RuntimeException("At least one null child has been created");
-//
-//        return children;
-//    }
-
     protected void init() {
 
         parents = new UMLRSolution[2];
@@ -178,21 +71,22 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         this.setName();
 
-//        initMap();
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
                 String.valueOf(getName()));
         modelPath = folderPath.resolve(getName() + ".uml");
+//        initialModelPath = Configurator.eINSTANCE.getInitialModelPath();
 
         algorithm = this.problemName.substring(this.problemName.lastIndexOf('_') + 1);
 
         try {
+            //            Files.copy(sourceModelPath, modelPath);
             org.apache.commons.io.FileUtils.copyFile(sourceModelPath.toFile(), modelPath.toFile());
-        } catch (IOException e) {
-            System.out.println("[ERROR] The problem's model copy generated an error!!!");
-            e.printStackTrace();
-        } catch (RuntimeException eRun) {
-            System.out.println(eRun.getMessage());
+        } catch (IOException | RuntimeException e) {
+            String msg = String.format("Coping the source model %s to %s has generated the error: %s", sourceModelPath,
+                    folderPath, e.getMessage());
+            JMetalLogger.logger.severe(msg);
         }
+
         Refactoring refactoring = new UMLRefactoring(modelPath.toString());
         refactoring.setSolutionID(this.name);
         this.setVariable(0, refactoring);
@@ -201,330 +95,24 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     public void createRandomRefactoring() {
 
-        int num_failures = 0;
+        try {
+            getVariable(VARIABLE_INDEX).createRandomRefactoring();
+        } catch (EasierException e) {
+            JMetalLogger.logger.severe(String.format("Cannot be computed a refactoring for Solution: %s.", this.getName()));
+        }
 
-        do {
-            try {
-                if (!tryRandomPush())
-                    num_failures++;
-                if (num_failures >= allowedFailures) {
-                    throw new RuntimeException(String.format("Exceed %s failures \t %s ", allowedFailures, num_failures));
-                }
-            } catch (UnexpectedException | EolRuntimeException e) {
-                e.printStackTrace();
-            }
-        } while (getVariable(VARIABLE_INDEX).getActions().size() < refactoringLength);
         this.setAttribute(CrowdingDistance.class, 0.0);
     }
 
-    /**
-     * Return @return true, if @param listOfActions is made up of independent refactoring actions,
-     *
-     * @return false otherwise
-     */
-    public boolean isIndependent(List<RefactoringAction> listOfActions) {
-        return getVariable(0).isIndependent(listOfActions);
-    }
-
-    boolean tryRandomPush() throws UnexpectedException, EolRuntimeException {
-
-        return getVariable(0).tryRandomPush();
-
-        /*RefactoringAction candidate;
-        do {
-            candidate = RefactoringActionFactory.getRandomAction(this.getAvailableElements(), this.getInitialElements());
-        } while (candidate == null);
-        getVariable(0).getActions().add(candidate);
-        if (!this.isFeasible()) {
-            getVariable(0).getActions().remove(candidate);
-            return false;
-        }
-
-        // Add created element to the available element list
-        // for the next refactoring action
-        easierModel.store(candidate.getCreatedElements());
-        for (String k : candidate.getCreatedElements().keySet()) {
-            candidate.getCreatedElements().get(k).forEach(createdElement -> {
-                targetRefactoringElement.get(k).add(createdElement);
-                createdRefactoringElement.get(k).add(createdElement);
-            });
-
-        }
-        return true;*/
-    }
-
-    public boolean isFeasible() {
-        return getVariable(VARIABLE_INDEX).isFeasible();
-    }
-
-//    private boolean isFeasible(Refactoring tr) {
-//
-//        if (tr.hasMultipleOccurrence())
-//            return false;
-//
-//        for (RefactoringAction action : tr.getActions()) {
-//            Set<String> actionTargetElements =
-//                    action.getTargetElements().values().stream().flatMap(Set::stream).map(String.class::cast).collect(Collectors.toSet());
-//            if (getAvailableElements().values().stream().flatMap(Set::stream).noneMatch(actionTargetElements::contains)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
-
-    protected void copyRefactoringVariable(Refactoring refactoring) {
-        this.setVariable(VARIABLE_INDEX, refactoring.clone());
-    }
 
     @Override
     public Solution<Refactoring> copy() {
         return new UMLRSolution(this);
     }
 
-    /* MOVED to RMutation operator
-    boolean doAlter(int i, RefactoringAction candidate) {
-
-        // save the original solution and substitute it with the new one
-        RefactoringAction preAlterAction = getVariable(0).getActions().get(i);
-
-        // Stash the created and target elements of the action target of the alter operation
-        // for a possible rollback
-        Map<String, Set<String>> preAlterCreatedElement = new HashMap<>();
-        Map<String, Set<String>> preAlterTargetElement = new HashMap<>();
-
-        for (String k : preAlterAction.getCreatedElements().keySet()) {
-            Set<String> tmpSet = this.createdRefactoringElement.get(k);
-            tmpSet =
-                    tmpSet.stream().filter(preAlterAction.getCreatedElements().get(k)::contains).collect(Collectors.toSet());
-            preAlterCreatedElement.put(k, Set.copyOf(tmpSet));
-            this.createdRefactoringElement.get(k).removeAll(tmpSet);
-        }
-
-        for (String k : preAlterAction.getTargetElements().keySet()) {
-            Set<String> tmpSet = this.targetRefactoringElement.get(k);
-            tmpSet =
-                    tmpSet.stream().filter(preAlterAction.getTargetElements().get(k)::contains).collect(Collectors.toSet());
-            preAlterTargetElement.put(k, Set.copyOf(tmpSet));
-            this.targetRefactoringElement.get(k).removeAll(tmpSet);
-        }
-
-        getVariable(0).getActions().set(i, candidate);
-
-        if (!this.isFeasible()) {
-            // restore the old solution
-            getVariable(0).getActions().set(i, preAlterAction);
-
-            for (String k : preAlterAction.getCreatedElements().keySet()) {
-                this.createdRefactoringElement.get(k).add(preAlterAction.getCreatedElements().get(k).iterator().next());
-            }
-            for (String k : preAlterAction.getTargetElements().keySet()) {
-                this.targetRefactoringElement.get(k).add(preAlterAction.getTargetElements().get(k).iterator().next());
-            }
-
-            return false;
-        }
-
-        return true;
-    }*/
-
-//    protected void createChild(UMLRSolution s1, UMLRSolution s2, int point) {
-//
-//        try {
-//            for (int j = 0; j < point; j++) {
-//                RefactoringAction _new = s1.getActionAt(j).clone();
-//                this.getVariable(0).getActions().add(j, _new);
-//            }
-//            for (int j = point; j < s2.getVariable(VARIABLE_INDEX).getActions().size(); j++) {
-//                RefactoringAction _new = s2.getActionAt(j).clone();
-//                this.getVariable(0).getActions().add(j, _new);
-//            }
-//        } catch (IndexOutOfBoundsException e) {
-//            EasierLogger.logger_.warning("POINT SIZE ERROR: " + Integer.toString(point));
-//            e.printStackTrace();
-//        }
-//    }
-
-    /* MOVED to RMutation operator
-    @Override
-    public boolean alter(int i) {
-
-        RefactoringAction candidate;
-        do {
-            candidate = RefactoringActionFactory.getRandomAction(this.getAvailableElements(), this.getInitialElements());
-        } while (candidate == null);
-
-        return doAlter(i, candidate);
-
-    }*/
-
-    /**
-     * This method counts the number of Performance Antipatterns (PAs) invoking
-     * the PADRE perf-detection file
-     */
-    public void countingPAs() {
-
-        System.out.print("Counting PAs (it may take a while) ... ");
-        long startTime = System.currentTimeMillis();
-        EVLStandalone pasCounter = new EVLStandalone();
-        try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-            pasCounter.setModel(uml);
-
-            pasCounter.setSource(Paths.get(refactoringLibraryModule));
-
-            // set the prob to be perf antipatterns
-            double fuzzyThreshold = Configurator.eINSTANCE.getProbPas();
-            pasCounter.setParameter(fuzzyThreshold, "float", "prob_to_be_pa");
-
-            extractFuzzyValues = pasCounter.extractFuzzyValues();
-        } catch (EolModelLoadingException | URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        int nPas = 0;
-        // Count performance antipatterns and build a string for the next csv storing
-        for (String pas : extractFuzzyValues.keySet()) {
-            Map<String, Double> mPaf = extractFuzzyValues.get(pas);
-            numPAs += mPaf.keySet().size();
-            for (String targetElement : mPaf.keySet()) {
-                double fuzzy = mPaf.get(targetElement);
-                new FileUtils().performanceAntipatternDumpToCSV(String.format("%s,%s,%s,%.4f", this.name, pas, targetElement, fuzzy));
-            }
-        }
-
-        long duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,counting_pas,%s,%s", algorithm, problemName,
-                getName(), getName(), duration));
-        System.out.printf(" execution time: %s ms%n", duration);
-
-        pasCounter.clearMemory();
-        new UMLMemoryOptimizer().cleanup();
-        pasCounter = null;
-    }
-
-    /*
-     * From the ANT scripts target name="ChangeRoot" depends="LoadModels">
-     * <epsilon.xml.loadModel name="PlainLQN" file="${output}/${name}.xml"
-     * read="true" store="true"/> <epsilon.eol src="changeRoot.eol"> <model
-     * ref="PlainLQN"/> </epsilon.eol>
-     *
-     * <epsilon.storeModel model="PlainLQN"/> <!-- <eclipse.refreshLocal
-     * resource="${output}/output.xml" depth="infinite"/> -->
-     *
-     * </target>
-     *
-     * <target name="Solver" depends="ChangeRoot"> <exec
-     * executable="${executableAbsPath}"> <arg value="${output}/${name}.xml"/>
-     * </exec> </target>
-     */
-    public void invokeSolver() {
-
-        long startTime = System.currentTimeMillis();
-        try {
-            new WorkflowUtils().invokeSolver(this.folderPath);
-        } catch (Exception e) {
-            String line = this.name + "," + e.getMessage() + "," + getVariable(VARIABLE_INDEX).toString();
-            new FileUtils().failedSolutionLogToCSV(line);
-        }
-
-        long duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,invoke_solver,%s", algorithm, problemName,
-                getName(), duration));
-        System.out.println(String.format("invokeSolver execution time: %s", duration));
-        System.out.println("done");
-
-
-        System.out.print("Invoking the back annotator... ");
-        startTime = System.currentTimeMillis();
-        new WorkflowUtils().backAnnotation(modelPath);
-        duration = System.currentTimeMillis() - startTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,lqn2uml,%s", algorithm, problemName,
-                getName(), duration));
-        System.out.println(String.format("backAnnotation execution time: %s", duration));
-        System.out.println("done");
-
-    }
-
-    /**
-     * @return the performance quality indicator as described in
-     * <a href="https://doi.org/10.1109/ICSA.2018.00020">https://doi.org/10.1109/ICSA.2018.00020</a>
-     *
-     * @throws EolModelElementTypeNotFoundException when the perfQ cannot be computed
-     */
-    public double evaluatePerformance() {
-        System.out.print("Counting perfQ ... ");
-        long initTime = System.currentTimeMillis();
-        perfQ = perfQ();
-        long durationTime = System.currentTimeMillis() - initTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,perfQ,%s", algorithm, problemName, getName(), durationTime));
-        System.out.println("done");
-        return perfQ;
-    }
-
-    private double perfQ() {
-
-        /*
-         * The updated model can have more nodes than the source node since original
-         * nodes can be cloned. The benefits of cloning nodes is taken into account by
-         * the performance model. For this reason, the perfQ analyzes only the
-         * performance metrics of the nodes common among the models
-         */
-
-        // The lists used to store the elements of both models
-        List<EObject> sourceElements = new ArrayList<EObject>();
-
-        // The elements of the source model;
-        List<EObject> nodes = null;
-        List<EObject> scenarios = null;
-        try (EasierUmlModel source = (EasierUmlModel) EpsilonStandalone.createUmlModel(sourceModelPath.toString());
-             EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-            nodes = (List<EObject>) source.getAllOfType("Node");
-            scenarios = (List<EObject>) source.getAllOfType("UseCase");
-
-
-            // The function considers only the elements having the stereotypes GaExecHosta
-            // and GaScenario
-            nodes = filterByStereotype(nodes, GQAM_NAMESPACE + "GaExecHost");
-            scenarios = filterByStereotype(scenarios, GQAM_NAMESPACE + "GaScenario");
-            sourceElements.addAll(scenarios);
-            sourceElements.addAll(nodes);
-
-            int numberOfMetrics = 0;
-
-
-            // Variable representing the perfQ value
-            double value = 0d;
-            // for each elements of the source model, it is picked the element with the same
-            // id in the refactored one
-            for (EObject element : sourceElements) {
-                String id = getXmiId(source, element);
-                EObject correspondingElement = (EObject) uml.getElementById(id);
-
-                if (element instanceof UseCase) {
-                    value += -1 * computePerfQValue((Element) element, (Element) correspondingElement, "GaScenario",
-                            "respT");
-                    value += computePerfQValue((Element) element, (Element) correspondingElement, "GaScenario",
-                            "throughput");
-                    numberOfMetrics += 2;
-                } else if (element instanceof Node) {
-                    value += -1 * computePerfQValue((Element) element, (Element) correspondingElement, "GaExecHost",
-                            "utilization");
-                    numberOfMetrics++;
-                }
-            }
-            uml.dispose();
-            new UMLMemoryOptimizer().cleanup();
-            return value / numberOfMetrics;
-        } catch (Exception e) {
-            JMetalLogger.logger.severe(String.format("Solution # '%s' has thrown an error while computing PerfQ!!!",
-                    this.name));
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
     @Override
     public void computeArchitecturalChanges() {
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_start");
 
         try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
 
@@ -535,6 +123,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
                 architecturalChanges += brf * aw;
             }
+            architecturalChanges += Configurator.eINSTANCE.getInitialChanges();
 
         } catch (URISyntaxException | EolModelLoadingException e) {
             throw new RuntimeException(e);
@@ -543,103 +132,66 @@ public class UMLRSolution extends RSolution<Refactoring> {
         } catch (EasierException e) {
             throw new RuntimeException(e);
         }
-
-
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_end");
+        JMetalLogger.logger.info(String.format("Architectural changes computed : %s", architecturalChanges));
     }
 
     @Override
     public void computeScenarioRT() {
-
-        /*
-         * The updated model can have more nodes than the source node since original
-         * nodes can be cloned. The benefits of cloning nodes is taken into account by
-         * the performance model. For this reason, the perfQ analyzes only the
-         * performance metrics of the nodes common among the models
-         */
-
-        // Represent the reference point index of each UML scenario
-        final int rebook_index = 0;
-        final int update_user_index = 1;
-        final int login_index = 2;
-
-        int scenarioIndex = 0;
-
-        // The elements of the source model;
-        List<EObject> scenarios = null;
-
-        // The function considers only the elements having the stereotypes GaScenario
-        try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-            scenarios = (List<EObject>) uml.getAllOfType("UseCase");
-            scenarios = filterByStereotype(scenarios, GQAM_NAMESPACE + "GaScenario");
-
-            // for each element of the source model, it is picked the element with the same
-            // id in the refactored one
-            for (EObject element : scenarios) {
-                Stereotype stereotype = ((Element) element).getAppliedStereotype(GQAM_NAMESPACE + "GaScenario");
-                EList<?> values = (EList<?>) ((Element) element).getValue(stereotype, "respT");
-
-                if (!values.isEmpty()) {
-                    if ("Rebook a ticket".equals(((UseCase) element).getName())) {
-                        scenarioIndex = rebook_index;
-                    } else if ("Update user details".equals(((UseCase) element).getName())) {
-                        scenarioIndex = update_user_index;
-                    } else if ("Login".equals(((UseCase) element).getName())) {
-                        scenarioIndex = login_index;
-                    } else {
-                        throw new RuntimeException("Scenario name does not support yet!");
-                    }
-
-                    scenarioRTs[scenarioIndex] = Double.parseDouble(values.get(0).toString());
-                }
-
-            }
-            uml.dispose();
-            new UMLMemoryOptimizer().cleanup();
-        } catch (Exception e) {
-            System.err.println(String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
-            e.printStackTrace();
-        }
+//
+//        /*
+//         * The updated model can have more nodes than the source node since original
+//         * nodes can be cloned. The benefits of cloning nodes is taken into account by
+//         * the performance model. For this reason, the perfQ analyzes only the
+//         * performance metrics of the nodes common among the models
+//         */
+//
+//        // Represent the reference point index of each UML scenario
+//        final int rebook_index = 0;
+//        final int update_user_index = 1;
+//        final int login_index = 2;
+//
+//        int scenarioIndex = 0;
+//
+//        // The elements of the source model;
+//        List<EObject> scenarios = null;
+//
+//        // The function considers only the elements having the stereotypes GaScenario
+//        try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
+//            scenarios = (List<EObject>) uml.getAllOfType("UseCase");
+//            scenarios = filterByStereotype(scenarios, GQAM_NAMESPACE + "GaScenario");
+//
+//            // for each element of the source model, it is picked the element with the same
+//            // id in the refactored one
+//            for (EObject element : scenarios) {
+//                Stereotype stereotype = ((Element) element).getAppliedStereotype(GQAM_NAMESPACE + "GaScenario");
+//                EList<?> values = (EList<?>) ((Element) element).getValue(stereotype, "respT");
+//
+//                if (!values.isEmpty()) {
+//                    if ("Rebook a ticket".equals(((UseCase) element).getName())) {
+//                        scenarioIndex = rebook_index;
+//                    } else if ("Update user details".equals(((UseCase) element).getName())) {
+//                        scenarioIndex = update_user_index;
+//                    } else if ("Login".equals(((UseCase) element).getName())) {
+//                        scenarioIndex = login_index;
+//                    } else {
+//                        throw new RuntimeException("Scenario name does not support yet!");
+//                    }
+//
+//                    scenarioRTs[scenarioIndex] = Double.parseDouble(values.get(0).toString());
+//                }
+//
+//            }
+//            uml.dispose();
+//            new UMLMemoryOptimizer().cleanup();
+//        } catch (Exception e) {
+//            JMetalLogger.logger.severe(String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
+//            e.printStackTrace();
+//        }
     }
 
     public double[] getScenarioRTs() {
         return scenarioRTs;
-    }
-
-    private double computePerfQValue(final Element source, final Element ref, final String stereotypeName,
-                                     final String tag) {
-
-        Stereotype stereotype = source.getAppliedStereotype(GQAM_NAMESPACE + stereotypeName);
-        EList<?> values = (EList<?>) source.getValue(stereotype, tag);
-
-        double sourceValue = 0d;
-        if (!values.isEmpty())
-            sourceValue = Double.parseDouble(values.get(0).toString());
-
-        stereotype = ref.getAppliedStereotype(GQAM_NAMESPACE + stereotypeName);
-        values = (EList<?>) ref.getValue(stereotype, tag);
-
-        double refValue = 0d;
-        if (!values.isEmpty())
-            refValue = Double.parseDouble(values.get(0).toString());
-
-        return (refValue + sourceValue) == 0 ? 0d : (refValue - sourceValue) / (refValue + sourceValue);
-    }
-
-    private List<EObject> filterByStereotype(Collection<EObject> elements, String stereotypeNamespace) {
-        return elements.stream().filter(e -> ((Element) e).getAppliedStereotype(stereotypeNamespace) != null)
-                .collect(Collectors.toList());
-    }
-
-    private String getXmiId(EmfModel model, EObject element) {
-        return ((XMLResource) model.getResource()).getID(element);
-    }
-
-    /**
-     * Invokes the ETL engine in order to run the UML2LQN transformation.
-     */
-    public void applyTransformation() {
-
-        new WorkflowUtils().applyTransformation(this.modelPath);
     }
 
     public void executeRefactoring() {
@@ -650,22 +202,21 @@ public class UMLRSolution extends RSolution<Refactoring> {
     }
 
     @Override
-    public void setRefactored(boolean isRefactored) {
-        super.setRefactored(isRefactored);
+    public void setRefactored(boolean bRefactored) {
+        super.setRefactored(bRefactored);
 
         // If the solution is a xOvered solution, and it cannot be applied to the model
         // the FAILED_CROSSOVER counter is increased
-        if (!isRefactored && isCrossover())
+        if (!isRefactored() && isCrossover())
             FAILED_CROSSOVER++;
     }
 
     @Override
     public void computeReliability() {
 
-        System.out.print("Computing reliability ... ");
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_start");
         // stores the in memory model to a file
         UMLReliability uml = null;
-        long initTime = System.currentTimeMillis();
         try {
             uml = new UMLReliability(new UMLModelPapyrus(modelPath.toString()).getModel());
             setReliability(new Reliability(uml.getScenarios()).compute());
@@ -683,14 +234,10 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
             new FileUtils().reliabilityErrorLogToCSV(line);
         }
-        long durationTime = System.currentTimeMillis() - initTime;
-        new FileUtils().processStepStatsDumpToCSV(String.format("%s,%s,%s,reliability,%s", algorithm, problemName,
-                getName(), durationTime));
 
         new UMLMemoryOptimizer().cleanup();
-        uml = null;
-        System.out.println("done");
-
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_end");
+        JMetalLogger.logger.info(String.format("Reliability computed : %s", this.reliability));
     }
 
     @Override
@@ -700,7 +247,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         if (!super.equals(obj))
             return false;
         UMLRSolution other = (UMLRSolution) obj;
-
 
         if (folderPath == null ^ other.folderPath == null)
             return false;

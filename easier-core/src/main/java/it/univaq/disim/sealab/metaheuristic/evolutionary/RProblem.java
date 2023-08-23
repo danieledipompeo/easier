@@ -2,6 +2,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
 import java.nio.file.Path;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.problem.AbstractGenericProblem;
 
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
@@ -19,6 +20,7 @@ public abstract class RProblem<S> extends AbstractGenericProblem<S> {
 
 	protected Path sourceFolderPath;
 	protected Path sourceModelPath;
+
 
 	public RProblem(Path srcModelPath) {
 
@@ -43,4 +45,5 @@ public abstract class RProblem<S> extends AbstractGenericProblem<S> {
 	public String toString() {
 		return this.getName();
 	}
+
 }

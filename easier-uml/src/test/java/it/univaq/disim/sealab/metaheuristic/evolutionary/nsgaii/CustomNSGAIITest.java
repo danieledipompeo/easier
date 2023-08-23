@@ -1,9 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomAlgorithmTest;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomGeneticAlgorithmTest;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,14 +17,12 @@ import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
-public class CustomNSGAIITest<S extends RSolution<?>> extends CustomAlgorithmTest<S> {
-
-//    CustomNSGAII<UMLRSolution> algorithm;
+public class CustomNSGAIITest<S extends UMLRSolution> extends CustomGeneticAlgorithmTest<S> {
 
     @BeforeEach
     public void setUp() {
         super.setUp();
-        NSGAIIBuilder<UMLRSolution> customNSGABuilder = new CustomNSGAIIBuilder<UMLRSolution>(p, crossoverOperator,
+        NSGAIIBuilder<S> customNSGABuilder = new CustomNSGAIIBuilder<S>(p, crossoverOperator,
                 mutationOperator, Configurator.eINSTANCE.getPopulationSize()).setMaxEvaluations(4)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
@@ -36,24 +33,24 @@ public class CustomNSGAIITest<S extends RSolution<?>> extends CustomAlgorithmTes
     public void isLocalOptimalPointSolutionWithListOfSolution() {
         super.isLocalOptimalPointSolutionWithListOfSolution();
 
-        ((CustomNSGAII) algorithm).oldPopulation = solutions;
+        ((CustomNSGAII<S>) algorithm).oldPopulation = solutions;
 
-        assertFalse(((CustomNSGAII) algorithm).isStagnantState());
+        assertFalse(((CustomNSGAII<S>) algorithm).isStagnantState());
     }
 
     @Test
     public void isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse() {
         super.isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse();
-        ((CustomNSGAII) algorithm).oldPopulation = solutions;
+        ((CustomNSGAII<S>) algorithm).oldPopulation = solutions;
 
-        assertFalse(((CustomNSGAII) algorithm).isStagnantState());
+        assertFalse(((CustomNSGAII<S>) algorithm).isStagnantState());
     }
 
     @Test
     public void updateProgressTest() throws IOException {
         super.updateProgressTest();
 
-        ((CustomNSGAII) algorithm).updateProgress();
+        ((CustomNSGAII<S>) algorithm).updateProgress();
         Path output = Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv");
         assertTrue("The algo_perf_stats.csv should exist", Files.exists(output));
 
@@ -79,18 +76,8 @@ public class CustomNSGAIITest<S extends RSolution<?>> extends CustomAlgorithmTes
     }
 
 
-//    @Test
-//    public void runTest() throws IOException {
-//        algorithm.run();
-//
-//        Path output = Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv");
-//        assertTrue("The algo_perf_stats.csv should exist", Files.exists(output));
-//
-//        String header = "algorithm,problem_tag,execution_time(ms),total_memory_before(B),free_memory_before(B),total_memory_after(B),free_memory_after(B)";
-//        try (BufferedReader br = new BufferedReader(new FileReader(output.toFile()))) {
-//            String line = br.readLine();
-//            System.out.println(line);
-//            assertEquals(header, line); //The first must be the header
-//        }
-//    }
+    @Test
+    public void runTest() throws IOException {
+        super.runTest();
+    }
 }

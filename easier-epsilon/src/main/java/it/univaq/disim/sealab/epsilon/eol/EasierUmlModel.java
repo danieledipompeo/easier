@@ -1,26 +1,33 @@
 package it.univaq.disim.sealab.epsilon.eol;
 
+import com.masdes.dam.Core.CorePackage;
+import com.masdes.dam.DAM.DAMPackage;
+import com.masdes.dam.Maintenance.MaintenancePackage;
+import com.masdes.dam.Threats.ThreatsPackage;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.emc.emf.CachedResourceSet;
-import org.eclipse.epsilon.emc.emf.CachedResourceSet.Cache;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.epsilon.emc.uml.UmlModel;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage;
+import org.eclipse.papyrus.MARTE.MARTE_DesignModel.HLAM.HLAMPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.Alloc.AllocPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.CoreElements.CoreElementsPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.GRM.GRMPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.NFPs.NFPsPackage;
 import org.eclipse.papyrus.MARTE.MARTE_Foundations.Time.TimePackage;
 import org.eclipse.uml2.common.util.CacheAdapter;
-import org.eclipse.uml2.uml.UMLPlugin;
+import org.eclipse.uml2.uml.*;
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 
-import com.masdes.dam.Core.CorePackage;
-import com.masdes.dam.DAM.DAMPackage;
-import com.masdes.dam.Maintenance.MaintenancePackage;
-import com.masdes.dam.Threats.ThreatsPackage;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EasierUmlModel extends UmlModel {
 
@@ -34,6 +41,7 @@ public class EasierUmlModel extends UmlModel {
     private static final String MARTE_ALLOC_FRAGMENT = "_ar8OsAPMEdyuUt-4qHuVvQ";
     private static final String MARTE_CORE_ELEMENTS_FRAGMENT = "_-wEewECLEd6UTJZnztgOLw";
     private static final String MARTE_GQAM_FRAGMENT = "_4bV20APMEdyuUt-4qHuVvQ";
+    private static final String MARTE_HLAM_FRAGMENT = "_yNSZIAPMEdyuUt-4qHuVvQ";
 
     // DAM
     private static final String DAM_BASE_PATHMAP = "pathmap://DAM_PROFILES/";
@@ -44,6 +52,7 @@ public class EasierUmlModel extends UmlModel {
     private static final String DAM_MAINTENANCE_FRAGMENT = "_rsXqkOShEeKuSu-I2xDxSA";
 
     private ResourceSet resourceSet;
+
 
     /**
      * It has been inspired by the solution proposed in this post
@@ -122,6 +131,11 @@ public class EasierUmlModel extends UmlModel {
                 .put(GQAMPackage.eNS_URI, URI.createURI(MARTE_PROFILES_PATHMAP + MARTE_GQAM_FRAGMENT));
         resourceSet.getPackageRegistry().put(GQAMPackage.eNS_URI, GQAMPackage.eINSTANCE);
 
+        //HLAM
+        UMLPlugin.getEPackageNsURIToProfileLocationMap()
+                .put(HLAMPackage.eNS_URI, URI.createURI(MARTE_PROFILES_PATHMAP + MARTE_HLAM_FRAGMENT));
+        resourceSet.getPackageRegistry().put(HLAMPackage.eNS_URI, HLAMPackage.eINSTANCE);
+
         return resourceSet;
     }
 
@@ -157,10 +171,6 @@ public class EasierUmlModel extends UmlModel {
         resourceSet.getPackageRegistry().put(MaintenancePackage.eNS_URI, MaintenancePackage.eINSTANCE);
 
         return resourceSet;
-    }
-
-    public ResourceSet getResourceSet() {
-        return this.resourceSet;
     }
 
     @Override
@@ -199,4 +209,78 @@ public class EasierUmlModel extends UmlModel {
 
     }
 
+    public List<EObject> filterByStereotype(String type, String stereotypeName) throws EolModelElementTypeNotFoundException {
+
+        String stereotypeNamespace = "MARTE::MARTE_AnalysisModel::GQAM::" + stereotypeName;
+
+//        try {
+            Collection<EObject> eObjects = this.getAllOfType(type);
+
+            return eObjects.stream().filter(e -> ((Element) e).getAppliedStereotype(stereotypeNamespace) != null)
+                    .collect(Collectors.toList());
+
+//        } catch (EolModelElementTypeNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
+
+    }
+
+    public double computePerfQ(final EasierUmlModel ref) throws EolModelElementTypeNotFoundException {
+
+        String gaScenarioTag = "GaScenario";
+        String gaExecHostTag = "GaExecHost";
+        List<EObject> nodes = this.filterByStereotype("Node", gaExecHostTag);
+        List<EObject> scenarios = this.filterByStereotype("UseCase", gaScenarioTag);
+
+        List<EObject> sourceElements = new ArrayList<>(nodes);
+        sourceElements.addAll(scenarios);
+
+        int numberOfMetrics = 0;
+
+        // Variable representing the perfQ value
+        double value = 0d;
+
+        // for each elements of the source model, it is picked the element with the same
+        // id in the refactored one
+        for (EObject element : sourceElements) {
+
+            String id = ((XMLResource) this.getResource()).getID(element);
+            EObject correspondingElement = (EObject) ref.getElementById(id);
+
+            if (element instanceof UseCase) {
+                value += -1 * this.computePerfQValue((Element) element, (Element) correspondingElement, gaScenarioTag,
+                        "respT");
+                value += this.computePerfQValue((Element) element, (Element) correspondingElement, gaScenarioTag,
+                        "throughput");
+                numberOfMetrics += 2;
+            } else if (element instanceof Node) {
+                value += -1 * this.computePerfQValue((Element) element, (Element) correspondingElement, gaExecHostTag,
+                        "utilization");
+                numberOfMetrics++;
+            }
+        }
+
+        return numberOfMetrics!=0 ? value / numberOfMetrics : Double.MAX_VALUE;
+    }
+
+    private double computePerfQValue(Element source, Element ref, String stereotypeName, String taggedValue){
+
+        String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
+
+        Stereotype stereotype = source.getAppliedStereotype(gqamNamespace + stereotypeName);
+        EList<?> values = (EList<?>) source.getValue(stereotype, taggedValue);
+
+        double sourceValue = 0d;
+        if (!values.isEmpty())
+            sourceValue = Double.parseDouble(values.get(0).toString());
+
+        stereotype = ref.getAppliedStereotype(gqamNamespace + stereotypeName);
+        values = (EList<?>) ref.getValue(stereotype, taggedValue);
+
+        double refValue = 0d;
+        if (!values.isEmpty())
+            refValue = Double.parseDouble(values.get(0).toString());
+
+        return (refValue + sourceValue) == 0 ? 0d : (refValue - sourceValue) / (refValue + sourceValue);
+    }
 }

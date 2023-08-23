@@ -7,14 +7,19 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.rmi.UnexpectedException;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,8 +29,13 @@ public class RefactoringTest {
     Refactoring refactoring;
     UMLRSolution solution;
 
+    @BeforeAll
+    static void beforeClass() throws IOException {
+        Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+    }
+
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         int allowedFailures = 100;
         int desired_length = 4;
         int populationSize = 4;
@@ -37,12 +47,12 @@ public class RefactoringTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    void tearDown() throws IOException {
         Files.deleteIfExists(solution.getModelPath());
     }
 
     @Test
-    public void testExecute(){
+    void testExecute(){
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
 
@@ -57,19 +67,19 @@ public class RefactoringTest {
 
 
     @Test
-    public void testClone(){
+    void testClone(){
         Refactoring cloned = refactoring.clone();
         assertEquals(refactoring, cloned);
     }
 
     @Test
-    public void testCloneDeprecated() {
+    void testCloneDeprecated() {
         Refactoring cloneRefactoring = refactoring.clone();
         assertEquals(refactoring, cloneRefactoring);
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         assertEquals(refactoring, refactoring);
         Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
@@ -92,7 +102,7 @@ public class RefactoringTest {
       refactoring action.
       The refactoring has been built synthetically.
      */
-    public void testFindMultipleOccurrenceWithMultiOccurrences() {
+    void testFindMultipleOccurrenceWithMultiOccurrences() {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
         RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
@@ -104,5 +114,23 @@ public class RefactoringTest {
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
     }
 
+    @Test
+    void testTryRandomPush() throws UnexpectedException, EolRuntimeException {
+
+        Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel eModel = ref.getEasierModel();
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        ref.getActions().add(clone);//, mvopncnn, clone1, mvcpnn));
+        solution.setVariable(0, ref);
+
+        eModel.getTargetRefactoringElement().get(UMLRSolution.SupportedType.NODE.toString()).add(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+
+        ref.tryRandomPush();
+
+        assertTrue(eModel.getAvailableElements().values().stream().flatMap(Set::stream).anyMatch(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString())::contains));
+    }
 
 }

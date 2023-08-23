@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 
 //This program is free software: you can redistribute it and/or modify
@@ -29,6 +30,10 @@ public abstract class RCrossover<S extends RSolution<?>> implements CrossoverOpe
     private static final long serialVersionUID = 1L;
 
     protected double crossoverProbability;
+
+    protected EasierResourcesLogger easierResourcesLogger;
+
+    protected String name;
 
     /**
      * Constructor
