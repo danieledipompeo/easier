@@ -48,7 +48,7 @@ public abstract class Refactoring implements Cloneable {
     public abstract boolean execute();
 
 
-    public abstract boolean tryRandomPush();
+    public abstract boolean tryRandomPush() throws EasierException;
 
     public void createRandomRefactoring() throws EasierException {
 
@@ -62,7 +62,6 @@ public abstract class Refactoring implements Cloneable {
             if (failures >= allowedFailures) {
                 throw new EasierException(String.format("Exceed %s failures \t %s ", allowedFailures, failures));
             }
-
         } while (getActions().size() < refactoringLength);
     }
 

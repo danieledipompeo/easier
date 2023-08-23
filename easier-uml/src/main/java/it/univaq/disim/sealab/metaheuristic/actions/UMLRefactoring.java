@@ -49,12 +49,12 @@ public class UMLRefactoring extends Refactoring {
         return true;
     }
 
-    public boolean tryRandomPush() {
+    public boolean tryRandomPush() throws EasierException {
 
         RefactoringAction candidate;
-        do {
+//        do {
             candidate = RefactoringActionFactory.getRandomAction(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        } while (candidate == null);
+//        } while (candidate == null);
 
         getActions().add(candidate);
 

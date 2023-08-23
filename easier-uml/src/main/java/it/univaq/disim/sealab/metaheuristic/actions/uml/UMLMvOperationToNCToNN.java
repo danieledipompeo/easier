@@ -25,13 +25,14 @@ public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
     }
 
     public UMLMvOperationToNCToNN(Map<String, Set<String>> availableElements, Map<String,
-            Set<String>> initialElements) {
+            Set<String>> initialElements) throws EasierException {
         this();
 
         Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
 
         Set<String> targetElement = new HashSet<>();
-        targetElement.add(availableOperations.stream().skip(new Random().nextInt(availableOperations.size())).findFirst().orElse(null));
+        targetElement.add(availableOperations.stream().skip(new Random().nextInt(availableOperations.size()-1)).findFirst()
+                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
         targetElements.put(UMLRSolution.SupportedType.OPERATION.toString(), targetElement);
 
         setIndependent(initialElements);

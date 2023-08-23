@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.RefactoringActionFactory;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
@@ -29,7 +30,7 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
      * Perform the mutation operation
      */
     @Override
-    protected void doMutation(double probability, UMLRSolution solution, int allowed_failures) {
+    protected void doMutation(double probability, UMLRSolution solution, int allowed_failures) throws EasierException {
 
         easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
 

@@ -8,6 +8,7 @@ import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,7 +53,7 @@ public class RefactoringTest {
     }
 
     @Test
-    void testExecute(){
+    void testExecute() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
 
@@ -102,7 +103,7 @@ public class RefactoringTest {
       refactoring action.
       The refactoring has been built synthetically.
      */
-    void testFindMultipleOccurrenceWithMultiOccurrences() {
+    void testFindMultipleOccurrenceWithMultiOccurrences() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
         RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
@@ -115,7 +116,7 @@ public class RefactoringTest {
     }
 
     @Test
-    void testTryRandomPush() throws UnexpectedException, EolRuntimeException {
+    void testTryRandomPush() throws UnexpectedException, EolRuntimeException, EasierException {
 
         Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = ref.getEasierModel();

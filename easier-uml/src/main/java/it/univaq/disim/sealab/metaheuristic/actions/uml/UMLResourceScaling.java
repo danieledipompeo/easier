@@ -28,12 +28,14 @@ public class UMLResourceScaling extends UMLRefactoringAction {
         name = "resource_scaling";
     }
 
-    public UMLResourceScaling(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements) {
+    public UMLResourceScaling(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements)
+            throws EasierException {
         this();
 
         Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
         Set<String> targetElement = new HashSet<>();
-        targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size())).findFirst().orElse(null));
+        targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size()-1)).findFirst()
+                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
         targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
 
         // check whether the action is using an element created by another action
@@ -73,21 +75,23 @@ public class UMLResourceScaling extends UMLRefactoringAction {
 
     @Override
     public String toString() {
-        return String.format("Change Passive Resource: %s of: %s with: %s",
+        return String.format("Resource scaling: %s of: %s with: %s",
                 taggedValue,
                 targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
                 scaledFactor);
     }
 
     public String toCSV() {
-        return String.format("%s,%s,,",
+        return String.format("%s,%s,,,%s,%s",
                 name,
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                taggedValue,
+                scaledFactor);
     }
 
     @Override
     public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
-        return 0;
+        return 1;
     }
 
     @Override

@@ -27,10 +27,13 @@ public class UMLMvOperationToComp extends UMLRefactoringAction {
         this.name = "moc";
     }
 
-    public UMLMvOperationToComp(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements) {
+    public UMLMvOperationToComp(Map<String, Set<String>> availableElements, Map<String, Set<String>> initialElements)
+            throws EasierException {
         this();
         Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
-        String targetOperationName = availableOperations.stream().skip(new Random().nextInt(availableOperations.size())).findFirst().orElse(null);
+        String targetOperationName =
+                availableOperations.stream().skip(new Random().nextInt(availableOperations.size()-1)).findFirst()
+                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName()));
 
         targetElements.put(UMLRSolution.SupportedType.OPERATION.toString(),
                 new HashSet<>() {{

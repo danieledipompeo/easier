@@ -20,7 +20,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         super.setUp();
 
         oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
@@ -30,7 +30,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         String targetNode = action.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
         assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetNode)), String.format("Expected target node %s belongs to the availableElements.", targetNode));
 
@@ -39,7 +39,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    public void testToCSV() {
+    void testToCSV() {
 //        String generatedCSV = action.toCSV();
 //        System.out.println(generatedCSV);
         numberOfCSVField = 3;
@@ -48,24 +48,24 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
+    void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testExecute();
     }
 
     @Test
-    public void testGetTargetType() {
+    void testGetTargetType() {
         expectedType = UMLRSolution.SupportedType.NODE.toString();
         super.testGetTargetType();
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         super.testEquals();
     }
 
     @Test
     @Disabled
-    public void testMapEquals(){
+    void testMapEquals(){
         Map<String, Set<String>> map1 = new HashMap<>();
         Map<String, Set<String>> map2 = new HashMap<>();
 
@@ -79,18 +79,18 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
 
 
     @Test
-    public void testGetTargetElement() {
+    void testGetTargetElement() {
         expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 
     @Test
-    public void testClone() {
+    void testClone() {
         super.testClone();
     }
 
     @Test
-    public void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
+    void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
         super.testComputeArchitecturalChanges();
     }
 }

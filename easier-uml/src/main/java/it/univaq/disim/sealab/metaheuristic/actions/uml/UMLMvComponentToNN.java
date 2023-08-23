@@ -32,12 +32,13 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
     }
 
     public UMLMvComponentToNN(Map<String, Set<String>> availableElements, Map<String,
-            Set<String>> initialElements) {
+            Set<String>> initialElements) throws EasierException {
         this();
 
         Set<String> availableComponents = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
         Set<String> targetElement = new HashSet<>();
-        targetElement.add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size())).findFirst().orElse(null));
+        targetElement.add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size()-1)).findFirst()
+                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
         targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), targetElement);
         setIndependent(initialElements);
         Set<String> createdNodeElements = new HashSet<>();

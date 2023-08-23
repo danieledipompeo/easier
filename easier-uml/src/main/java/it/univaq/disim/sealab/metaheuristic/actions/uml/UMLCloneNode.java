@@ -26,12 +26,14 @@ public class UMLCloneNode extends UMLRefactoringAction {
                 "easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
     }
 
-    public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements) {
+    public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements)
+            throws EasierException {
         this();
 
         Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
         Set<String> targetElement = new HashSet<>();
-        targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size())).findFirst().orElse(null));
+        targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size()-1)).findFirst()
+                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
         targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
         // check whether the action is using an element created by another action
         setIndependent(sourceElements);

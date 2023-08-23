@@ -2,14 +2,12 @@ package it.univaq.disim.sealab.metaheuristic.actions;
 
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToComp;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.uml2.uml.Node;
 import org.junit.jupiter.api.AfterEach;
@@ -52,7 +50,7 @@ public class UMLRefactoringTest {
     }
 
     @Test
-    public void testExecute() throws URISyntaxException, EolModelLoadingException {
+    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
@@ -110,7 +108,7 @@ public class UMLRefactoringTest {
       It should find a multiple occurrence of  the first
       refactoring action.
       The refactoring has been built synthetically.
-     */ public void testHasMultipleOccurrence() {
+     */ public void testHasMultipleOccurrence() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
@@ -122,6 +120,26 @@ public class UMLRefactoringTest {
 
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
+    }
+
+    @Test
+    void csv_file_with_all_actions() throws EasierException {
+        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel eModel = refactoring.getEasierModel();
+
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction mvopncnn =
+                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction resource_scaling = new UMLResourceScaling(eModel.getAvailableElements(),
+                eModel.getInitialElements());
+
+        refactoring.getActions().addAll(List.of(clone, movopc, mvopncnn, resource_scaling));
+
+        // Print to console
+        int header_fields = "solID,operation,target,to,where,tagged_value,factor".split(",").length;
+        System.out.println(refactoring.toCSV());
+
     }
 
 

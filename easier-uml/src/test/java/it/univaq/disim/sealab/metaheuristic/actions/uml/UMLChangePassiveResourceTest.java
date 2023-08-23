@@ -6,26 +6,32 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UMLChangePassiveResourceTest {
+class UMLChangePassiveResourceTest extends UMLRefactoringActionTest {
+
 
     @Test
     void execute() {
+
     }
 
     @Test
     void testToString() {
+
     }
 
     @Test
     void toCSV() {
-    }
-
-    @Test
-    void computeArchitecturalChanges() {
+        numberOfCSVField = 6;
+        actionName = "change_passive_resource";
+        super.testToCSV();
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        super.setUp();
+
+        oldAction = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements());
+        action = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements());
     }
 
     @AfterEach

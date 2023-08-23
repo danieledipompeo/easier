@@ -33,7 +33,7 @@ public class UMLRefactoringActionTest {
     protected EasierModel eModel;
     protected String modelpath;
 
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         int allowedFailures = 100;
         int desired_length = 4;
         int populationSize = 4;
@@ -47,15 +47,17 @@ public class UMLRefactoringActionTest {
         eModel = new UMLEasierModel(modelpath);
     }
 
-    public void testToCSV() {
+    void testToCSV() {
         generatedCSV = action.toCSV();
+        // Header hardcoded in FileUtils.refactoringDumpToCSV. It has been removed the SOLUTION_ID field
+        System.out.println("operation,target,to,where,tagged_value,factor");
         System.out.println(generatedCSV);
         assertEquals(numberOfCSVField, generatedCSV.split(",").length,
                 String.format("Expected length %s \t generated %s", numberOfCSVField, generatedCSV.split(",").length));
         assertEquals(actionName, generatedCSV.split(",")[0], String.format("Expected first entry %s \t generated %s", actionName, action.getName()));
     }
 
-    public void testEquals() {
+    void testEquals() {
         RefactoringAction action2 = action;
         assertEquals(action, action2);
 
@@ -64,23 +66,23 @@ public class UMLRefactoringActionTest {
 
     }
 
-    public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
+    void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         EasierUmlModel model = EOLStandalone.createUmlModel(modelpath);
         action.execute(model);
     }
 
 
-    public void testGetTargetType() {
+    void testGetTargetType() {
         assertEquals(expectedType, action.getTargetType(), String.format("Expected target type %s \t found %s",
                 expectedType, action.getTargetType()));
     }
 
-    public void testGetTargetElement() {
+    void testGetTargetElement() {
         assertEquals(expectedName, action.getTargetElements(), String.format("Expected target name %s \t found %s",
                 expectedName, action.getTargetType()));
     }
 
-    public void testClone() {
+    void testClone() {
 //        RefactoringAction clonedAction = action.clone(solution);
         RefactoringAction clonedAction = (RefactoringAction) action.clone();
         assertEquals(action, clonedAction);

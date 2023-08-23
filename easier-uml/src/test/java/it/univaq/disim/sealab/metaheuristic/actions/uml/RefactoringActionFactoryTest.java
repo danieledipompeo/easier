@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class RefactoringActionFactoryTest {
     }
 
     @Test
-    public void getRandomActionTest() {
+    public void getRandomActionTest() throws EasierException {
         RefactoringAction action = RefactoringActionFactory.getRandomAction(sol.getVariable(0).getEasierModel().getAvailableElements(),
 				sol.getVariable(0).getEasierModel().getInitialElements());
         assertNotNull(action);

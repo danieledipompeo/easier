@@ -58,7 +58,7 @@ public class UMLRSolutionTest {
       It has 2 feasible refactoring actions
      */
     @Test
-    public void testIsFeasibleShouldReturnTrue() {
+    public void testIsFeasibleShouldReturnTrue() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
         RefactoringAction action1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
@@ -77,7 +77,7 @@ public class UMLRSolutionTest {
     }
 
     @Test
-    public void testIsFeasibleShouldFail() {
+    public void testIsFeasibleShouldFail() throws EasierException {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
         RefactoringAction failedAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
         failedAction.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).clear();
@@ -103,7 +103,7 @@ public class UMLRSolutionTest {
 
 
     @Test
-    public void testSetRefactoring() {
+    public void testSetRefactoring() throws EasierException {
         Map<String, Set<String>> expectedCreatedElements = new HashMap<>();
         expectedCreatedElements.put(UMLRSolution.SupportedType.NODE.toString(), new HashSet<>());
         expectedCreatedElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), new HashSet<>());
@@ -289,7 +289,7 @@ public class UMLRSolutionTest {
 //    }
 
     @Test
-    public void testIsIndependent() {
+    public void testIsIndependent() throws EasierException {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
         RefactoringAction a1 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
         assertTrue(solution.isIndependent(List.of(a1)), "Expected that MvOpNCNN is independent");
