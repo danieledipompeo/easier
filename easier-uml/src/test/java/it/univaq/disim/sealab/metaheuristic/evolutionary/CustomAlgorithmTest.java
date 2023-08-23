@@ -1,7 +1,9 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
@@ -11,11 +13,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -45,7 +47,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
     }
 
     public void setUp() {
-        String modelpath = getClass().getResource("/models/train-ticket/train-ticket.uml").getFile();
+        String modelpath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
     }
 
@@ -53,6 +55,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
     public void runTest() throws IOException {
         algorithm.run();
         EasierResourcesLogger.dumpToCSV();
+        new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
         Path output = Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv");
         assertTrue("The algo_perf_stats.csv should exist", Files.exists(output));
@@ -62,5 +65,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
             String line = br.readLine();
             assertEquals(header, line); //The first must be the header
         }
+        // print the latest solution id
+        System.out.println("Last solution id: " + (RSolution.getCounter()-1));
     }
 }

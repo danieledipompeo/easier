@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.CustomGeneticAlgorithmTest;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.junit.jupiter.api.BeforeEach;

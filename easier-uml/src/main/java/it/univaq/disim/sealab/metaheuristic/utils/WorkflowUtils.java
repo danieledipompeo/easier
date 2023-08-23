@@ -45,7 +45,8 @@ public class WorkflowUtils {
             executor.setSource(Paths.get(uml2lqnModule, "uml2lqn.etl"));
             executor.setModel(uml);
             executor.setModel(executor.createXMLModel("LQN", sourceModelPath.getParent().resolve("output.xml"),
-                    org.eclipse.emf.common.util.URI.createFileURI(Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString()),
+                    org.eclipse.emf.common.util.URI.createFileURI(
+                            Paths.get(uml2lqnModule, "lqnxsd", "lqn.xsd").toString()),
                     false, true));
             executor.execute();
             executor.clearMemory();
@@ -66,7 +67,9 @@ public class WorkflowUtils {
         XMLUtil.conformanceChecking(lqnModelPath);
 
         // Allow cycles in the lqn model as well as support MVA convergence faults
-        final List<String> command = List.of(lqnSolverPath.toString(), "-P", "cycles=yes", "-P", "stop-on-message-loss=false", lqnModelPath.toString());
+        final List<String> command =
+                List.of(lqnSolverPath.toString(), "-P", "cycles=yes", "-P", "stop-on-message-loss=false",
+                        lqnModelPath.toString());
 
         Process process;
         try {

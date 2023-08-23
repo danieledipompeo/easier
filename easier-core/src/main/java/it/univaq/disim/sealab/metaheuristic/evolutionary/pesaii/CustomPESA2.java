@@ -1,5 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
@@ -103,7 +105,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
      * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
      */
     public void populationToCSV() {
-        for (RSolution<?> sol : population) {
+        for (RSolution<?> sol : this.getResult()) {
             String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
             new FileUtils().solutionDumpToCSV(line);
         }
@@ -111,6 +113,8 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
     @Override
     protected void updateProgress() {
+        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) getResult(),
+                _evaluations / getMaxPopulationSize()));
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
         // store the duration and the occupied memory by each step
@@ -170,8 +174,6 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
         EasierResourcesLogger.checkpoint(getName(),"run_start");
         super.run();
         EasierResourcesLogger.checkpoint(getName(),"run_end");
-
-//        eResourcesLogger.toCSV();
 
         /*
          * prints the number of iterations until the search budget is not reached.

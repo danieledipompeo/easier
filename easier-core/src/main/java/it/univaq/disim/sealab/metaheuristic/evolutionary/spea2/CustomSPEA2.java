@@ -1,5 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.spea2;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
@@ -24,7 +26,6 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
      */
     private static final long serialVersionUID = 1L;
     List<S> oldPopulation;
-    EasierResourcesLogger eResourcesLogger;
     private long durationThreshold, iterationStartingTime;
     private float prematureConvergenceThreshold;
 
@@ -43,7 +44,6 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
         durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
         prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
         oldPopulation = new ArrayList<S>();
-//        eResourcesLogger = new EasierResourcesLogger(this.getName());
     }
 
 
@@ -71,9 +71,9 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 
     @Override
     protected void initProgress() {
-        eResourcesLogger.checkpoint(getName(),"initProgress_start");
+        EasierResourcesLogger.checkpoint(getName(),"initProgress_start");
         super.initProgress();
-        eResourcesLogger.checkpoint(getName(),"initProgress_end");
+        EasierResourcesLogger.checkpoint(getName(),"initProgress_end");
 
         this.getPopulation().forEach(s -> s.refactoringToCSV());
         iterationStartingTime = System.currentTimeMillis();
@@ -82,15 +82,16 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 
     @Override
     public void updateProgress() {
-        eResourcesLogger.checkpoint(getName(),"updateProgress_start");
+        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
+                iterations ));
+        EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
         super.updateProgress();
-        eResourcesLogger.checkpoint(getName(),"updateProgress_end");
-        eResourcesLogger.checkpoint(getName(),"iteration_end");
+        EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
+        EasierResourcesLogger.checkpoint(getName(),"iteration_end");
 
         populationToCSV();
         System.out.println(this.getName());
         ProgressBar.showBar(iterations, maxIterations);
-        //ProgressBar.showBar(iterations / getMaxPopulationSize(), maxIterations / getMaxPopulationSize());
     }
 
     public boolean isStagnantState() {
@@ -127,52 +128,50 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 
     @Override
     protected List<S> createInitialPopulation() {
-        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
+        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
         List<S> pop = super.createInitialPopulation();
-        eResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
         return pop;
     }
 
     @Override
     protected List<S> selection(List<S> pop) {
-        eResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
-        eResourcesLogger.checkpoint(getName(),"selection_start");
+        EasierResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
+        EasierResourcesLogger.checkpoint(getName(),"selection_start");
         List<S> matingPopulation = super.selection(pop);
-        eResourcesLogger.checkpoint(getName(),"selection_end");
+        EasierResourcesLogger.checkpoint(getName(),"selection_end");
         return matingPopulation;
     }
 
     @Override
     protected List<S> reproduction(List<S> matingPool) {
-        eResourcesLogger.checkpoint(getName(),"reproduction_start");
+        EasierResourcesLogger.checkpoint(getName(),"reproduction_start");
         List<S> offspringPopulation = super.reproduction(matingPool);
-        eResourcesLogger.checkpoint(getName(),"reproduction_end");
+        EasierResourcesLogger.checkpoint(getName(),"reproduction_end");
         return offspringPopulation;
     }
 
     @Override
     protected List<S> replacement(List<S> population, List<S> offspringPopulation) {
-        eResourcesLogger.checkpoint(getName(),"replacement_start");
+        EasierResourcesLogger.checkpoint(getName(),"replacement_start");
         List<S> replacedPop = super.replacement(population, offspringPopulation);
-        eResourcesLogger.checkpoint(getName(),"replacement_end");
+        EasierResourcesLogger.checkpoint(getName(),"replacement_end");
         return replacedPop;
     }
 
     @Override
     protected List<S> evaluatePopulation(List<S> population) {
-        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
         List<S> evaluatedPop = super.evaluatePopulation(population);
-        eResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
         return evaluatedPop;
     }
 
     @Override
     public void run() {
-        eResourcesLogger.checkpoint(getName(),"run_start");
+        EasierResourcesLogger.checkpoint(getName(),"run_start");
         super.run();
-        eResourcesLogger.checkpoint(getName(),"run_end");
-
-//        eResourcesLogger.toCSV();
+        EasierResourcesLogger.checkpoint(getName(),"run_end");
 
         /* prints the number of iterations until the search budget is not reached.
          * !!!Attn!!!

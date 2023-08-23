@@ -46,7 +46,8 @@ public class UMLRSolution extends RSolution<Refactoring> {
         // create a new refactoring and clone refactoring actions from the source solution
         Refactoring ref = new UMLRefactoring(this.getModelPath().toString());
         ref.setSolutionID(this.getName());
-        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone).collect(Collectors.toList()));
+        ref.getActions().addAll(s.getVariable(0).getActions().stream().map(RefactoringAction::clone)
+                .collect(Collectors.toList()));
         this.setVariable(0, ref);
 
         this.perfQ = s.perfQ;
@@ -73,17 +74,19 @@ public class UMLRSolution extends RSolution<Refactoring> {
         folderPath = Paths.get(Configurator.eINSTANCE.getTmpFolder().toString(), String.valueOf((getName() / 100)),
                 String.valueOf(getName()));
         modelPath = folderPath.resolve(getName() + ".uml");
+//        initialModelPath = Configurator.eINSTANCE.getInitialModelPath();
 
         algorithm = this.problemName.substring(this.problemName.lastIndexOf('_') + 1);
 
         try {
+            //            Files.copy(sourceModelPath, modelPath);
             org.apache.commons.io.FileUtils.copyFile(sourceModelPath.toFile(), modelPath.toFile());
-        } catch (IOException e) {
-            System.out.println("[ERROR] The problem's model copy generated an error!!!");
-            e.printStackTrace();
-        } catch (RuntimeException eRun) {
-            System.out.println(eRun.getMessage());
+        } catch (IOException | RuntimeException e) {
+            String msg = String.format("Coping the source model %s to %s has generated the error: %s", sourceModelPath,
+                    folderPath, e.getMessage());
+            JMetalLogger.logger.severe(msg);
         }
+
         Refactoring refactoring = new UMLRefactoring(modelPath.toString());
         refactoring.setSolutionID(this.name);
         this.setVariable(0, refactoring);
@@ -120,6 +123,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
                 architecturalChanges += brf * aw;
             }
+            architecturalChanges += Configurator.eINSTANCE.getInitialChanges();
 
         } catch (URISyntaxException | EolModelLoadingException e) {
             throw new RuntimeException(e);

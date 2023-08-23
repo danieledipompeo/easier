@@ -55,9 +55,6 @@ public class RExperimentAlgorithm<S extends RSolution<?>, Result extends List<S>
         try {
             super.getAlgorithm().run();
 
-            // Dump to file problem resources usage stats
-//            pr.flushResourcesUsageStats();
-
             Result population = super.getAlgorithm().getResult();
 
             String suffix = "__" + population.get(0).getProblemName() + ".csv";

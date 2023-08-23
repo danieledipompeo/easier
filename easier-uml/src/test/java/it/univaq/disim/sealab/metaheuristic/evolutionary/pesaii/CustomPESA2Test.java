@@ -28,7 +28,7 @@ public class CustomPESA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         super.setUp();
 
         PESA2Builder<S> customBuilder = new CustomPESA2Builder<>(p, crossoverOperator,
-                mutationOperator).setMaxEvaluations(4).setPopulationSize(2)
+                mutationOperator).setMaxEvaluations(8).setPopulationSize(2)
                 .setSolutionListEvaluator(solutionListEvaluator);
 
         algorithm = customBuilder.build();

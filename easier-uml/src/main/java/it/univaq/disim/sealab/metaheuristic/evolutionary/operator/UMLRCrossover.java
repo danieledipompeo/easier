@@ -3,6 +3,8 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.uma.jmetal.util.JMetalLogger;
@@ -38,6 +40,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 //        easierResourcesLogger = new EasierResourcesLogger("UMLCrossoverOperator");
     }
 
+    int crossoverPoint;
     /**
      * Perform the crossover operation.
      * <p>
@@ -52,7 +55,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
      * @param parent2     The second parent
      * @return A list containing the two solutions
      */
-    public List<UMLRSolution> doCrossover(double probability, UMLRSolution parent1, UMLRSolution parent2) {
+    public List<S> doCrossover(double probability, UMLRSolution parent1, UMLRSolution parent2) {
 
         // Store elapsed time and consumed memory before applying the crossover
         easierResourcesLogger.checkpoint("UMLCrossoverOperator", "doCrossover_start");
@@ -85,12 +88,12 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             Map<Integer, List<List<RefactoringAction>>> parent2IndependentSequence = independentSequence(parent2);
 
             // Find a feasible crossover point.
-            int crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
+            crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
 
             // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
             if (crossoverPoint == -1) {
                 JMetalLogger.logger.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
-                return offspring;
+                return (List<S>) offspring;
             }
 
             // Create offspring refactoring by combining the two parents using the crossover point
@@ -100,7 +103,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             // Safety check
             if (child1Refactoring == null || child2Refactoring == null) {
                 JMetalLogger.logger.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
-                return offspring;
+                return (List<S>) offspring;
             }
 
             child1Refactoring.setSolutionID(child1.getName());
@@ -117,15 +120,29 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
             // Add the offsprings to the list of candidates
             crossoverCandidates.addAll(offspring);
+
+            // Evaluate the offsprings
+            offspring.forEach(solution -> {
+                solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
+                solution.setObjective(1, solution.getArchitecturalChanges());
+                if (Configurator.eINSTANCE.getProbPas() != 0) {
+                    solution.setObjective(2, solution.getPAs());
+                    solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
+                } else {
+                    solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
+                }
+            });
         }
 
         // Store elapsed time and consumed memory by the crossover operator
         easierResourcesLogger.checkpoint("UMLCrossoverOperator", "do_crossover_end");
 
 //        easierResourcesLogger.toCSV();
+        // add the offsprings to the population of the experiment for the export to JSON
+        offspring.forEach(EasierExperimentDAO.eINSTANCE::addPopulation);
 
         // It can be equal to parent1, parent2; child1,child2;
-        return offspring;
+        return (List<S>) offspring;
     }
 
     /**

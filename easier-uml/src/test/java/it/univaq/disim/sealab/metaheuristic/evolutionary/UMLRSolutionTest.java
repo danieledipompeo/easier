@@ -202,7 +202,6 @@ public class UMLRSolutionTest {
     }
 
 
-
     @Test
     public void createRandomRefactoring() {
         solution.createRandomRefactoring();
@@ -216,6 +215,7 @@ public class UMLRSolutionTest {
     @Test
     public void computeReliability() {
         solution.computeReliability();
+        System.out.printf("Reliability \t %s\r",solution.getReliability());
     }
 
     @Test
@@ -304,7 +304,19 @@ public class UMLRSolutionTest {
         assertTrue(solution.isIndependent(List.of(a1, a2, a3, a4)), "Expected that 4 MvOpNCNN are independent");
     }
 
-//    @ParameterizedTest
+    @Test
+    void computeArchitecturalChanges() {
+        solution.createRandomRefactoring();
+        solution.executeRefactoring();
+
+        solution.computeArchitecturalChanges();
+
+        assertTrue(solution.getArchitecturalChanges() > Configurator.eINSTANCE.getInitialChanges(), "Expected an " +
+                "architectural changes >= the initial one");
+
+    }
+
+    //    @ParameterizedTest
 //    @ValueSource(ints = {0, 1, 2, 3})
 //    public void doAlter(int point) {
 //        RefactoringAction candidate = ((point == 0) ? solution.getActionAt(point + 1) : solution.getActionAt(point - 1));
@@ -312,4 +324,5 @@ public class UMLRSolutionTest {
 //
 //        assertTrue(solution.isFeasible());
 //    }
+
 }
