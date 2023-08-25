@@ -1,15 +1,23 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URISyntaxException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class UMLResourceScalingTest {
+class UMLResourceScalingTest extends UMLRefactoringActionTest {
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        super.setUp();
+
+        oldAction = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements());
+        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements());
     }
 
     @AfterEach
@@ -17,7 +25,8 @@ class UMLResourceScalingTest {
     }
 
     @Test
-    void execute() {
+    void execute() throws EasierException, URISyntaxException, EolModelLoadingException {
+        super.testExecute();
     }
 
     @Test
@@ -26,7 +35,9 @@ class UMLResourceScalingTest {
 
     @Test
     void toCSV() {
-
+        numberOfCSVField = 6;
+        actionName = "resource_scaling";
+        super.testToCSV();
     }
 
     @Test
