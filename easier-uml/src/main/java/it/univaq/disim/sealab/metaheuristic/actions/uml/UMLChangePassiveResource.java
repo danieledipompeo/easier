@@ -26,8 +26,12 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
                 "easier-refactoringLibrary", "easier-ref-operations", "change_passive_resource.eol");
     }
 
+    public void setTaggedValue(String taggedValue) {
+        this.taggedValue = taggedValue;
+    }
+
     private String taggedValue;
-    private double scaledFactor;
+    private int scaledFactor;
 
     public UMLChangePassiveResource() {
         name = "change_passive_resource";
@@ -58,8 +62,14 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
                 SupportedTaggedValue.values().length - 1)].toString();
 
         // Random taggedValue value
-        scaledFactor = JMetalRandom.getInstance().nextDouble(0.5, 1.5);
+//        scaledFactor = JMetalRandom.getInstance().nextDouble(0.5, 1.5);
 
+        if(taggedValue.equals(SupportedTaggedValue.QUEUE_SIZE.toString()))
+            scaledFactor = JMetalRandom.getInstance().nextInt(1, 1000);
+        else if(taggedValue.equals(SupportedTaggedValue.MEMORY_SIZE.toString()))
+            scaledFactor = JMetalRandom.getInstance().nextInt(1, 1000);
+        else if(taggedValue.equals(SupportedTaggedValue.SR_POOL_SIZE.toString()))
+            scaledFactor = JMetalRandom.getInstance().nextInt(1, 1000);
     }
 
     @Override
@@ -72,6 +82,8 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
 
             executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
                     "String", "targetNodeName");
+            executor.setParameter(taggedValue, "String", "taggedValue");
+            executor.setParameter(String.valueOf(scaledFactor), "String", "value");
 
             executor.execute();
         } catch (EolRuntimeException e) {

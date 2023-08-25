@@ -18,7 +18,7 @@ public class UMLResourceScaling extends UMLRefactoringAction {
 
     static {
         eolModulePath = Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..",
-                "easier-refactoringLibrary", "easier-ref-operations", "change_passive_resource.eol");
+                "easier-refactoringLibrary", "easier-ref-operations", "resource_scaling.eol");
     }
 
     private String taggedValue;
@@ -58,6 +58,7 @@ public class UMLResourceScaling extends UMLRefactoringAction {
             executor.setSource(eolModulePath);
 
             executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "targetNodeName");
+            executor.setParameter(String.valueOf(scaledFactor), "Real", "speedFactor");
 
             executor.execute();
         } catch (EolRuntimeException e) {
