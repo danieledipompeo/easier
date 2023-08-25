@@ -303,7 +303,7 @@ public class FileUtils {
      */
     public void refactoringDumpToCSV(String line) {
         String fileName = "refactoring_composition.csv";
-        String header = "solID,operation,target,to,where";
+        String header = "solID,operation,target,to,where,tagged_value,factor";
 
         dumpToFile(fileName, header, line);
     }
@@ -422,8 +422,7 @@ public class FileUtils {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(),
-                    experimentDAO);
+            mapper.writeValue(jsonFile.toFile(),experimentDAO);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
