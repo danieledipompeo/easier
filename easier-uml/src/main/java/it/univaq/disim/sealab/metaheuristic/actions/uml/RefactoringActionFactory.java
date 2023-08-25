@@ -6,6 +6,7 @@ import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -15,7 +16,7 @@ public class RefactoringActionFactory {
     /**
      * To handle the case of the random action throws an exception
      * The action type is kept until either a feasible action is extracted or the number of failures is less than
-     *
+     * <p>
      * Case 4 and 5 come from the performance tactics used in
      * the allowed failures                                                                                      <br/>
      * <b>Distributed quality-attribute optimization of software architectures.</b><br/>
@@ -29,45 +30,34 @@ public class RefactoringActionFactory {
     public static RefactoringAction getRandomAction(Map<String, Set<String>> availableElements,
                                                     Map<String, Set<String>> initialElements) throws EasierException {
 
-        int extractedAction = JMetalRandom.getInstance().nextInt(0, 5);
-        //
-        //
-        //
+        List<String> listOfActions = Configurator.eINSTANCE.listOfActions();
+        int extractedActionIndex = JMetalRandom.getInstance().nextInt(0, listOfActions.size() - 1);
+        String extractedAction = listOfActions.get(extractedActionIndex);
+
         for (int failures = 0; ; failures++) {
             try {
                 switch (extractedAction) {
-                    case 0:
+                    case "clone":
                         return new UMLCloneNode(availableElements, initialElements);
-                    case 1:
+                    case "mcnn":
                         return new UMLMvComponentToNN(availableElements, initialElements);
-                    case 2:
+                    case "moncnn":
                         return new UMLMvOperationToNCToNN(availableElements, initialElements);
-                    case 3:
+                    case "moc":
                         return new UMLMvOperationToComp(availableElements, initialElements);
-                    case 4:
+                    case "change_passive_resource":
                         return new UMLChangePassiveResource(availableElements, initialElements);
-                    case 5:
+                    case "resource_scaling":
                         return new UMLResourceScaling(availableElements, initialElements);
                     default:
                         return null;
                 }
             } catch (EasierException e) {
                 if (failures > Configurator.eINSTANCE.getAllowedFailures()) {
-                    EasierLogger.logger_.log(Level.SEVERE, e.getMessage(),e);
+                    EasierLogger.logger_.log(Level.SEVERE, e.getMessage(), e);
                     throw new EasierException(e);
                 }
             }
         }
-
-/*		try {
-			return (RefactoringAction) supportedRefactoringActions[JMetalRandom.getInstance().nextInt(0,
-					supportedRefactoringActions.length - 1)].getDeclaredConstructor(UMLRSolution.class).newInstance(sol);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			System.err.println("Error in getRandomRefactoringAction.");
-			e.printStackTrace();
-		}
-		return null;*/
-}
-
+    }
 }
