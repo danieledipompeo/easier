@@ -96,10 +96,11 @@ public class Configurator {
 	//It is a positional List where: 0=ePas,1=eRel,2=ePerfQ,3=eChanges
 	@Parameter(names = {"-sbPCEpsilon", "--searchBudgetPrematureConvergenceEpsilon"}, description = "The epsilon neighborhood for Premature Convergence.")
 	private List<Double> optimalPointEpsilon = List.of(1d,1.15d,1.15d,1.3d);
-	
+
+	// For testing purposes it does not contain the tactics
 	@Parameter(names = {"-brf","--baselineRefactoringFactor"},  splitter = SemiColonSplitter.class, description = "The ordered list of baseline refactoring factors of Refactoring actions")
-	private List<String> brfs_list = List.of("1.23","1.23","1.23","1.23");
-	
+	private List<String> brfs_list = List.of("clone:1.23","moc:1.23","mcnn:1.23","moncnn:1.23");
+
 	@Parameter(names = {"-probPAS","--probToBePerfAntipattern"}, description = "The probability to be a performance antipattern")
 	private double probPas = 0.95f;
 
@@ -247,7 +248,15 @@ public class Configurator {
 		return 0;
 	}
 
-	
+	public List<String> listOfActions() {
+		List<String> listOfActions = new ArrayList<>();
+		for (String s : brfs_list){
+			listOfActions.add(s.split(":")[0]);
+		}
+		return listOfActions;
+	}
+
+
 	public static class SemiColonSplitter implements IParameterSplitter {
 	    public List<String> split(String value) {
 	      return Arrays.asList(value.split(";"));
