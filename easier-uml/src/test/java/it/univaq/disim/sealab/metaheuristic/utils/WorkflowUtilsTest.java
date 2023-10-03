@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,9 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WorkflowUtilsTest {
 
@@ -42,7 +41,7 @@ public class WorkflowUtilsTest {
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(lqnModelPath.toFile()));
-            assertNotEquals(String.format("Expected not empty %s file. ", lqnModelPath), br.readLine(), null);
+            assertNotEquals(br.readLine(), null, String.format("Expected not empty %s file. ", lqnModelPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -57,7 +56,7 @@ public class WorkflowUtilsTest {
         assertTrue(Files.exists(solverOutcome)); // check whether the file output.lqxo exists
         try (BufferedReader br = new BufferedReader(new FileReader(solverOutcome.toFile()))) {
             // check whether the file output.lqxo is not empty
-            assertNotEquals(String.format("Expected not empty %s file. ", solverOutcome), br.readLine(), null);
+            assertNotEquals(br.readLine(), null, String.format("Expected not empty %s file. ", solverOutcome));
         } catch (IOException e) {
             throw new RuntimeException();
         }
@@ -82,5 +81,15 @@ public class WorkflowUtilsTest {
         modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
         double perfQ = WorkflowUtils.perfQ(modelPath, modelPath);
         assertEquals(0d, perfQ, String.format("Expected perfQ 0 \t computed: %s.", perfQ));
+    }
+
+    @Test
+    void evaluate_systemResponseTime() throws EasierException {
+        modelPath = Path.of(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
+        double sysRespT = WorkflowUtils.systemResponseTime(modelPath);
+
+        assertDoesNotThrow(() -> WorkflowUtils.systemResponseTime(modelPath));
+
+        assertNotEquals(Double.MIN_VALUE, sysRespT, "Expected a valid system response time.");
     }
 }

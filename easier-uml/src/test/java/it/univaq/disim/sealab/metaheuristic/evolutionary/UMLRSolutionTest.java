@@ -3,14 +3,13 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.junit.Assert;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -315,6 +314,37 @@ public class UMLRSolutionTest {
                 "architectural changes >= the initial one");
 
     }
+
+    @Test
+    void architectural_changes_with_removing_actions() throws EasierException {
+
+        solution.createRandomRefactoring();
+
+        EasierModel eModel = solution.getVariable(0).getEasierModel();
+
+        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        String deletedNode =
+                deleteNode.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().findFirst()
+                        .orElseThrow(() -> {
+                            return new EasierException(
+                                    "Error when extracting the target element in: " + this.getClass().getSimpleName());
+                        });
+
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction mvopncnn =
+                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
+
+        solution.getVariable(0).getActions().clear();
+        solution.getVariable(0).getActions().addAll(List.of(clone, mvopncnn, movopc, deleteNode));
+
+        solution.executeRefactoring();
+
+        Assertions.assertDoesNotThrow(() -> WorkflowUtils.perfQ(Configurator.eINSTANCE.getInitialModelPath(),
+                solution.getModelPath()), "Expected no exception when computing PerfQ");
+
+    }
+
 
     //    @ParameterizedTest
 //    @ValueSource(ints = {0, 1, 2, 3})
