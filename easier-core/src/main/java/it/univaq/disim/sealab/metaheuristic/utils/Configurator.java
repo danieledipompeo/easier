@@ -112,6 +112,9 @@ public class Configurator {
 	@Parameter(names= {"--initialChanges", "-iChanges"}, description = "The architectural changes computed in the " +
 			"previous iteration step. Default: 0.")
 	private double initialChanges = 0d;
+
+	@Parameter(names = {"-perfQ"}, description = "It enables the systemResponseTime as objective instead of the perfQ")
+	private boolean isPerfQ = true;
 	
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
@@ -256,7 +259,6 @@ public class Configurator {
 		return listOfActions;
 	}
 
-
 	public static class SemiColonSplitter implements IParameterSplitter {
 	    public List<String> split(String value) {
 	      return Arrays.asList(value.split(";"));
@@ -279,5 +281,9 @@ public class Configurator {
 
 	public double getInitialChanges(){
 		return initialChanges;
+	}
+
+	public boolean isPerfQ() {
+		return isPerfQ;
 	}
 }

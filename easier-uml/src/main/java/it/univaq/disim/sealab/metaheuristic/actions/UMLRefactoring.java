@@ -38,7 +38,8 @@ public class UMLRefactoring extends Refactoring {
                 } catch (URISyntaxException | EolModelLoadingException ex) {
                     throw new RuntimeException(ex);
                 }
-                easierModel.store(a.getCreatedElements());
+//                a.updateAvailableElements(easierModel);
+//                easierModel.store(a.getCreatedElements());
             });
             EasierResourcesLogger.checkpoint("UMLRefactoring","execute_end");
         } catch (RuntimeException e) {
@@ -56,14 +57,17 @@ public class UMLRefactoring extends Refactoring {
             candidate = RefactoringActionFactory.getRandomAction(easierModel.getAvailableElements(), easierModel.getInitialElements());
 //        } while (candidate == null);
 
+        return addRefactoringAction(candidate);
+        /*
         getActions().add(candidate);
 
         if (!this.isFeasible()) {
             getActions().remove(candidate);
             return false;
         }
-        return true;
+        return true;*/
     }
+
 
     public Refactoring clone(){
         UMLRefactoring umlRefactoring = new UMLRefactoring(this);

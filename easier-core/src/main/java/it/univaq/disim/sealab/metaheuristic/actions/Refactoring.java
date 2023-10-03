@@ -60,7 +60,7 @@ public abstract class Refactoring implements Cloneable {
             if (!tryRandomPush())
                 failures++;
             if (failures >= allowedFailures) {
-                throw new EasierException(String.format("Exceed %s failures \t %s ", allowedFailures, failures));
+                throw new EasierException(String.format("Exceeded %s failures \t %s ", allowedFailures, failures));
             }
         } while (getActions().size() < refactoringLength);
     }
@@ -71,8 +71,9 @@ public abstract class Refactoring implements Cloneable {
         if (hasMultipleOccurrence())
             return false;
 
-        for (RefactoringAction action : getActions()) {
-            if (!easierModel.contains(action.getTargetElements())) {
+        // The first action is always feasible
+        for(int i = 1; i < getActions().size(); i++){
+            if (!easierModel.contains(getActions().get(i).getTargetElements())) {
                 EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(),"isFeasible_end");
                 return false;
             }
@@ -206,4 +207,23 @@ public abstract class Refactoring implements Cloneable {
 //        easierResourcesLogger.toCSV();
     }
 
+    /**
+     * Return true if the refactoring sequence is feasible.
+     * It also restores the available elements of the model, if the sequence of actions (refactoring) is not feasible.
+     * @param action
+     * @return
+     */
+    boolean addRefactoringAction(RefactoringAction action) {
+        action.updateAvailableElements(easierModel);
+        getActions().add(action);
+
+        // A sequence with one action only is feasible by construction
+        if (getActions().size() > 1 && !this.isFeasible()) {
+            action.restoreAvailableElements(easierModel);
+            getActions().remove(action);
+            return false;
+        }
+
+        return true;
+    }
 }

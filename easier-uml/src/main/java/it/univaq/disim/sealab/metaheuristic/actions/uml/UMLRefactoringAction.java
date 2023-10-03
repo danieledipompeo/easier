@@ -2,6 +2,8 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 
 import java.util.HashMap;
@@ -62,6 +64,14 @@ public abstract class UMLRefactoringAction implements RefactoringAction {
     @Override
     public double getArchitecturalChanges() {
         return numOfChanges;
+    }
+
+    public void updateAvailableElements(EasierModel easierModel){
+        easierModel.addElements(createdElements);
+    }
+
+    public void restoreAvailableElements(EasierModel easierModel){
+        easierModel.removeElements(createdElements);
     }
 
 }

@@ -49,6 +49,10 @@ public class RefactoringActionFactory {
                         return new UMLChangePassiveResource(availableElements, initialElements);
                     case "resource_scaling":
                         return new UMLResourceScaling(availableElements, initialElements);
+                    case "remove_node":
+                        return new UMLRemoveNode(availableElements, initialElements);
+                    case "remove_component":
+                        return new UMLRemoveComponent(availableElements, initialElements);
                     default:
                         return null;
                 }

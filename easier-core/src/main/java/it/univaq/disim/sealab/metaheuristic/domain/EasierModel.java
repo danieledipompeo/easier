@@ -43,6 +43,12 @@ public abstract class EasierModel implements Cloneable {
         return Map.copyOf(initialElements);
     }
 
+    /**
+     * Return true if the actionTargetElements are contained in the targetRefactoringElement, false otherwise.
+     *
+     * @param actionTargetElements
+     * @return
+     */
     public boolean contains(Map<String, Set<String>> actionTargetElements) {
         return actionTargetElements.values().stream().flatMap(Set::stream).map(String.class::cast).
                 collect(Collectors.toSet()).stream().allMatch(targetRefactoringElement.values().stream().
@@ -53,10 +59,30 @@ public abstract class EasierModel implements Cloneable {
 //        return actionTargetElements.stream().allMatch(targetRefactoringElement.values().stream().flatMap(Set::stream).collect(Collectors.toSet())::contains);
 //    }
 
-    public void store(Map<String, Set<String>> elemToBeStored) {
-        elemToBeStored.keySet().stream().forEach(k ->
-                createdRefactoringElement.get(k).addAll(elemToBeStored.get(k)));
+    /**
+     * @param elemToBeStored
+     * is a map of elements that have been created by a refactoring action.
+     * The created elements are added within the createdRefactoringElement and can be used by
+     * subsequent refactoring actions.
+     */
+    public void addElements(Map<String, Set<String>> elemToBeStored) {
+        elemToBeStored.keySet().stream().forEach(k -> {
+                targetRefactoringElement.get(k).addAll(elemToBeStored.get(k));
+                createdRefactoringElement.get(k).addAll(elemToBeStored.get(k));
+        });
+    }
 
+    /**
+     * @param elemToBeRemoved
+     * is a map of elements that have been deleted by a refactoring action.
+     * The elements are removed from the createdRefactoringElement and cannot be used by
+     * subsequent refactoring actions.
+     */
+    public void removeElements(Map<String, Set<String>> elemToBeRemoved){
+        elemToBeRemoved.keySet().stream().forEach(k -> {
+            targetRefactoringElement.get(k).removeAll(elemToBeRemoved.get(k));
+            createdRefactoringElement.get(k).removeAll(elemToBeRemoved.get(k));
+        });
     }
 
     @Override

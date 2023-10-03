@@ -27,7 +27,7 @@ public class UMLEasierModel extends EasierModel {
             this.createdRefactoringElement.put(k, new HashSet<>());
         }
 
-        // retrieve nodes, components, and operation from the model path
+        // retrieve nodes, components, and operations from the model path
         Set<String> nodes = UMLUtil.getElementsInPackage(modelPath, UMLPackage.Literals.NODE)
                 .stream().map(NamedElement.class::cast).map(NamedElement::getName).collect(Collectors.toSet());
         Set<String> components = UMLUtil.getElementsInPackage(modelPath, UMLPackage.Literals.COMPONENT)

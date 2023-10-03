@@ -1,13 +1,11 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.util.JMetalLogger;
 
+import java.io.ObjectInputFilter;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
@@ -35,7 +33,7 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
         sol.refactoringToCSV();
 
         // Add the solution to the population of the experiment for the export to JSON
-//        EasierExperimentDAO.eINSTANCE.addPopulation(sol);
+        //        EasierExperimentDAO.eINSTANCE.addPopulation(sol);
         return (S) sol;
     }
 
@@ -66,7 +64,7 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
         try {
             WorkflowUtils.invokeSolver(solution.getFolderPath());
         } catch (EasierException e) {
-           String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString();
+            String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString();
             new FileUtils().failedSolutionLogToCSV(line);
             JMetalLogger.logger.severe(e.getMessage());
         }
@@ -86,10 +84,17 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
             WorkflowUtils.countPerformanceAntipattern(solution.getModelPath(), solution.getName());
 
         try {
-            solution.setPerfQ(WorkflowUtils.perfQ(sourceModelPath, solution.getModelPath()));
+            // it will use the system response time as objective if the isPerfQ returns false
+            if(Configurator.eINSTANCE.isPerfQ())
+                solution.setPerfQ(WorkflowUtils.perfQ(sourceModelPath, solution.getModelPath()));
+            else
+                solution.setPerfQ(WorkflowUtils.systemResponseTime(solution.getModelPath()));
         } catch (EasierException e) {
-            JMetalLogger.logger.severe(String.format("Solution # '%s' has thrown an error while computing PerfQ!!!",
+            EasierLogger.logger_.severe(String.format("Solution # '%s' has thrown an error when evaluating " +
+                            "performance. The objective will be set to Double.MIN_VALUE.",
                     solution.getName()));
+            // TODO check whether using the min value is the best choice
+            solution.setPerfQ(Double.MIN_VALUE);
         }
         solution.computeReliability();
         solution.computeArchitecturalChanges();

@@ -27,6 +27,7 @@ import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class EasierUmlModel extends UmlModel {
@@ -225,7 +226,13 @@ public class EasierUmlModel extends UmlModel {
 
     }
 
-    public double computePerfQ(final EasierUmlModel ref) throws EolModelElementTypeNotFoundException {
+    /**
+     * Compute the perfQ between the refactored model and the source one
+     * @param refactoredModel is the model obtained after the refactoring
+     * @return the performance quality average over all the performance indeces
+     * @throws EolModelElementTypeNotFoundException
+     */
+    public double computePerfQ(final EasierUmlModel refactoredModel) throws EolModelElementTypeNotFoundException {
 
         String gaScenarioTag = "GaScenario";
         String gaExecHostTag = "GaExecHost";
@@ -245,7 +252,7 @@ public class EasierUmlModel extends UmlModel {
         for (EObject element : sourceElements) {
 
             String id = ((XMLResource) this.getResource()).getID(element);
-            EObject correspondingElement = (EObject) ref.getElementById(id);
+            EObject correspondingElement = (EObject) refactoredModel.getElementById(id);
 
             if (element instanceof UseCase) {
                 value += -1 * this.computePerfQValue((Element) element, (Element) correspondingElement, gaScenarioTag,
@@ -263,19 +270,27 @@ public class EasierUmlModel extends UmlModel {
         return numberOfMetrics!=0 ? value / numberOfMetrics : Double.MAX_VALUE;
     }
 
-    private double computePerfQValue(Element source, Element ref, String stereotypeName, String taggedValue){
+    /**
+     * Compute the perfQ value for a specific metric
+     * @param sourceElement is the source UML element
+     * @param refactoredElement is the refactored UML element
+     * @param stereotypeName is the stereotype name
+     * @param taggedValue is the tagged value
+     * @return the perfQ value for the specific metric
+     */
+    private double computePerfQValue(Element sourceElement, Element refactoredElement, String stereotypeName, String taggedValue){
 
         String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
 
-        Stereotype stereotype = source.getAppliedStereotype(gqamNamespace + stereotypeName);
-        EList<?> values = (EList<?>) source.getValue(stereotype, taggedValue);
+        Stereotype stereotype = sourceElement.getAppliedStereotype(gqamNamespace + stereotypeName);
+        EList<?> values = (EList<?>) sourceElement.getValue(stereotype, taggedValue);
 
         double sourceValue = 0d;
         if (!values.isEmpty())
             sourceValue = Double.parseDouble(values.get(0).toString());
 
-        stereotype = ref.getAppliedStereotype(gqamNamespace + stereotypeName);
-        values = (EList<?>) ref.getValue(stereotype, taggedValue);
+        stereotype = refactoredElement.getAppliedStereotype(gqamNamespace + stereotypeName);
+        values = (EList<?>) refactoredElement.getValue(stereotype, taggedValue);
 
         double refValue = 0d;
         if (!values.isEmpty())
@@ -283,4 +298,24 @@ public class EasierUmlModel extends UmlModel {
 
         return (refValue + sourceValue) == 0 ? 0d : (refValue - sourceValue) / (refValue + sourceValue);
     }
+
+    public double computeSystemResponseTime()
+            throws EolModelElementTypeNotFoundException {
+        AtomicReference<Double> sysRespT = new AtomicReference<>(0d);
+
+        String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
+
+        String gaScenarioTag = "GaScenario";
+
+        List<EObject> scenarios = this.filterByStereotype("UseCase", gaScenarioTag);
+
+        scenarios.stream().map(Element.class::cast).collect(Collectors.toList()).forEach(scenario -> {
+            Stereotype stereotype = scenario.getAppliedStereotype(gqamNamespace + gaScenarioTag);
+            sysRespT.updateAndGet(v -> (v +
+                    Double.parseDouble(((EList<?>) scenario.getValue(stereotype, "respT")).get(0).toString())));
+        });
+
+        return sysRespT.get();
+    }
+
 }
