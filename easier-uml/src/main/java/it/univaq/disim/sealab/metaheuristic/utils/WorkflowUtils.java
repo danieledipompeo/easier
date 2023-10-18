@@ -5,8 +5,16 @@ import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.etl.ETLStandalone;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.sealab.umlreliability.MissingTagException;
+import it.univaq.sealab.umlreliability.Reliability;
+import it.univaq.sealab.umlreliability.UMLReliability;
+import it.univaq.sealab.umlreliability.model.UMLModelPapyrus;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
@@ -50,7 +58,9 @@ public class WorkflowUtils {
             executor.execute();
             executor.clearMemory();
         } catch (EolRuntimeException | URISyntaxException e) {
-            throw new EasierException("Error in runnig the ETL transformation.", e);
+            throw new EasierException(String.format("Error in running the ETL transformation on %s for the following " +
+                            "reason: %s",
+                    sourceModelPath.getParent().resolve("output.xml"), e.getMessage()));
         }
 
         new UMLMemoryOptimizer().cleanup();
@@ -58,7 +68,7 @@ public class WorkflowUtils {
         EasierLogger.logger_.info("UML2LQN done");
     }
 
-    public static void invokeSolver(Path folderPath) throws EasierException {
+    public static void invokeSolver(Path folderPath) throws EasierException, LQNException {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "invokeSolver_start");
         Path lqnSolverPath = Configurator.eINSTANCE.getSolver();
         Path lqnModelPath = folderPath.resolve("output.xml");
@@ -77,14 +87,16 @@ public class WorkflowUtils {
             process.waitFor();
 
             if (!Files.exists(folderPath.resolve("output.lqxo"))) {
+                // Catch the error stream of the process
                 final String lqnError = new BufferedReader(new InputStreamReader(process.getErrorStream())).lines()
                         .collect(Collectors.joining(","));
-                throw new RuntimeException(lqnError);
+                throw new LQNException(String.format("LQN solver cannot solve the model: %s. The reason is: %s",
+                    lqnModelPath, lqnError));
             }
-        } catch (IOException | InterruptedException | RuntimeException e) {
-            EasierLogger.logger_.severe("LQN solver cannot solve the model.");
+        } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new EasierException(String.format("LQN solver cannot solve the model: %s.", lqnModelPath), e);
+            throw new EasierException(String.format("LQN solver cannot solve the model: %s. The reason is: %s",
+                    lqnModelPath, e.getMessage()), e);
         }
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "invokeSolver_end");
         EasierLogger.logger_.info("LQN solver invoked on " + folderPath.getFileName().toString());
@@ -130,7 +142,7 @@ public class WorkflowUtils {
      * This method counts the number of Performance Antipatterns (PAs) invoking
      * the PADRE perf-detection file
      */
-    public static int countPerformanceAntipattern(Path sourceModelPath, int solutionID) {
+    public static int countPerformanceAntipattern(Path sourceModelPath, int solutionID) throws EasierException {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "countingPAs_start");
 
         String refactoringLibraryModule =
@@ -152,9 +164,10 @@ public class WorkflowUtils {
 
             extractFuzzyValues = pasCounter.extractFuzzyValues();
         } catch (EolModelLoadingException | URISyntaxException e) {
-            EasierLogger.logger_.severe(String.format("Solution: #%s has thrown an error while loading the model: %s.",
-                    solutionID, sourceModelPath));
-            EasierLogger.logger_.severe(e.getMessage());
+//            EasierLogger.logger_.severe(String.format("Solution: #%s has thrown an error while loading the model: %s.",
+//                    solutionID, sourceModelPath));
+//            EasierLogger.logger_.severe(e.getMessage());
+            throw new EasierException(e);
         }
 
         // Count performance antipatterns and build a string for the next csv storing
@@ -205,9 +218,8 @@ public class WorkflowUtils {
             EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_end");
             EasierLogger.logger_.info(String.format("PerfQ : %s", perfQ));
             return perfQ;
-        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException |
-                 RuntimeException e) {
-            throw new EasierException("PerfQ cannot be computed.", e);
+        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException e) {
+            throw new EasierException("PerfQ cannot be computed because of: "+ e.getMessage());
         }
     }
 
@@ -225,12 +237,70 @@ public class WorkflowUtils {
             double sysRespT = model.computeSystemResponseTime();
             new UMLMemoryOptimizer().cleanup();
             EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_end");
-            EasierLogger.logger_.info(String.format("sysRespT : %s", sysRespT));
+            EasierLogger.logger_.info(String.format("System RespT : %s", sysRespT));
 
             return sysRespT;
         } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException e) {
-            throw new EasierException("Error while computing the System Response Time on:  " + modelPath, e);
+            throw new EasierException("Error while computing the System RespT on:  " + modelPath, e);
         }
     }
 
+    public static double energyEstimation(Path modelPath) throws EasierException {
+        double energy;
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluateEnergy_start");
+
+        try (EasierUmlModel model = EpsilonStandalone.createUmlModel(modelPath.toString())) {
+            energy = model.computeEnergy();
+
+            EasierLogger.logger_.info(String.format("System Energy : %s", energy));
+            EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluateEnergy_end");
+            return energy;
+        } catch (URISyntaxException | EolModelLoadingException e) {
+            throw new EasierException(e);
+        }
+    }
+
+    public static double reliability(Path modelPath) throws MissingTagException {
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeReliability_start");
+        // stores the in memory model to a file
+        UMLReliability uml = new UMLReliability(new UMLModelPapyrus(modelPath.toString()).getModel());
+        double reliability = new Reliability(uml.getScenarios()).compute();
+
+        ResourceSet rs = uml.getModel().eResource().getResourceSet();
+        while (rs.getResources().size() > 0) {
+            Resource res = rs.getResources().get(0);
+            res.eAdapters().clear();
+            res.unload();
+            rs.getResources().remove(res);
+        }
+
+        new UMLMemoryOptimizer().cleanup();
+        EasierLogger.logger_.info(String.format("Reliability : %s", reliability));
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeReliability_end");
+        return reliability;
+    }
+
+    public static double refactoringCost(RSolution<?> solution) throws EasierException {
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeArchitecturalChanges_start");
+
+        double refactoringCost = 0d;
+        try (EasierUmlModel model = EOLStandalone.createUmlModel(solution.getModelPath().toString())) {
+
+            refactoringCost += Configurator.eINSTANCE.getInitialChanges();
+
+            for (RefactoringAction action : solution.getVariable(RSolution.VARIABLE_INDEX).getActions()) {
+
+                double brf = Configurator.eINSTANCE.getBRF(action.getName());
+                double aw = action.getRefactoringCost();
+
+                refactoringCost += brf * aw;
+            }
+
+            EasierLogger.logger_.info(String.format("Refactoring Cost : %s", refactoringCost));
+            EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeArchitecturalChanges_end");
+            return refactoringCost;
+        } catch (URISyntaxException | EolModelLoadingException e) {
+            throw new EasierException(e);
+        }
+    }
 }
