@@ -24,7 +24,7 @@ public abstract class RProblem<S> extends AbstractGenericProblem<S> {
 
 	public RProblem(Path srcModelPath) {
 
-		this.setNumberOfObjectives(Configurator.eINSTANCE.getObjectives());
+		this.setNumberOfObjectives(Configurator.eINSTANCE.getObjectivesList().size());
 
 		this.setNumberOfConstraints(0);
 		this.setNumberOfVariables(1);

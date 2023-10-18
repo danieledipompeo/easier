@@ -166,7 +166,7 @@ public class FactoryBuilder<S extends RSolution<?>> {
 
             } else if ("rnsga".equals(algo)) {
 
-                if (Configurator.eINSTANCE.getReferencePoints().size() % Configurator.eINSTANCE.getObjectives() == 0) {
+                if (Configurator.eINSTANCE.getReferencePoints().size() % Configurator.eINSTANCE.getObjectivesList().size() == 0) {
 
 //                for (int j = 0; j < Configurator.eINSTANCE.getIndependetRuns(); j++) {
                     RNSGAIIBuilder<S> rnsgaBuilder = new CustomRNSGAIIBuilder<S>(
