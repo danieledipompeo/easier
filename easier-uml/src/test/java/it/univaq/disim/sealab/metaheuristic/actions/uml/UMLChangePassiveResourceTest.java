@@ -39,8 +39,8 @@ class UMLChangePassiveResourceTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @AfterEach

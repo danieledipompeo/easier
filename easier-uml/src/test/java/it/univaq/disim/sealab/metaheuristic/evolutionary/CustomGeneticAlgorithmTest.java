@@ -15,6 +15,7 @@ import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAlgorithmTest<S> {
 
@@ -27,62 +28,14 @@ public class CustomGeneticAlgorithmTest<S extends UMLRSolution> extends CustomAl
             new RankingAndCrowdingDistanceComparator<>());
     protected final SolutionListEvaluator<S> solutionListEvaluator = new SequentialSolutionListEvaluator<>();
 
-    public void isLocalOptimalPointSolutionWithListOfSolution() {
-        solutions = new ArrayList<>();
-        int i = 0;
-        while (i < 2) {
-            S sol = p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-
-        ((AbstractGeneticAlgorithm<S, List<S>>) algorithm).setPopulation(solutions);
-
-    }
-
-    public void isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse() {
-        solutions = new ArrayList<>();
-        int i = 0;
-        while (i < 2) {
-            S sol = p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-        ((AbstractGeneticAlgorithm<S, List<S>>) algorithm).setPopulation(solutions);
-
-        solutions = new ArrayList<>();
-
-        i = 0;
-        while (i < 2) {
-            S sol = p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-            if (i % 2 == 0)
-                sol.setPAs(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-
-    }
-
     public void updateProgressTest() throws IOException {
         S sol = p.createSolution();
-        sol.setPerfQ(-10);
-        sol.setReliability(-10);
-        sol.setPAs(0);
+//        sol.setPerfQ(-10);
+//        sol.setReliability(-10);
+//        sol.setPAs(0);
+
+         for(int objectiveIndex = 0; objectiveIndex <= sol.getObjectives().length; objectiveIndex++)
+            sol.setObjective(objectiveIndex, new Random().nextDouble());
         solutions.add(sol);
 
 //		sol.getVariable(0).setNumOfChanges(10);

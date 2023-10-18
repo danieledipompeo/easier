@@ -38,7 +38,7 @@ public class FileUtilsTest {
         new FileUtils().solutionDumpToCSV(line);
 
         //Check the correct header
-        String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
+        String header = "algorithm,problem_tag,solID,perfQ,#changes,energy,reliability";
         assertEquals(header, extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv")));
         assertEquals(7, header.split(",").length);
 

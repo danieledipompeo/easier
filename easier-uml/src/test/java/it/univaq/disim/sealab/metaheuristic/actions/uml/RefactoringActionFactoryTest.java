@@ -60,7 +60,7 @@ public class RefactoringActionFactoryTest {
     public void getRandomActionTest() throws EasierException {
         RefactoringAction action =
                 RefactoringActionFactory.getRandomAction(sol.getVariable(0).getEasierModel().getAvailableElements(),
-                        sol.getVariable(0).getEasierModel().getInitialElements());
+                        sol.getVariable(0).getEasierModel().getInitialElements(), sol.getVariable(0).getEasierModel().getAllContents());
         assertNotNull(action, "The action should not be null");
         assertFalse(
                 action.getTargetElements().values().stream().flatMap(Set::stream).collect(Collectors.toSet()).isEmpty(),

@@ -94,13 +94,13 @@ public class UMLRefactoringActionTest {
         Collection<?> modelContents =
                 EOLStandalone.createUmlModel(modelpath).allContents();
 
-        double archChanges = action.computeArchitecturalChanges(modelContents);
+        double archChanges = action.getRefactoringCost();
         EasierLogger.logger_.info(
                 String.format("[TEST] architectural changes %s of the action %s target %s", archChanges,
                         action.getName(),
                         action.getTargetElements().get(action.getTargetType()).iterator().next()));
 
-        assertDoesNotThrow(() -> action.computeArchitecturalChanges(modelContents), "Expected no exception");
+        assertDoesNotThrow(() -> action.getRefactoringCost(), "Expected no exception");
         assertNotEquals(0, archChanges, "Expected arcChanges != 0");
     }
 }

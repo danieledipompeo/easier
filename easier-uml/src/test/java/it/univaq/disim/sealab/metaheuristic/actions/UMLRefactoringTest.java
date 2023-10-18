@@ -26,6 +26,11 @@ public class UMLRefactoringTest {
 
     Refactoring refactoring;
     UMLRSolution solution;
+    private RefactoringAction deleteNode;
+    private RefactoringAction clone;
+    private RefactoringAction mvopncnn;
+    private RefactoringAction movopc;
+    private RefactoringAction mvcpnn;
 
 
     @BeforeAll
@@ -34,12 +39,26 @@ public class UMLRefactoringTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws EasierException {
         String modelPath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelPath), "simplied-cocome__test");
 
         solution = p.createSolution();
         refactoring = solution.getVariable(0);
+
+        EasierModel eModel = refactoring.getEasierModel();
+
+        // Refactoring actions used in some tests
+        deleteNode =
+                new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+
+        clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        mvopncnn =
+                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        movopc = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+        mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
     }
 
     @AfterEach
@@ -52,15 +71,6 @@ public class UMLRefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
-
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-
         refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
         refactoring.execute();
 
@@ -68,7 +78,7 @@ public class UMLRefactoringTest {
 
         Object result = model.allContents().stream().filter(Node.class::isInstance).map(Node.class::cast)
                 .filter(ne -> ne.getName()
-                        .equals(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator()
+                        .equals(clone.getCreatedElements().get(Configurator.NODE_LABEL).iterator()
                                 .next())).findFirst().orElse(null);
         assertNotNull(result, "The refactored model should contain the created element of the action");
     }
@@ -115,12 +125,7 @@ public class UMLRefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction clone1 = clone.clone();
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
 
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), "Expected a multiple occurrence");
@@ -131,12 +136,8 @@ public class UMLRefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
         RefactoringAction resource_scaling = new UMLResourceScaling(eModel.getAvailableElements(),
-                eModel.getInitialElements());
+                eModel.getInitialElements(), eModel.getAllContents());
 
         refactoring.getActions().addAll(List.of(clone, movopc, mvopncnn, resource_scaling));
 
@@ -151,21 +152,15 @@ public class UMLRefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
-
         String deletedNode =
-                deleteNode.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().findFirst()
+                deleteNode.getTargetElements().get(Configurator.NODE_LABEL).stream().findFirst()
                         .orElseThrow(() -> {
                             return new EasierException(
                                     "Error when extracting the target element in: " + this.getClass().getSimpleName());
                         });
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        clone.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).clear();
-        clone.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).add(deletedNode);
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
+        clone.getTargetElements().get(Configurator.NODE_LABEL).clear();
+        clone.getTargetElements().get(Configurator.NODE_LABEL).add(deletedNode);
 
         refactoring.getActions().addAll(List.of(deleteNode, clone, movopc, mvopncnn));
         Assertions.assertFalse(refactoring.execute(),
@@ -173,19 +168,11 @@ public class UMLRefactoringTest {
     }
 
     @Test
-    void refactoring_should_be_feasible() throws EasierException {
+    void refactoring_should_be_feasible() {
        Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
-
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
-
-//        refactoring.getActions().addAll(List.of(deleteNode, clone, movopc, mvopncnn));
-        assertTrue(List.of(deleteNode, clone, movopc, mvopncnn).stream().allMatch(refactoring::addRefactoringAction),
+        assertTrue(Stream.of(deleteNode, clone, movopc, mvopncnn).allMatch(refactoring::addRefactoringAction),
                 "Expected refactoring to be feasible");
     }
 
@@ -194,20 +181,13 @@ public class UMLRefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
 
-        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
         String deletedNode =
-                deleteNode.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().findFirst()
-                        .orElseThrow(() -> {
-                            return new EasierException(
-                                    "Error when extracting the target element in: " + this.getClass().getSimpleName());
-                        });
+                deleteNode.getTargetElements().get(Configurator.NODE_LABEL).stream().findFirst()
+                        .orElseThrow(() -> new EasierException(
+                                "Error when extracting the target element in: " + this.getClass().getSimpleName()));
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        clone.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).clear();
-        clone.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).add(deletedNode);
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
+        clone.getTargetElements().get(Configurator.NODE_LABEL).clear();
+        clone.getTargetElements().get(Configurator.NODE_LABEL).add(deletedNode);
 
         assertFalse(Stream.of(deleteNode, clone, movopc, mvopncnn).allMatch(refactoring::addRefactoringAction)
                 , "Expected refactoring to be unfeasible");

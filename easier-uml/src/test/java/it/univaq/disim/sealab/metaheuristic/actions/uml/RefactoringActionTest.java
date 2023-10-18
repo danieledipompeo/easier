@@ -87,7 +87,7 @@ public class RefactoringActionTest {
         Collection<?> modelContents =
                 EOLStandalone.createUmlModel(solution.getModelPath().toString()).allContents();
 
-        double archChanges = action.computeArchitecturalChanges(modelContents);
+        double archChanges = action.getRefactoringCost();
 
         assertNotEquals(0, archChanges, "Expected arcChanges != 0");
 

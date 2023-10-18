@@ -16,8 +16,8 @@ class UMLResourceScalingTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @AfterEach

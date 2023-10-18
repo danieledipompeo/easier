@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,15 +19,17 @@ public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+        action = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
     }
 
     @Test
     public void testConstructor() {
-        String targetComponent = action.getTargetElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
-        String createdElement = action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
-        String availableElements = eModel.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).toString();
+        String targetComponent = action.getTargetElements().get(Configurator.COMPONENT_LABEL).iterator().next();
+        String createdElement = action.getCreatedElements().get(Configurator.NODE_LABEL).iterator().next();
+        String availableElements = eModel.getAvailableElements().get(Configurator.NODE_LABEL).toString();
         System.out.printf("Expected %s \t found %s", availableElements, createdElement);
         assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdElement)), "Expected created node not in the available elements");
     }
@@ -46,7 +49,7 @@ public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
 
     @Test
     public void testGetTargetType() {
-        expectedType = UMLRSolution.SupportedType.COMPONENT.toString();
+        expectedType = Configurator.COMPONENT_LABEL;
         super.testGetTargetType();
     }
 

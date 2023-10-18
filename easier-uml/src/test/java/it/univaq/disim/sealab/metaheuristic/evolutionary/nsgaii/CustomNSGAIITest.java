@@ -30,23 +30,6 @@ public class CustomNSGAIITest<S extends UMLRSolution> extends CustomGeneticAlgor
     }
 
     @Test
-    public void isLocalOptimalPointSolutionWithListOfSolution() {
-        super.isLocalOptimalPointSolutionWithListOfSolution();
-
-        ((CustomNSGAII<S>) algorithm).oldPopulation = solutions;
-
-        assertFalse(((CustomNSGAII<S>) algorithm).isStagnantState());
-    }
-
-    @Test
-    public void isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse() {
-        super.isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse();
-        ((CustomNSGAII<S>) algorithm).oldPopulation = solutions;
-
-        assertFalse(((CustomNSGAII<S>) algorithm).isStagnantState());
-    }
-
-    @Test
     public void updateProgressTest() throws IOException {
         super.updateProgressTest();
 

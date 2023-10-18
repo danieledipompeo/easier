@@ -60,8 +60,10 @@ public class UMLRSolutionTest {
     public void testIsFeasibleShouldReturnTrue() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = refactoring.getEasierModel();
-        RefactoringAction action1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction action2 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction action1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+        RefactoringAction action2 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
         refactoring.getActions().add(action1);
         refactoring.getActions().add(action2);
         solution.setVariable(0, refactoring);
@@ -78,43 +80,31 @@ public class UMLRSolutionTest {
     @Test
     public void testIsFeasibleShouldFail() throws EasierException {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
-        RefactoringAction failedAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        failedAction.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).clear();
-        failedAction.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).add("FailedNode");
+        RefactoringAction failedAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+        failedAction.getTargetElements().get(Configurator.NODE_LABEL).clear();
+        failedAction.getTargetElements().get(Configurator.NODE_LABEL).add("FailedNode");
         solution.getVariable(0).getActions().set(0, failedAction);
         assertFalse(solution.isFeasible(), "Expected a unfeasible solution.");
     }
 
-//    @Test
-//    public void testInit() {
-//        Set<String> componentNames = solution.getComponents();
-//        assertFalse(componentNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).stream().map(String.class::cast).noneMatch(componentNames::contains));
-//
-//        Set<String> operationNames = solution.getOperations();
-//        assertFalse(operationNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.OPERATION.toString()).stream().map(String.class::cast).noneMatch(operationNames::contains));
-//
-//        Set<String> nodeNames = solution.getNodes();
-//        assertFalse(nodeNames.isEmpty());
-//        assertFalse(solution.getAvailableElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().map(String.class::cast).noneMatch(nodeNames::contains));
-//    }
-
-
     @Test
     public void testSetRefactoring() throws EasierException {
         Map<String, Set<String>> expectedCreatedElements = new HashMap<>();
-        expectedCreatedElements.put(UMLRSolution.SupportedType.NODE.toString(), new HashSet<>());
-        expectedCreatedElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), new HashSet<>());
-        expectedCreatedElements.put(UMLRSolution.SupportedType.OPERATION.toString(), new HashSet<>());
+        expectedCreatedElements.put(Configurator.NODE_LABEL, new HashSet<>());
+        expectedCreatedElements.put(Configurator.COMPONENT_LABEL, new HashSet<>());
+        expectedCreatedElements.put(Configurator.OPERATION_LABEL, new HashSet<>());
 
         solution.init();
         Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = ref.getEasierModel();
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         ref.getActions().addAll(List.of(clone, mvopncnn, clone1, mvcpnn));
         solution.setRefactoring(ref);
 
@@ -137,84 +127,11 @@ public class UMLRSolutionTest {
 //
 //    }
 
-    @Disabled
-    @Test
-    public void isLocalOptmimalPointTrueTest() {
-        solution2 = (UMLRSolution) p.createSolution();
-        solution.setPerfQ(0);
-        solution2.setPerfQ(0);
-
-        solution.reliability = 0;
-        solution2.reliability = 0;
-
-        solution.numPAs = 0;
-        solution2.numPAs = 0;
-
-//        solution.getVariable(0).setNumOfChanges(0);
-//        solution2.getVariable(0).setNumOfChanges(0);
-
-        assertTrue(solution.isLocalOptmimalPoint(solution2));
-    }
-
-    /*
-     * PerfQ of solution2 is greater than the perfQ of solution The test should
-     * return FALSE
-     */
-    @Disabled
-    @Test
-    public void isLocalOptmimalPointPerfQOutOfRangeShouldReturnFalseTest() {
-        solution2 = (UMLRSolution) p.createSolution();
-        solution.setPerfQ(0);
-        solution2.setPerfQ(0);
-
-        solution.reliability = 0;
-        solution2.reliability = 0;
-
-        solution.numPAs = 0;
-        solution2.numPAs = 4;
-
-//        solution.getVariable(0).setNumOfChanges(0);
-//        solution2.getVariable(0).setNumOfChanges(0);
-
-        assertFalse(solution.isLocalOptmimalPoint(solution2));
-    }
-
-    @Disabled
-    @Test
-    public void isLocalOptmimalPointSolutionWithinSolution2ShouldReturnTrueTest() {
-        solution2 = (UMLRSolution) p.createSolution();
-        solution.setPerfQ(-10);
-        solution2.setPerfQ(-10);
-
-        solution.reliability = -10;
-        solution2.reliability = -10;
-
-        solution.numPAs = 1;
-        solution2.numPAs = 0;
-
-//        solution.getVariable(0).setNumOfChanges(10);
-//        solution2.getVariable(0).setNumOfChanges(10);
-
-//        solution2.getReliability(), solution2.getPAs(), solution2.getVariable(0).getNumOfChanges());
-
-        assertTrue(solution.isLocalOptmimalPoint(solution2));
-    }
-
-
     @Test
     public void createRandomRefactoring() {
         solution.createRandomRefactoring();
 
         assertFalse(solution.getVariable(0).hasMultipleOccurrence());
-    }
-
-
-
-
-    @Test
-    public void computeReliability() {
-        solution.computeReliability();
-        System.out.printf("Reliability \t %s\r",solution.getReliability());
     }
 
     @Test
@@ -290,60 +207,24 @@ public class UMLRSolutionTest {
     @Test
     public void testIsIndependent() throws EasierException {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
-        RefactoringAction a1 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction a1 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         assertTrue(solution.isIndependent(List.of(a1)), "Expected that MvOpNCNN is independent");
 
-        RefactoringAction a2 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction a2 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         assertTrue(solution.isIndependent(List.of(a1, a2)), "Expected that 2 MvOpNCNN are independent");
 
-        RefactoringAction a3 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction a3 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         assertTrue(solution.isIndependent(List.of(a1, a2, a3)), "Expected that 3 MvOpNCNN are independent");
 
-        RefactoringAction a4 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction a4 = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         assertTrue(solution.isIndependent(List.of(a1, a2, a3, a4)), "Expected that 4 MvOpNCNN are independent");
     }
 
-    @Test
-    void computeArchitecturalChanges() {
-        solution.createRandomRefactoring();
-        solution.executeRefactoring();
 
-        solution.computeArchitecturalChanges();
-
-        assertTrue(solution.getArchitecturalChanges() > Configurator.eINSTANCE.getInitialChanges(), "Expected an " +
-                "architectural changes >= the initial one");
-
-    }
-
-    @Test
-    void architectural_changes_with_removing_actions() throws EasierException {
-
-        solution.createRandomRefactoring();
-
-        EasierModel eModel = solution.getVariable(0).getEasierModel();
-
-        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        String deletedNode =
-                deleteNode.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).stream().findFirst()
-                        .orElseThrow(() -> {
-                            return new EasierException(
-                                    "Error when extracting the target element in: " + this.getClass().getSimpleName());
-                        });
-
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements());
-
-        solution.getVariable(0).getActions().clear();
-        solution.getVariable(0).getActions().addAll(List.of(clone, mvopncnn, movopc, deleteNode));
-
-        solution.executeRefactoring();
-
-        Assertions.assertDoesNotThrow(() -> WorkflowUtils.perfQ(Configurator.eINSTANCE.getInitialModelPath(),
-                solution.getModelPath()), "Expected no exception when computing PerfQ");
-
-    }
 
 
     //    @ParameterizedTest

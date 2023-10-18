@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.uml2.uml.Element;
@@ -22,8 +23,8 @@ class UMLRemoveNodeTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
 
     }
 
@@ -43,7 +44,7 @@ class UMLRemoveNodeTest extends UMLRefactoringActionTest {
         model.setStoredOnDisposal(true);
         action.execute(model);
 
-        String targetNode = action.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+        String targetNode = action.getTargetElements().get(Configurator.NODE_LABEL).iterator().next();
 
         System.out.println(targetNode);
 

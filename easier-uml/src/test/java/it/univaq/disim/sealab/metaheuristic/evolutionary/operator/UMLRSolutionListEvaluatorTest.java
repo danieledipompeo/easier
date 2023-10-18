@@ -15,9 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
@@ -54,10 +55,11 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
             add(sol);
         }}, problem);
 
-        assertNotEquals(0, sol.getPAs(), "Expected PAs != 0");
-        assertNotEquals(0, sol.getReliability(), "Expected reliability != 0");
-        assertNotEquals(0, sol.getArchitecturalChanges(), "Expected architectural changes != 0");
-        assertNotEquals(0, sol.getPerfQ(), "Expected perfq != 0");
+        assertTrue(Arrays.stream(sol.getObjectives()).allMatch(o -> o != 0));
+//        assertNotEquals(0, sol.getPAs(), "Expected PAs != 0");
+//        assertNotEquals(0, sol.getReliability(), "Expected reliability != 0");
+//        assertNotEquals(0, sol.getArchitecturalChanges(), "Expected architectural changes != 0");
+//        assertNotEquals(0, sol.getPerfQ(), "Expected perfq != 0");
 
     }
 

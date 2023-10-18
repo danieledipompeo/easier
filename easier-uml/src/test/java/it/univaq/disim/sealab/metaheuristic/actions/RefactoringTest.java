@@ -57,10 +57,14 @@ public class RefactoringTest {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
 
-        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
         refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
         refactoring.execute();
     }
@@ -106,11 +110,15 @@ public class RefactoringTest {
     void testFindMultipleOccurrenceWithMultiOccurrences() throws EasierException {
         Refactoring refactoring = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel easierModel = refactoring.getEasierModel();
-        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
         RefactoringAction clone1 = clone.clone();
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(), easierModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(), easierModel.getInitialElements());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(),easierModel.getAllContents());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
         refactoring.getActions().addAll(List.of(clone, clone1, movopc, mvcpnn));
         assertTrue(refactoring.hasMultipleOccurrence(), String.format("Expected a multiple occurrence"));
     }
@@ -120,18 +128,21 @@ public class RefactoringTest {
 
         Refactoring ref = new UMLRefactoring(solution.getModelPath().toString());
         EasierModel eModel = ref.getEasierModel();
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction clone1 = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
         ref.getActions().add(clone);//, mvopncnn, clone1, mvcpnn));
         solution.setVariable(0, ref);
 
-        eModel.getTargetRefactoringElement().get(UMLRSolution.SupportedType.NODE.toString()).add(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+        eModel.getTargetRefactoringElement().get(Configurator.NODE_LABEL).add(clone.getCreatedElements().get(Configurator.NODE_LABEL).iterator().next());
 
         ref.tryRandomPush();
 
-        assertTrue(eModel.getAvailableElements().values().stream().flatMap(Set::stream).anyMatch(clone.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString())::contains));
+        assertTrue(eModel.getAvailableElements().values().stream().flatMap(Set::stream).anyMatch(clone.getCreatedElements().get(Configurator.NODE_LABEL)::contains));
     }
 
 }

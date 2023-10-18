@@ -2,6 +2,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,24 +25,24 @@ public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
 //        eModel = solution.getVariable(0).getEasierModel();
 
         oldAction = new UMLMvOperationToNCToNN(eModel.getAvailableElements(),
-                eModel.getInitialElements());
-        action = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements());
+                eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @Test
     public void testConstructor() {
         String targetOperation =
-                action.getTargetElements().get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
+                action.getTargetElements().get(Configurator.OPERATION_LABEL).iterator().next();
         assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
                 String.format("Expected target node %s belongs to the availableElements.", targetOperation));
 
         String createdNode =
-                action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+                action.getCreatedElements().get(Configurator.NODE_LABEL).iterator().next();
         assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdNode)),
                 String.format("Expected created node %s does not belong to the availableElements.", createdNode));
 
         String createdComponent =
-                action.getCreatedElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
+                action.getCreatedElements().get(Configurator.COMPONENT_LABEL).iterator().next();
         assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdComponent)),
                 String.format("Expected created node %s does not belong to the availableElements.", createdComponent));
     }
@@ -56,7 +57,7 @@ public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
 
     @Test
     public void testGetTargetType() {
-        expectedType = UMLRSolution.SupportedType.OPERATION.toString();
+        expectedType = Configurator.OPERATION_LABEL;
         super.testGetTargetType();
     }
 

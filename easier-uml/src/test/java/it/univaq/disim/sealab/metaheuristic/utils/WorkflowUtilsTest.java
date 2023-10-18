@@ -1,5 +1,9 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
+import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,8 +25,7 @@ public class WorkflowUtilsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-//        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
-        modelPath = Paths.get(getClass().getResource("/models/train-ticket/train-ticket.uml").getFile());
+        modelPath = Path.of(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
     }
 
     @AfterEach
@@ -49,10 +53,63 @@ public class WorkflowUtilsTest {
     }
 
     @Test
+    void apply_transformation_with_remove_actions() throws EasierException {
+
+        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+
+        EasierModel eModel = solution.getVariable(0).getEasierModel();
+
+        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+
+        RefactoringAction removeComponent = new UMLRemoveComponent(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+
+        solution.getVariable(0).getActions().clear();
+
+        List.of(deleteNode, clone, removeComponent, movopc).forEach(solution.getVariable(0)::addRefactoringAction);
+
+        solution.executeRefactoring();
+
+        assertDoesNotThrow(() -> WorkflowUtils.applyTransformation(modelPath), "Refactoring with remove actions " +
+                "failed.");
+    }
+
+    @Test
+    void check_transformation_with_refactoring_removecompoent_moc_moc_moncnn() throws EasierException {
+        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+
+        EasierModel eModel = solution.getVariable(0).getEasierModel();
+
+        RefactoringAction removeComponent = new UMLRemoveComponent(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+
+        RefactoringAction moc = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+
+        RefactoringAction moc1 = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+
+        RefactoringAction moncnn =
+                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
+                        eModel.getAllContents());
+
+        List.of(removeComponent, moc, moc1, moncnn).forEach(solution.getVariable(0)::addRefactoringAction);
+        solution.executeRefactoring();
+        assertDoesNotThrow(() -> WorkflowUtils.applyTransformation(modelPath), "Refactoring with remove actions " +
+                "failed.");
+    }
+
+    @Test
     public void invokeSolver() throws Exception {
-        new WorkflowUtils().applyTransformation(modelPath);
+        WorkflowUtils.applyTransformation(modelPath);
         Path solverOutcome = modelPath.getParent().resolve("output.lqxo");
-        new WorkflowUtils().invokeSolver(modelPath.getParent());
+        WorkflowUtils.invokeSolver(modelPath.getParent());
         assertTrue(Files.exists(solverOutcome)); // check whether the file output.lqxo exists
         try (BufferedReader br = new BufferedReader(new FileReader(solverOutcome.toFile()))) {
             // check whether the file output.lqxo is not empty
@@ -70,7 +127,7 @@ public class WorkflowUtilsTest {
     }
 
     @Test
-    public void countingPAs() {
+    public void countingPAs() throws EasierException {
         int pas = WorkflowUtils.countPerformanceAntipattern(modelPath, 0);
 
         assertEquals(1d, pas, 1, String.format("Expected 1 PAs \t found: %s.", pas));
@@ -91,5 +148,42 @@ public class WorkflowUtilsTest {
         assertDoesNotThrow(() -> WorkflowUtils.systemResponseTime(modelPath));
 
         assertNotEquals(Double.MIN_VALUE, sysRespT, "Expected a valid system response time.");
+    }
+
+    @Test
+    void computeArchitecturalChanges() throws EasierException {
+        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+        solution.createRandomRefactoring();
+        solution.executeRefactoring();
+
+        assertTrue(WorkflowUtils.refactoringCost(solution) > Configurator.eINSTANCE.getInitialChanges(), "Expected an" +
+                "refactoring cost >= the initial one");
+
+    }
+
+    @Test
+    void architectural_changes_with_removing_actions() throws EasierException {
+        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+        solution.createRandomRefactoring();
+
+        EasierModel eModel = solution.getVariable(0).getEasierModel();
+
+        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(),
+                eModel.getAllContents());
+
+        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction mvopncnn =
+                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(),
+                eModel.getInitialElements(), eModel.getAllContents());
+
+        List.of(deleteNode, clone, mvopncnn, movopc).forEach(solution.getVariable(0)::addRefactoringAction);
+
+        solution.executeRefactoring();
+
+        assertDoesNotThrow(() -> WorkflowUtils.refactoringCost(solution), "Refactoring Cost has thrown an exception");
+
+
+
     }
 }

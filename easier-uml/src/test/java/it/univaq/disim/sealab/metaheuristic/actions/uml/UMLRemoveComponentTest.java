@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.uml2.uml.NamedElement;
@@ -20,8 +21,8 @@ class UMLRemoveComponentTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @AfterEach
@@ -41,7 +42,7 @@ class UMLRemoveComponentTest extends UMLRefactoringActionTest {
         action.execute(model);
 
         String target =
-                action.getTargetElements().get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
+                action.getTargetElements().get(Configurator.COMPONENT_LABEL).iterator().next();
 
         System.out.println(target);
 

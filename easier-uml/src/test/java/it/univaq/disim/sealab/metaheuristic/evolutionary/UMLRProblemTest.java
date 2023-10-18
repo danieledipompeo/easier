@@ -1,10 +1,15 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,10 +17,20 @@ class UMLRProblemTest {
 
     UMLRProblem<UMLRSolution> problem;
 
+    @BeforeAll
+    static void setUpBeforeClass() throws IOException {
+         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+    }
+
+    @AfterAll
+    static void tearDownAfterClass() throws IOException {
+        Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
+
     @BeforeEach
     void setUp() {
         problem =
-                new UMLRProblem<>(Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile())
+                new UMLRProblem<>(Paths.get(getClass().getResource("/simplified-cocome/cocome.uml").getFile())
                         , "simplied-cocome__test");
     }
 
@@ -36,10 +51,6 @@ class UMLRProblemTest {
         UMLRSolution sol = problem.createSolution();
         problem.evaluate(sol);
 
-        assertEquals(0, sol.getPAs());
-        assertEquals(0d, sol.getReliability());
-        assertEquals(0, sol.getArchitecturalChanges());
-        assertEquals(0d, sol.getPerfQ());
-
+        assertTrue(Arrays.stream(sol.getObjectives()).allMatch(o -> o != 0));
     }
 }

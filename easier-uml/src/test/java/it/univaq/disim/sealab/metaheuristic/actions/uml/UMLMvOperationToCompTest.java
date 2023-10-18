@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,15 +20,15 @@ public class UMLMvOperationToCompTest extends UMLRefactoringActionTest {
         super.setUp();
 
         oldAction = new UMLMvOperationToComp(eModel.getAvailableElements(),
-                eModel.getInitialElements());
+                eModel.getInitialElements(), eModel.getAllContents());
         action = new UMLMvOperationToComp(eModel.getAvailableElements(),
-                eModel.getInitialElements());
+                eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @Test
     public void testConstructor() {
         String targetOperation =
-                action.getTargetElements().get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
+                action.getTargetElements().get(Configurator.OPERATION_LABEL).iterator().next();
         assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetOperation)),
                 String.format("Expected target node %s belongs to the availableElements.", targetOperation));
 
@@ -42,7 +43,7 @@ public class UMLMvOperationToCompTest extends UMLRefactoringActionTest {
 
     @Test
     public void testGetTargetType() {
-        expectedType = UMLRSolution.SupportedType.OPERATION.toString();
+        expectedType = Configurator.OPERATION_LABEL;
         super.testGetTargetType();
     }
 

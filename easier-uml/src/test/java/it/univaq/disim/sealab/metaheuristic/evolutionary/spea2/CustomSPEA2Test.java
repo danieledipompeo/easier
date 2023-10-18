@@ -15,6 +15,7 @@ import java.io.LineNumberReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -34,72 +35,17 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
         algorithm = customBuilder.build();
     }
 
-    @Test
-    public void isLocalOptimalPointSolutionWithListOfSolution() {
-        List<UMLRSolution> solutions = new ArrayList<UMLRSolution>();
-        int i = 0;
-        while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-
-        ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(solutions);
-        ((CustomSPEA2<UMLRSolution>) algorithm).oldPopulation = solutions;
-
-        assertFalse(((CustomSPEA2<UMLRSolution>) algorithm).isStagnantState());
-    }
-
-    @Test
-    public void isLocalOptimalPointSolutionWithListOfSolutionShouldReturnFalse() {
-        List<UMLRSolution> solutions = new ArrayList<UMLRSolution>();
-        int i = 0;
-        while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-        ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(solutions);
-
-        solutions = new ArrayList<UMLRSolution>();
-
-        i = 0;
-        while (i < 2) {
-            UMLRSolution sol = (UMLRSolution) p.createSolution();
-            sol.setPerfQ(-10);
-            sol.setReliability(-10);
-            sol.setPAs(0);
-            if (i % 2 == 0)
-                sol.setPAs(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-//			sol.getVariable(0).setNumOfChanges(10);
-            solutions.add(sol);
-            i++;
-        }
-
-        ((CustomSPEA2<UMLRSolution>) algorithm).oldPopulation = solutions;
-
-        assertFalse(((CustomSPEA2<UMLRSolution>) algorithm).isStagnantState());
-    }
-
 
     @Test
     public void populationToCsVTest() throws IOException {
         UMLRSolution sol = p.createSolution();
-        sol.setPerfQ(-10);
-        sol.setReliability(-10);
-        sol.setPAs(0);
+//        sol.setPerfQ(-10);
+//        sol.setReliability(-10);
+//        sol.setPAs(0);
 //		sol.getVariable(0).setNumOfChanges(10);
+        for(int objectiveIndex = 0; objectiveIndex <= sol.getObjectives().length; objectiveIndex++)
+            sol.setObjective(objectiveIndex, new Random().nextDouble());
+
         ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(List.of(sol));
 
         ((CustomSPEA2<UMLRSolution>) algorithm).populationToCSV();

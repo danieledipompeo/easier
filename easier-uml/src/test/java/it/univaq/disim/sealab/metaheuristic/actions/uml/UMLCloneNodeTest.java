@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,18 +24,18 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
-        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements());
+        oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
 
 
     }
 
     @Test
     void testConstructor() {
-        String targetNode = action.getTargetElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+        String targetNode = action.getTargetElements().get(Configurator.NODE_LABEL).iterator().next();
         assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetNode)), String.format("Expected target node %s belongs to the availableElements.", targetNode));
 
-        String createdNode = action.getCreatedElements().get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+        String createdNode = action.getCreatedElements().get(Configurator.NODE_LABEL).iterator().next();
         assertTrue(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(createdNode)), String.format("Expected created node %s does not belong to the availableElements.", createdNode));
     }
 
@@ -54,7 +55,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
 
     @Test
     void testGetTargetType() {
-        expectedType = UMLRSolution.SupportedType.NODE.toString();
+        expectedType = Configurator.NODE_LABEL;
         super.testGetTargetType();
     }
 
@@ -69,9 +70,9 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
         Map<String, Set<String>> map1 = new HashMap<>();
         Map<String, Set<String>> map2 = new HashMap<>();
 
-        map1.put(UMLRSolution.SupportedType.NODE.toString(), Set.of("cloned_node"));
-        map2.put(UMLRSolution.SupportedType.NODE.toString(), Set.of("clned_node"));
-        map2.put(UMLRSolution.SupportedType.COMPONENT.toString(), Set.of("test_component"));
+        map1.put(Configurator.NODE_LABEL, Set.of("cloned_node"));
+        map2.put(Configurator.NODE_LABEL, Set.of("clned_node"));
+        map2.put(Configurator.COMPONENT_LABEL, Set.of("test_component"));
 
         assertTrue(map2.equals(map1));
 
