@@ -83,60 +83,6 @@ public class FileUtils {
         return files;
     }
 
-    public static void simpleSolutionWriterToCSV(RSolution<?> rSolution) {
-        try (FileWriter fw = new FileWriter(Paths
-                .get(Configurator.eINSTANCE.getOutputFolder().toString(), rSolution.getProblemName() + "_solutions.csv")
-                .toFile(), true)) {
-            List<String> line = new ArrayList<String>();
-            line.addAll(Arrays.asList("SolID", "PerfQ", "ArchDist", "PAs"));
-            CSVUtils.writeHeader(fw, line);
-            line.clear();
-            line.add(String.valueOf(rSolution.getName()));
-            line.add(String.valueOf(rSolution.getPerfQ()));
-            line.add(String.valueOf(rSolution.getArchitecturalChanges()));
-            line.add(String.valueOf(rSolution.getPAs()));
-            CSVUtils.writeLine(fw, line);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //	public static void writeAnalyzableFile(final RSolution solution) {
-    //		try (FileWriter analyzableCSV = new FileWriter(
-    //				Paths.get(Configurator.eINSTANCE.getOutputFolder().toString(), "pareto",
-    //						solution.getProblemName() + "_analyzableResults.csv").toFile(),
-    //				true)) {
-    //
-    //			List<String> line = new ArrayList<String>();
-    //			/*String solID = "( "
-    //					+ Configurator.eINSTANCE.getMaxEvaluation() / Configurator.eINSTANCE.getPopulationSize()
-    //					+ "-" + Configurator.eINSTANCE.getPopulationSize() + " ) " + ":" + solution.getName();*/
-    //			line.add(String.valueOf(solution.getName()));
-    //			line.add(String.valueOf(solution.getPerfQ()));
-    //			line.add(String.valueOf(solution.getNumOfChanges()));
-    //			line.add(String.valueOf(solution.getPAs()));
-    //
-    //			final Refactoring ref = (Refactoring) solution.getVariable(0);
-    //
-    //			for (RefactoringAction action : ref.getActions()) {
-    //				if (action.getName() == null)
-    //					action.setName(action.getClass().getSimpleName());
-    //
-    //				String target = action instanceof AEmiliaConstChangesAction
-    //						? ((AEmiliaConstChangesAction) action).getSourceConstInit().getName()
-    //						: ((AEmiliaCloneAEIAction) action).getSourceAEI().getInstanceName();
-    //				String factor = action instanceof AEmiliaConstChangesAction
-    //						? Double.toString(((AEmiliaConstChangesAction) action).getFactorOfChange())
-    //						: "NULL";
-    //				line.addAll(Arrays.asList(target, factor));
-    //
-    //			}
-    //			CSVUtils.writeLine(analyzableCSV, line);
-    //		} catch (IOException e) {
-    //			e.printStackTrace();
-    //		}
-    //	}
-
     public static synchronized void moveTmpFile(final Path sourceFolder, final Path destFolder) {
         destFolder.toFile().mkdirs();
         try {
@@ -263,7 +209,8 @@ public class FileUtils {
      */
     public void solutionDumpToCSV(String line) {
         String fileName = "solution_dump.csv";
-        String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
+        //String header = "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability";
+        String header = "algorithm,problem_tag,solID,perfQ,#changes,energy,reliability";
         dumpToFile(fileName, header, line);
     }
 
