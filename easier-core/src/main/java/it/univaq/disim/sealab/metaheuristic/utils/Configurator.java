@@ -12,6 +12,16 @@ import com.beust.jcommander.converters.IParameterSplitter;
 
 public class Configurator {
 
+	public static final String PERF_Q_LABEL = "perfq";
+	public static final String PAS_LABEL = "pas";
+	public static final String ENERGY_LABEL = "energy";
+	public static final String RELIABILITY_LABEL = "reliability";
+	public static final String CHANGES_LABEL = "changes";
+	public static final String SYS_RESP_T_LABEL = "sysRespT";
+	public static final String OPERATION_LABEL = "operation";
+	public static final String COMPONENT_LABEL = "component";
+	public static final String NODE_LABEL = "node";
+
 	public static Configurator eINSTANCE = new Configurator();
 
 	@Parameter
@@ -75,8 +85,8 @@ public class Configurator {
 	@Parameter(names = { "-genRF", "--generate_reference_front" }, description = "It allows the generation of reference front by FUN files")
 	private boolean generateRF = false;
 	
-	@Parameter(names = {"--objectives", "--objs"}, description = "Number of objectives" )
-	private int objectives = 4;
+	/*@Parameter(names = {"--objectives", "--objs"}, description = "Number of objectives" )
+	private int objectives = 4;*/
 	
 	@Parameter(names = {"--ref_points"}, description = "List of reference points for R-NSGA algorithm")
 	private List<Double> referencePoints = new ArrayList<>();
@@ -113,8 +123,8 @@ public class Configurator {
 			"previous iteration step. Default: 0.")
 	private double initialChanges = 0d;
 
-	@Parameter(names = {"-perfQ"}, description = "It enables the systemResponseTime as objective instead of the perfQ")
-	private boolean isPerfQ = true;
+	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
+	private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy");
 	
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
@@ -173,10 +183,6 @@ public class Configurator {
 		return referencePoints;
 	}
 	
-	public int getObjectives() {
-		return objectives;
-	}
-
 	public List<Path> getReferenceFront() {
 		List<Path> paths = new ArrayList<>();
 		if (referenceFront == null)
@@ -283,7 +289,7 @@ public class Configurator {
 		return initialChanges;
 	}
 
-	public boolean isPerfQ() {
-		return isPerfQ;
+	public List<String> getObjectivesList(){
+		return objectivesList;
 	}
 }
