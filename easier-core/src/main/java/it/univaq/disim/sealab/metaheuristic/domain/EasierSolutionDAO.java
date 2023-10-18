@@ -4,12 +4,8 @@ import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EasierSolutionDAO {
 
@@ -23,11 +19,15 @@ public class EasierSolutionDAO {
     double pas;
     double changes;
     double perfq;
+    double energy;
+
+    Map<String, Double> objectives;
     int solID;
     List<EasierRefactoringActionDAO> refactoring;
 
     public EasierSolutionDAO(RSolution<?> sol) {
         refactoring = new ArrayList<>();
+        objectives = new HashMap<>();
         setSolution(sol);
     }
 
@@ -38,7 +38,7 @@ public class EasierSolutionDAO {
         return ADDED_SOLUTION.contains(id);
     }
 
-    public double getReliability() {
+   /* public double getReliability() {
         return reliability;
     }
 
@@ -54,6 +54,10 @@ public class EasierSolutionDAO {
         return perfq;
     }
 
+    public double getEnergy() {
+        return energy;
+    }*/
+
     public List<EasierRefactoringActionDAO> getRefactoring() {
         return refactoring;
     }
@@ -61,11 +65,7 @@ public class EasierSolutionDAO {
     public void setRefactoring(Refactoring ref) {
         for (RefactoringAction action : ref.getActions()) {
             EasierRefactoringActionDAO refactoringActionDAO = new EasierRefactoringActionDAO();
-            try {
-                refactoringActionDAO.setRefactoringAction(action);
-            } catch (EasierException e) {
-                throw new RuntimeException(e);
-            }
+            refactoringActionDAO.setRefactoringAction(action);
             refactoring.add(refactoringActionDAO);
         }
     }
@@ -81,14 +81,16 @@ public class EasierSolutionDAO {
         setRefactoring((Refactoring) sol.getVariable(0));
     }
 
-    public void setObjectives(double[] objectives) {
-        perfq = objectives[0];
-        changes = objectives[1];
-        if (Configurator.eINSTANCE.getProbPas() != 0) {
-            pas = objectives[2];
-            reliability = objectives[3];
-        } else {
-            reliability = objectives[2];
+    public void setObjectives(double[] objValues) {
+
+        List<String> objList =  Configurator.eINSTANCE.getObjectivesList();
+        for(String objName : objList) {
+            int index = objList.indexOf(objName);
+            this.objectives.put(objName, objValues[index]);
         }
+    }
+
+    public Map<String, Double> getObjectives() {
+        return objectives;
     }
 }
