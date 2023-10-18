@@ -50,10 +50,14 @@ public class UMLRSolution extends RSolution<Refactoring> {
                 .collect(Collectors.toList()));
         this.setVariable(0, ref);
 
-        this.perfQ = s.perfQ;
-        this.reliability = s.reliability;
-        this.architecturalChanges = s.architecturalChanges;
-        this.numPAs = s.numPAs;
+//        this.perfQ = s.perfQ;
+//        this.reliability = s.reliability;
+//        this.architecturalChanges = s.architecturalChanges;
+//        this.numPAs = s.numPAs;
+
+        for(int i = 0; i < s.getObjectives().length; i++) {
+            this.setObjective(i, s.getObjective(i));
+        }
 
         for (int i = 0; i < s.getNumberOfObjectives(); i++) {
             this.setObjective(i, s.getObjective(i));
@@ -110,7 +114,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return new UMLRSolution(this);
     }
 
-    @Override
+    /*@Override
     public void computeArchitecturalChanges() {
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_start");
 
@@ -119,22 +123,18 @@ public class UMLRSolution extends RSolution<Refactoring> {
             for (RefactoringAction action : getVariable(0).getActions()) {
 
                 double brf = Configurator.eINSTANCE.getBRF(action.getName());
-                double aw = action.computeArchitecturalChanges(model.allContents());
+                double aw = action.getRefactoringCost();
 
                 architecturalChanges += brf * aw;
             }
             architecturalChanges += Configurator.eINSTANCE.getInitialChanges();
 
+            EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_end");
+            EasierLogger.logger_.info(String.format("Architectural changes computed : %s", architecturalChanges));
         } catch (URISyntaxException | EolModelLoadingException e) {
-            throw new RuntimeException(e);
-        } catch (RuntimeException eRun) {
-            JMetalLogger.logger.severe(eRun.getMessage());
-        } catch (EasierException e) {
-            throw new RuntimeException(e);
+            EasierLogger.logger_.severe(e.getMessage());
         }
-        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_end");
-        JMetalLogger.logger.info(String.format("Architectural changes computed : %s", architecturalChanges));
-    }
+    }*/
 
     @Override
     public void computeScenarioRT() {
@@ -211,7 +211,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
             FAILED_CROSSOVER++;
     }
 
-    @Override
+    /*@Override
     public void computeReliability() {
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_start");
@@ -229,7 +229,10 @@ public class UMLRSolution extends RSolution<Refactoring> {
                 rs.getResources().remove(res);
             }
         } catch (MissingTagException e) {
-            JMetalLogger.logger.severe("Error in computing the reliability");
+            JMetalLogger.logger.severe("SolutionID : " + this.getName() + " Error in computing the reliability: " +
+                    "missing tag");
+            EasierLogger.logger_.severe(e.getMessage());
+
             String line = this.name + "," + e.getMessage() + "," + getVariable(VARIABLE_INDEX).toString();
 
             new FileUtils().reliabilityErrorLogToCSV(line);
@@ -238,7 +241,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
         new UMLMemoryOptimizer().cleanup();
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_end");
         JMetalLogger.logger.info(String.format("Reliability computed : %s", this.reliability));
-    }
+    }*/
 
     @Override
     public boolean equals(Object obj) {
@@ -255,34 +258,15 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
     // Set Reliability.
     // If the rel param is greater than 1 reliability is set to 1
-    public void setReliability(double rel) {
-        this.reliability = rel < 1 ? rel : 1;
-    }
+//    public void setReliability(double rel) {
+//        this.reliability = rel < 1 ? rel : 1;
+//    }
 
-    public void setPAs(int pas) {
-        this.numPAs = pas;
-    }
+//    public void setPAs(int pas) {
+//        this.numPAs = pas;
+//    }
 
-    public enum SupportedType {
-        NODE {
-            @Override
-            public String toString() {
-                return "node";
-            }
-        },
-        COMPONENT {
-            @Override
-            public String toString() {
-                return "component";
-            }
-        },
-        OPERATION {
-            @Override
-            public String toString() {
-                return "operation";
-            }
-        }
-    }
+
 
 
 }

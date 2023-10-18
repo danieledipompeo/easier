@@ -32,7 +32,7 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
     @Override
     protected void doMutation(double probability, UMLRSolution solution, int allowed_failures) throws EasierException {
 
-        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
+        EasierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_start");
 
         for (int i = 0; i < solution.getNumberOfVariables(); i++) {
 
@@ -59,7 +59,8 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
 //                        filteredAvailableElements.put(k, kFilteredElements);
 //                    }
 
-                    RefactoringAction newCandidate = RefactoringActionFactory.getRandomAction(filteredAvailableElements, initialElements);
+                    RefactoringAction newCandidate =
+                            RefactoringActionFactory.getRandomAction(filteredAvailableElements, initialElements, solution.getVariable(0).getEasierModel().getAllContents());
                     ref.getActions().set(randomPosition, newCandidate);
 
                     if (solution.isFeasible()) {
@@ -72,7 +73,7 @@ public class UMLRMutation<S extends UMLRSolution> extends RMutation<S> {
                 }
             }
         }
-        easierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_end");
+        EasierResourcesLogger.checkpoint("UMLMutationOperator","doMutation_end");
     }
 
     private Map<String, Set<String>> filterOutElementOf(UMLRSolution solution, RefactoringAction refactoringAction) {

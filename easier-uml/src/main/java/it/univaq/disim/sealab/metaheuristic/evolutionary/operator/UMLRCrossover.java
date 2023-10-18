@@ -122,7 +122,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
             crossoverCandidates.addAll(offspring);
 
             // Evaluate the offsprings
-            offspring.forEach(solution -> {
+            /*offspring.forEach(solution -> {
                 solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
                 solution.setObjective(1, solution.getArchitecturalChanges());
                 if (Configurator.eINSTANCE.getProbPas() != 0) {
@@ -130,6 +130,11 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
                     solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
                 } else {
                     solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
+                }
+            });*/
+            offspring.forEach(solution -> {
+                for(int objectiveIndex = 0; objectiveIndex <= solution.getObjectives().length; objectiveIndex++){
+                    solution.setObjective(objectiveIndex, solution.getObjective(objectiveIndex));
                 }
             });
         }
