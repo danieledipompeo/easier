@@ -35,8 +35,16 @@ class EasierUmlModelTest {
         assertDoesNotThrow(eModel::computeSystemResponseTime);
 
         double sysRespT = eModel.computeSystemResponseTime();
-        assertNotEquals(Double.NaN, sysRespT);
+        assertNotEquals(Double.MIN_VALUE, sysRespT);
         System.out.printf("[TEST] system response time for %s is %s", eModel.getModelFile(), sysRespT);
 
+    }
+
+    @Test
+    void computeEnergy() {
+
+        double energy = eModel.computeEnergy();
+        assertNotEquals(Double.NaN, energy);
+        System.out.printf("[TEST] energy for %s is %s", eModel.getModelFile(), energy);
     }
 }
