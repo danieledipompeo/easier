@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.domain;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -11,7 +12,7 @@ public abstract class EasierModel implements Cloneable {
     Map<String, Set<String>> targetRefactoringElement;
     Map<String, Set<String>> createdRefactoringElement;
 
-    String modelPath;
+    protected  String modelPath;
 
     public EasierModel(final String mPath) {
         modelPath = mPath;
@@ -19,6 +20,8 @@ public abstract class EasierModel implements Cloneable {
     }
 
     protected abstract void initMap();
+
+    public abstract Collection<?> getAllContents();
 
     public Map<String, Set<String>> getTargetRefactoringElement() {
         return targetRefactoringElement;
@@ -109,4 +112,6 @@ public abstract class EasierModel implements Cloneable {
     public int hashCode() {
         return Objects.hash(initialElements, targetRefactoringElement, createdRefactoringElement, modelPath);
     }
+
+
 }
