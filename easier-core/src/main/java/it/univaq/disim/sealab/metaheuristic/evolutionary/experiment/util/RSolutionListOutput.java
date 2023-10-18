@@ -99,7 +99,7 @@ public class RSolutionListOutput {
 			// prints the header of the file
 			String header;
 			// with PAs
-			if (Configurator.eINSTANCE.getObjectives() == 4)
+			if (Configurator.eINSTANCE.getObjectivesList().size() == 4)
 				header = String.format("solID%sperfQ%s#changes%spas%sreliability", separator, separator, separator,
 						separator, separator);
 			// without pas

@@ -109,7 +109,7 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 		try (BufferedReader br = new BufferedReader(new FileReader(varFileName))) {
 
 			String sCurrentLine;
-			final int numObjs = Configurator.eINSTANCE.getObjectives();
+			final int numObjs = Configurator.eINSTANCE.getObjectivesList().size();
 			while ((sCurrentLine = br.readLine()) != null) {
 
 				if (!sCurrentLine.contains("solID")) {
@@ -172,7 +172,7 @@ public class RGenerateReferenceParetoFront implements ExperimentComponent {
 		try {
 			// prints the header of the file
 			String header;
-			if (Configurator.eINSTANCE.getObjectives() == 4)
+			if (Configurator.eINSTANCE.getObjectivesList().size() == 4)
 				header = String.format("solID%sperfQ%s#changes%spas%sreliability", separator, separator, separator,
 						separator, separator);
 			else
