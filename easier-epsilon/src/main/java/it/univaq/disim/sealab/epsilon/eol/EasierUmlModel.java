@@ -4,6 +4,7 @@ import com.masdes.dam.Core.CorePackage;
 import com.masdes.dam.DAM.DAMPackage;
 import com.masdes.dam.Maintenance.MaintenancePackage;
 import com.masdes.dam.Threats.ThreatsPackage;
+import it.univaq.disim.sealab.epsilon.utility.Energy;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -24,6 +25,8 @@ import org.eclipse.uml2.uml.*;
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +41,7 @@ public class EasierUmlModel extends UmlModel {
     private static final String MARTE_PROFILE = "MARTE.profile.uml#";
     private static final String MARTE_NFP_FRAGMENT = "_U_GAoAPMEdyuUt-4qHuVvQ";
     private static final String MARTE_TIME_FRAGMENT = "_WStkoAPMEdyuUt-4qHuVvQ";
-    private static final String MARTE_GRM_FRAGMENT = "_XVWGUAPMEdyuUt-4qHuVv";
+    private static final String MARTE_GRM_FRAGMENT = "_XVWGUAPMEdyuUt-4qHuVvQ";
     private static final String MARTE_ALLOC_FRAGMENT = "_ar8OsAPMEdyuUt-4qHuVvQ";
     private static final String MARTE_CORE_ELEMENTS_FRAGMENT = "_-wEewECLEd6UTJZnztgOLw";
     private static final String MARTE_GQAM_FRAGMENT = "_4bV20APMEdyuUt-4qHuVvQ";
@@ -58,17 +61,26 @@ public class EasierUmlModel extends UmlModel {
     /**
      * It has been inspired by the solution proposed in this post
      *
-     * @url https://www.eclipse.org/forums/index.php/m/1701551/?srch=standalone#msg_1701551
      * <p>
-     * We are using MARTE and DAM profiles versions: MARTE :
-     * org.eclipse.papyrus.marte.static.profile_1.2.0.201606080903, download
-     * from @url
-     * http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/neon
-     * DAM : com.masdes.dam.static.profile_0.13.1.201801221725.jar, downloaded
-     * from @url https://github.com/dice-project/DICE-Profiles
+     * <a href="https://www.eclipse.org/forums/index.php/m/1701551/?srch=standalone#msg_1701551">proposed solution</a>
+     * </p>
+     * <p>
+     * We are using MARTE and DAM profiles versions:
+     * <ul>
+     * <li>MARTE :
+     * org.eclipse.papyrus.marte.static.profile_1.2.0.201606080903, downloaded
+     * <a href="http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/neon"> MARTE </a>
+     * </li>
+     * <li>DAM :
+     * com.masdes.dam.static.profile_0.13.1.201801221725.jar, downloaded
+     * <a href="https://github.com/dice-project/DICE-Profiles"> DAM </a>
+     * </li>
+     * </ul>
+     * </p>
      * <p>
      * TAKE If the version of that plugin changes, this link must change as
      * well.
+     * </p>
      */
     @Override
     protected ResourceSet createResourceSet() {
@@ -92,7 +104,7 @@ public class EasierUmlModel extends UmlModel {
     }
 
     /**
-     * @param resourceSet
+     * @param resourceSet is the resource set to be initialized for using MARTE
      * @return Maps physical resource and the pathmap schema. Stores every needed
      * package used in the model
      */
@@ -141,7 +153,7 @@ public class EasierUmlModel extends UmlModel {
     }
 
     /**
-     * @param resourceSet
+     * @param resourceSet is the resource set to be initialized for using DAM
      * @return Maps physical resource and the pathmap schema. Stores every needed
      * package used in the model
      */
@@ -210,19 +222,19 @@ public class EasierUmlModel extends UmlModel {
 
     }
 
-    public List<EObject> filterByStereotype(String type, String stereotypeName) throws EolModelElementTypeNotFoundException {
+    /**
+     * Return the elements of the model of the given type and stereotype
+     * @param type is the metaclass of the element
+     * @param stereotype is the fully qualified stereotype name
+     * @return a list of elements of the given type and stereotype
+     * @throws EolModelElementTypeNotFoundException
+     */
+    public List<EObject> filterByStereotype(String type, String stereotype) throws EolModelElementTypeNotFoundException {
 
-        String stereotypeNamespace = "MARTE::MARTE_AnalysisModel::GQAM::" + stereotypeName;
-
-//        try {
             Collection<EObject> eObjects = this.getAllOfType(type);
 
-            return eObjects.stream().filter(e -> ((Element) e).getAppliedStereotype(stereotypeNamespace) != null)
+            return eObjects.stream().filter(e -> ((Element) e).getAppliedStereotype(stereotype) != null)
                     .collect(Collectors.toList());
-
-//        } catch (EolModelElementTypeNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
 
     }
 
@@ -234,8 +246,9 @@ public class EasierUmlModel extends UmlModel {
      */
     public double computePerfQ(final EasierUmlModel refactoredModel) throws EolModelElementTypeNotFoundException {
 
-        String gaScenarioTag = "GaScenario";
-        String gaExecHostTag = "GaExecHost";
+        String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
+        String gaScenarioTag = gqamNamespace + "GaScenario";
+        String gaExecHostTag = gqamNamespace + "GaExecHost";
         List<EObject> nodes = this.filterByStereotype("Node", gaExecHostTag);
         List<EObject> scenarios = this.filterByStereotype("UseCase", gaScenarioTag);
 
@@ -274,22 +287,22 @@ public class EasierUmlModel extends UmlModel {
      * Compute the perfQ value for a specific metric
      * @param sourceElement is the source UML element
      * @param refactoredElement is the refactored UML element
-     * @param stereotypeName is the stereotype name
+     * @param stereotypeName is the fully qualified stereotype name
      * @param taggedValue is the tagged value
      * @return the perfQ value for the specific metric
      */
     private double computePerfQValue(Element sourceElement, Element refactoredElement, String stereotypeName, String taggedValue){
 
-        String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
+        //String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
 
-        Stereotype stereotype = sourceElement.getAppliedStereotype(gqamNamespace + stereotypeName);
+        Stereotype stereotype = sourceElement.getAppliedStereotype(stereotypeName);
         EList<?> values = (EList<?>) sourceElement.getValue(stereotype, taggedValue);
 
         double sourceValue = 0d;
         if (!values.isEmpty())
             sourceValue = Double.parseDouble(values.get(0).toString());
 
-        stereotype = refactoredElement.getAppliedStereotype(gqamNamespace + stereotypeName);
+        stereotype = refactoredElement.getAppliedStereotype(stereotypeName);
         values = (EList<?>) refactoredElement.getValue(stereotype, taggedValue);
 
         double refValue = 0d;
@@ -299,23 +312,58 @@ public class EasierUmlModel extends UmlModel {
         return (refValue + sourceValue) == 0 ? 0d : (refValue - sourceValue) / (refValue + sourceValue);
     }
 
+    /**
+     * Compute the system response time of the model.
+     * The system response time is the sum of the response time of each use case
+     * @return the system response time
+     * @throws EolModelElementTypeNotFoundException
+     */
     public double computeSystemResponseTime()
             throws EolModelElementTypeNotFoundException {
         AtomicReference<Double> sysRespT = new AtomicReference<>(0d);
 
         String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
 
-        String gaScenarioTag = "GaScenario";
+        String gaScenarioTag = gqamNamespace + "GaScenario";
 
         List<EObject> scenarios = this.filterByStereotype("UseCase", gaScenarioTag);
 
         scenarios.stream().map(Element.class::cast).collect(Collectors.toList()).forEach(scenario -> {
-            Stereotype stereotype = scenario.getAppliedStereotype(gqamNamespace + gaScenarioTag);
+            Stereotype stereotype = scenario.getAppliedStereotype(gaScenarioTag);
             sysRespT.updateAndGet(v -> (v +
                     Double.parseDouble(((EList<?>) scenario.getValue(stereotype, "respT")).get(0).toString())));
         });
 
         return sysRespT.get();
+    }
+
+    /**
+     * Compute the energy of the model.
+     * It returns Double.MAX_VALUE, if either the UML model or the LQN is not well-formed
+     * @return the system energy
+     */
+    public double computeEnergy() {
+        /*AtomicReference<Double> energy = new AtomicReference<>(0d);
+        String grmNamespace = "MARTE::MARTE_Foundations::GRM::";
+        String grmResourceUsageTag = grmNamespace + "ResourceUsage";
+        List<EObject> nodes = this.filterByStereotype("Node", grmResourceUsageTag);
+
+        nodes.stream().map(NamedElement.class::cast).collect(Collectors.toList()).forEach(node -> {
+            Stereotype grmStereotype= node.getAppliedStereotype(grmResourceUsageTag);
+            Stereotype gqamStereotype = node.getAppliedStereotype("MARTE::MARTE_AnalysisModel::GQAM::GaExecHost");
+            energy.updateAndGet(
+                    v -> (v +
+                            Double.parseDouble(((EList<?>) node.getValue(grmStereotype, "energy")).get(0).toString()) *
+                                    Double.parseDouble(((EList<?>) node.getValue(gqamStereotype, "utilization")).get(0)
+                                            .toString())));
+        });
+        return energy.get();
+        */
+
+        String umlFile = this.getModelFile();
+        String lqxoFile = Paths.get(umlFile).getParent().resolve("output.lqxo").toString();
+        return Energy.computeSystemEnergy(umlFile, lqxoFile);
+
     }
 
 }
