@@ -73,11 +73,11 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 
         if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
             return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
-        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
-            return super.isStoppingConditionReached() || isStagnantState();
-        // computeStagnantState
-        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
-            return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
+//        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
+//            return super.isStoppingConditionReached() || isStagnantState();
+//         computeStagnantState
+//        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
+//            return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
         return super.isStoppingConditionReached(); // classic
 
     }
@@ -107,7 +107,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         ProgressBar.showBar((evaluations / getMaxPopulationSize()), (maxEvaluations / getMaxPopulationSize()));
     }
 
-    public boolean isStagnantState() {
+    /*public boolean isStagnantState() {
 
         int countedSameObjectives = 0;
         for (int i = 0; i < oldPopulation.size(); i++) {
@@ -125,7 +125,7 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         // check if all solutions within the joined list have the same objective values
         return ((double) (population.size() - countedSameObjectives / population.size())
                 / population.size()) > prematureConvergenceThreshold;
-    }
+    }*/
 
     @Override
     protected List<S> createInitialPopulation() {

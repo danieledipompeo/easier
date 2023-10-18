@@ -59,10 +59,10 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
 
         if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
             return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
-        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
-            return super.isStoppingConditionReached() || isStagnantState();
-        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
-            return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
+//        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
+//            return super.isStoppingConditionReached() || isStagnantState();
+//        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
+//            return super.isStoppingConditionReached() || isStagnantState() || currentComputingTime > durationThreshold;
         return super.isStoppingConditionReached();
     }
 
@@ -80,7 +80,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
         oldPopulation = this.getPopulation();
     }
 
-    public boolean isStagnantState() {
+    /*public boolean isStagnantState() {
 
         int countedSameObjectives = 0;
         for (int i = 0; i < oldPopulation.size(); i++) {
@@ -98,7 +98,7 @@ public class CustomPESA2<S extends RSolution<?>> extends PESA2<S> implements Eas
         // check if all solutions within the joined list have the same objective values
         return ((double) (population.size() - countedSameObjectives / population.size())
                 / population.size()) > prematureConvergenceThreshold;
-    }
+    }*/
 
     /**
      * Prints to CSV each generated population

@@ -5,5 +5,5 @@ public interface EasierAlgorithm {
 	void clear();
 	void populationToCSV();
 	boolean isStoppingConditionReached();
-	boolean isStagnantState();
+//	boolean isStagnantState();
 }
