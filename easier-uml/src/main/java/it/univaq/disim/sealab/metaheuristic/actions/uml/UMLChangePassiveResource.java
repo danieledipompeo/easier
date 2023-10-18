@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -38,10 +39,10 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
     }
 
     public UMLChangePassiveResource(Map<String, Set<String>> availableElements,
-                                    Map<String, Set<String>> sourceElements) {
+                                    Map<String, Set<String>> sourceElements, Collection<?> modelContents) {
         this();
 
-        Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
+        Set<String> availableNode = availableElements.get(Configurator.NODE_LABEL);
         Set<String> targetElement = new HashSet<>();
         try {
             targetElement.add(
@@ -52,7 +53,7 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
             EasierLogger.logger_.log(java.util.logging.Level.SEVERE, e.getMessage(), e);
         }
 
-        targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
+        targetElements.put(Configurator.NODE_LABEL, targetElement);
 
         // check whether the action is using an element created by another action
         setIndependent(sourceElements);
@@ -70,6 +71,8 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
             scaledFactor = JMetalRandom.getInstance().nextInt(1, 1000);
         else if(taggedValue.equals(SupportedTaggedValue.SR_POOL_SIZE.toString()))
             scaledFactor = JMetalRandom.getInstance().nextInt(1, 1000);
+
+        refactoringCost = computeArchitecturalChanges(modelContents);
     }
 
     @Override
@@ -80,7 +83,7 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
             executor.setModel(contextModel);
             executor.setSource(eolModulePath);
 
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+            executor.setParameter(targetElements.get(Configurator.NODE_LABEL).iterator().next(),
                     "String", "targetNodeName");
             executor.setParameter(taggedValue, "String", "taggedValue");
             executor.setParameter(String.valueOf(scaledFactor), "String", "value");
@@ -96,7 +99,7 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.NODE.toString();
+        return Configurator.NODE_LABEL;
     }
 
 
@@ -104,20 +107,19 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
     public String toString() {
         return String.format("Change Passive Resource: %s of: %s by : %s",
                 taggedValue,
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                targetElements.get(Configurator.NODE_LABEL).iterator().next(),
                 scaledFactor);
     }
 
     public String toCSV() {
         return String.format("%s,%s,,,%s,%s",
                 name,
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                targetElements.get(Configurator.NODE_LABEL).iterator().next(),
                 taggedValue,
                 scaledFactor);
     }
 
-    @Override
-    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
+    private double computeArchitecturalChanges(Collection<?> modelContents) {
         return 1;
     }
 
@@ -159,5 +161,13 @@ public class UMLChangePassiveResource extends UMLRefactoringAction {
                 return "srPoolSize";
             }
         }
+    }
+
+    public String getTaggedValue() {
+        return taggedValue;
+    }
+
+    public String getScalingFactor() {
+        return String.valueOf(scaledFactor);
     }
 }

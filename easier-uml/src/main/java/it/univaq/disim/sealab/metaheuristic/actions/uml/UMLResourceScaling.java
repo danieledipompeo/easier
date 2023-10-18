@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
@@ -28,15 +29,15 @@ public class UMLResourceScaling extends UMLRefactoringAction {
         name = "resource_scaling";
     }
 
-    public UMLResourceScaling(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements)
+    public UMLResourceScaling(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements, Collection<?> modelContents)
             throws EasierException {
         this();
 
-        Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
+        Set<String> availableNode = availableElements.get(Configurator.NODE_LABEL);
         Set<String> targetElement = new HashSet<>();
         targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size()-1)).findFirst()
                 .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
+        targetElements.put(Configurator.NODE_LABEL, targetElement);
 
         // check whether the action is using an element created by another action
         setIndependent(sourceElements);
@@ -46,7 +47,7 @@ public class UMLResourceScaling extends UMLRefactoringAction {
 
         // Random taggedValue value
         scaledFactor = JMetalRandom.getInstance().nextDouble(0.5, 1.5);
-
+        refactoringCost = computeArchitecturalChanges();
     }
 
     @Override
@@ -57,7 +58,7 @@ public class UMLResourceScaling extends UMLRefactoringAction {
             executor.setModel(contextModel);
             executor.setSource(eolModulePath);
 
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "targetNodeName");
+            executor.setParameter(targetElements.get(Configurator.NODE_LABEL).iterator().next(), "String", "targetNodeName");
             executor.setParameter(String.valueOf(scaledFactor), "Real", "speedFactor");
 
             executor.execute();
@@ -71,27 +72,26 @@ public class UMLResourceScaling extends UMLRefactoringAction {
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.NODE.toString();
+        return Configurator.NODE_LABEL;
     }
 
     @Override
     public String toString() {
         return String.format("Resource scaling: %s of: %s with: %s",
                 taggedValue,
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                targetElements.get(Configurator.NODE_LABEL).iterator().next(),
                 scaledFactor);
     }
 
     public String toCSV() {
         return String.format("%s,%s,,,%s,%s",
                 name,
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+                targetElements.get(Configurator.NODE_LABEL).iterator().next(),
                 taggedValue,
                 scaledFactor);
     }
 
-    @Override
-    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
+    private double computeArchitecturalChanges() {
         return 1;
     }
 
@@ -114,5 +114,12 @@ public class UMLResourceScaling extends UMLRefactoringAction {
         return true;
     }
 
+    public String getTaggedValue() {
+        return taggedValue;
+    }
+
+    public String getScalingFactor() {
+        return String.valueOf(scaledFactor);
+    }
 
 }

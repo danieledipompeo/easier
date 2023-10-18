@@ -7,6 +7,7 @@ import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Component;
@@ -32,26 +33,28 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
     }
 
     public UMLMvComponentToNN(Map<String, Set<String>> availableElements, Map<String,
-            Set<String>> initialElements) throws EasierException {
+            Set<String>> initialElements, Collection<?> modelContents) throws EasierException {
         this();
 
-        Set<String> availableComponents = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
+        Set<String> availableComponents = availableElements.get(Configurator.COMPONENT_LABEL);
         Set<String> targetElement = new HashSet<>();
         targetElement.add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size()-1)).findFirst()
                 .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), targetElement);
+        targetElements.put(Configurator.COMPONENT_LABEL, targetElement);
         setIndependent(initialElements);
         Set<String> createdNodeElements = new HashSet<>();
         createdNodeElements.add("New-Node_" + generateHash());
-        createdElements.put(UMLRSolution.SupportedType.NODE.toString(), createdNodeElements);
+        createdElements.put(Configurator.NODE_LABEL, createdNodeElements);
+
+        refactoringCost = computeArchitecturalChanges(modelContents);
     }
 
-    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
+    private double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
 
         Component compToMove =
                 (Component) modelContents.stream().filter(Component.class::isInstance)
                         .map(NamedElement.class::cast).filter(ne -> ne.getName()
-                                .equals(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next())).findFirst().orElse(null);
+                                .equals(targetElements.get(Configurator.COMPONENT_LABEL).iterator().next())).findFirst().orElse(null);
 
         if (compToMove == null)
             throw new EasierException("Error when computing the architectural changes of " + this.getName());
@@ -76,7 +79,7 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.COMPONENT.toString();
+        return Configurator.COMPONENT_LABEL;
     }
 
     @Override
@@ -88,10 +91,10 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
             executor.setSource(eolModulePath);
 
             // fills variable within the eol module
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
+            executor.setParameter(targetElements.get(Configurator.COMPONENT_LABEL).iterator().next(),
                     "String",
                     "targetComponentName");
-            executor.setParameter(createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+            executor.setParameter(createdElements.get(Configurator.NODE_LABEL).iterator().next(),
                     "String",
                     "newNodeName");
             executor.execute();
@@ -106,14 +109,14 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
 
     @Override
     public String toString() {
-        return "Moving --> " + targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next() +
-                " to --> " + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+        return "Moving --> " + targetElements.get(Configurator.COMPONENT_LABEL).iterator().next() +
+                " to --> " + createdElements.get(Configurator.NODE_LABEL).iterator().next();
     }
 
     public String toCSV() {
         return String.format("Move_Component_New_Node,%s,%s,",
-                targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
-                createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+                targetElements.get(Configurator.COMPONENT_LABEL).iterator().next(),
+                createdElements.get(Configurator.NODE_LABEL).iterator().next());
     }
 
     @Override
@@ -136,5 +139,10 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
             }
         }
         return true;
+    }
+
+    @Override
+    public String getDestination() {
+    	return createdElements.get(Configurator.NODE_LABEL).iterator().next();
     }
 }

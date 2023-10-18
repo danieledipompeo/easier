@@ -33,7 +33,9 @@ public class UMLRefactoring extends Refactoring {
                     model.setStoredOnDisposal(true);
                     a.execute(model);
                 } catch (EasierException e) {
-                    String msg = String.format("Refactoring of solID %s throw an exception when executing actions", this.solutionID);
+                    String msg = String.format("Refactoring of solID: %s throws an exception when executing " +
+                            "refactoring actions " +
+                            "due to: %s", this.solutionID, e.getMessage());
                     throw new RuntimeException(msg);
                 } catch (URISyntaxException | EolModelLoadingException ex) {
                     throw new RuntimeException(ex);
@@ -54,7 +56,8 @@ public class UMLRefactoring extends Refactoring {
 
         RefactoringAction candidate;
 //        do {
-            candidate = RefactoringActionFactory.getRandomAction(easierModel.getAvailableElements(), easierModel.getInitialElements());
+            candidate = RefactoringActionFactory.getRandomAction(easierModel.getAvailableElements(),
+                    easierModel.getInitialElements(), easierModel.getAllContents());
 //        } while (candidate == null);
 
         return addRefactoringAction(candidate);

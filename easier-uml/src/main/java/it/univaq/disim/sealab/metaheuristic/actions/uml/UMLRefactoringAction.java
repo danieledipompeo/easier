@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 
 import java.util.HashMap;
@@ -14,10 +15,11 @@ import java.util.stream.Collectors;
 public abstract class UMLRefactoringAction implements RefactoringAction {
 
     protected String name;
-    protected double numOfChanges;
     protected boolean isIndependent = true;
     Map<String, Set<String>> targetElements = new HashMap<>();
     Map<String, Set<String>> createdElements = new HashMap<>();
+
+    protected double refactoringCost;
 
     abstract public void execute(EasierUmlModel model) throws EasierException;
 
@@ -61,17 +63,36 @@ public abstract class UMLRefactoringAction implements RefactoringAction {
         return name;
     }
 
-    @Override
-    public double getArchitecturalChanges() {
-        return numOfChanges;
-    }
-
     public void updateAvailableElements(EasierModel easierModel){
         easierModel.addElements(createdElements);
     }
 
     public void restoreAvailableElements(EasierModel easierModel){
         easierModel.removeElements(createdElements);
+    }
+
+    public double getRefactoringCost() {
+    	return refactoringCost;
+    }
+
+    public String getTargetElement() {
+        return targetElements.get(getTargetType()).iterator().next();
+    }
+
+    public String getDestination() {
+        return createdElements.get(getTargetType()).iterator().next();
+    }
+
+    public String getDeployment() {
+    	return "";
+    }
+
+    public String getTaggedValue() {
+    	return "";
+    }
+
+    public String getScalingFactor() {
+    	return "";
     }
 
 }

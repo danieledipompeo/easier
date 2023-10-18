@@ -6,6 +6,7 @@ import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class RefactoringActionFactory {
      * @return
      */
     public static RefactoringAction getRandomAction(Map<String, Set<String>> availableElements,
-                                                    Map<String, Set<String>> initialElements) throws EasierException {
+                                                    Map<String, Set<String>> initialElements, Collection<?> modelContents) throws EasierException {
 
         List<String> listOfActions = Configurator.eINSTANCE.listOfActions();
         int extractedActionIndex = JMetalRandom.getInstance().nextInt(0, listOfActions.size() - 1);
@@ -38,28 +39,28 @@ public class RefactoringActionFactory {
             try {
                 switch (extractedAction) {
                     case "clone":
-                        return new UMLCloneNode(availableElements, initialElements);
+                        return new UMLCloneNode(availableElements, initialElements, modelContents);
                     case "mcnn":
-                        return new UMLMvComponentToNN(availableElements, initialElements);
+                        return new UMLMvComponentToNN(availableElements, initialElements, modelContents);
                     case "moncnn":
-                        return new UMLMvOperationToNCToNN(availableElements, initialElements);
+                        return new UMLMvOperationToNCToNN(availableElements, initialElements, modelContents);
                     case "moc":
-                        return new UMLMvOperationToComp(availableElements, initialElements);
+                        return new UMLMvOperationToComp(availableElements, initialElements, modelContents);
                     case "change_passive_resource":
-                        return new UMLChangePassiveResource(availableElements, initialElements);
+                        return new UMLChangePassiveResource(availableElements, initialElements, modelContents);
                     case "resource_scaling":
-                        return new UMLResourceScaling(availableElements, initialElements);
+                        return new UMLResourceScaling(availableElements, initialElements, modelContents);
                     case "remove_node":
-                        return new UMLRemoveNode(availableElements, initialElements);
+                        return new UMLRemoveNode(availableElements, initialElements, modelContents);
                     case "remove_component":
-                        return new UMLRemoveComponent(availableElements, initialElements);
+                        return new UMLRemoveComponent(availableElements, initialElements, modelContents);
                     default:
                         return null;
                 }
             } catch (EasierException e) {
                 if (failures > Configurator.eINSTANCE.getAllowedFailures()) {
                     EasierLogger.logger_.log(Level.SEVERE, e.getMessage(), e);
-                    throw new EasierException(e);
+                    throw new EasierException("Exceeded the allowed failures: " + Configurator.eINSTANCE.getAllowedFailures());
                 }
             }
         }

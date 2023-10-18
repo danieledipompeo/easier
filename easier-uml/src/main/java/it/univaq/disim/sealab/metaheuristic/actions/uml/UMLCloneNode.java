@@ -7,6 +7,7 @@ import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Node;
@@ -26,31 +27,34 @@ public class UMLCloneNode extends UMLRefactoringAction {
                 "easier-refactoringLibrary", "easier-ref-operations", "clone_node.eol");
     }
 
-    public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements)
+    public UMLCloneNode(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements,
+                        Collection<?> modelContents)
             throws EasierException {
         this();
 
-        Set<String> availableNode = availableElements.get(UMLRSolution.SupportedType.NODE.toString());
+        Set<String> availableNode = availableElements.get(Configurator.NODE_LABEL);
         Set<String> targetElement = new HashSet<>();
         targetElement.add(availableNode.stream().skip(new Random().nextInt(availableNode.size()-1)).findFirst()
                 .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(UMLRSolution.SupportedType.NODE.toString(), targetElement);
+        targetElements.put(Configurator.NODE_LABEL, targetElement);
         // check whether the action is using an element created by another action
         setIndependent(sourceElements);
         String clonedNode = targetElement.iterator().next() + "_" + generateHash();
-        createdElements.put(UMLRSolution.SupportedType.NODE.toString(),
+        createdElements.put(Configurator.NODE_LABEL,
                 Set.of(clonedNode));
+
+        refactoringCost = computeArchitecturalChanges(modelContents);
     }
 
     public UMLCloneNode() {
         name = "clone";
     }
 
-    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
+    private double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
 
         Node targetObject = modelContents.stream().filter(Node.class::isInstance).
                 map(Node.class::cast).
-                filter(ne -> ne.getName().equals(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next())).findFirst().orElse(null);
+                filter(ne -> ne.getName().equals(targetElements.get(Configurator.NODE_LABEL).iterator().next())).findFirst().orElse(null);
 
         if (targetObject == null)
             throw new EasierException("Error when computing the architectural changes of " + this.getName());
@@ -80,8 +84,8 @@ public class UMLCloneNode extends UMLRefactoringAction {
             executor.setModel(contextModel);
             executor.setSource(eolModulePath);
 
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "targetNodeName");
-            executor.setParameter(createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(), "String", "clonedNodeName");
+            executor.setParameter(targetElements.get(Configurator.NODE_LABEL).iterator().next(), "String", "targetNodeName");
+            executor.setParameter(createdElements.get(Configurator.NODE_LABEL).iterator().next(), "String", "clonedNodeName");
 
             executor.execute();
         } catch (EolRuntimeException e) {
@@ -94,19 +98,19 @@ public class UMLCloneNode extends UMLRefactoringAction {
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.NODE.toString();
+        return Configurator.NODE_LABEL;
     }
 
     @Override
     public String toString() {
-        return "Cloning --> " + targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next() + " " +
-                "with -->  " + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+        return "Cloning --> " + targetElements.get(Configurator.NODE_LABEL).iterator().next() + " " +
+                "with -->  " + createdElements.get(Configurator.NODE_LABEL).iterator().next();
     }
 
     public String toCSV() {
         return String.format("UMLCloneNode,%s,%s,",
-                targetElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
-                createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+                targetElements.get(Configurator.NODE_LABEL).iterator().next(),
+                createdElements.get(Configurator.NODE_LABEL).iterator().next());
     }
 
     @Override

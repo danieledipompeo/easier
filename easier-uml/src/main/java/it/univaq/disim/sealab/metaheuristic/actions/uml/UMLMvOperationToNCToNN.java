@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Message;
@@ -25,28 +26,30 @@ public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
     }
 
     public UMLMvOperationToNCToNN(Map<String, Set<String>> availableElements, Map<String,
-            Set<String>> initialElements) throws EasierException {
+            Set<String>> initialElements, Collection<?> modelContents) throws EasierException {
         this();
 
-        Set<String> availableOperations = availableElements.get(UMLRSolution.SupportedType.OPERATION.toString());
+        Set<String> availableOperations = availableElements.get(Configurator.OPERATION_LABEL);
 
         Set<String> targetElement = new HashSet<>();
         targetElement.add(availableOperations.stream().skip(new Random().nextInt(availableOperations.size()-1)).findFirst()
                 .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(UMLRSolution.SupportedType.OPERATION.toString(), targetElement);
+        targetElements.put(Configurator.OPERATION_LABEL, targetElement);
 
         setIndependent(initialElements);
         Set<String> createdElements = new HashSet<>();
         createdElements.add("New-Node_" + generateHash());
-        this.createdElements.put(UMLRSolution.SupportedType.NODE.toString(), Set.copyOf(createdElements));
+        this.createdElements.put(Configurator.NODE_LABEL, Set.copyOf(createdElements));
         createdElements.clear();
         createdElements.add("New-Component_" + generateHash());
-        this.createdElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), Set.copyOf(createdElements));
+        this.createdElements.put(Configurator.COMPONENT_LABEL, Set.copyOf(createdElements));
+
+        refactoringCost = computeArchitecturalChanges(modelContents);
 
     }
 
-    public double computeArchitecturalChanges(Collection<?> modelContents) {
-        String opToMove = targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next();
+    private double computeArchitecturalChanges(Collection<?> modelContents) {
+        String opToMove = targetElements.get(Configurator.OPERATION_LABEL).iterator().next();
         long msgs = modelContents.stream().filter(Message.class::isInstance)
                 .map(Message.class::cast).filter(m -> !m.getMessageSort().toString().equals("reply")).filter(m -> opToMove.equals(m.getSignature().getName())).count();
 
@@ -72,13 +75,13 @@ public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
             executor.setModel(contextModel);
             executor.setSource(Paths.get(eolModulePath));
 
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next(),
+            executor.setParameter(targetElements.get(Configurator.OPERATION_LABEL).iterator().next(),
                     "String",
                     "targetOperationName");
-            executor.setParameter(createdElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
+            executor.setParameter(createdElements.get(Configurator.COMPONENT_LABEL).iterator().next(),
                     "String",
                     "newComponentName");
-            executor.setParameter(createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next(),
+            executor.setParameter(createdElements.get(Configurator.NODE_LABEL).iterator().next(),
                     "String",
                     "newNodeName");
 
@@ -95,21 +98,21 @@ public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.OPERATION.toString();
+        return Configurator.OPERATION_LABEL;
     }
 
     public String toString() {
-        return "Move Operation --> " + targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next() + " " +
+        return "Move Operation --> " + targetElements.get(Configurator.OPERATION_LABEL).iterator().next() + " " +
                 "to " +
-                "New Component --> " + createdElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next()
-                + " deployed to a New Node -->" + createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next();
+                "New Component --> " + createdElements.get(Configurator.COMPONENT_LABEL).iterator().next()
+                + " deployed to a New Node -->" + createdElements.get(Configurator.NODE_LABEL).iterator().next();
     }
 
     public String toCSV() {
         return String.format("Move_Operation_New_Component_New_Node,%s,%s,%s",
-                targetElements.get(UMLRSolution.SupportedType.OPERATION.toString()).iterator().next(),
-                createdElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
-                createdElements.get(UMLRSolution.SupportedType.NODE.toString()).iterator().next());
+                targetElements.get(Configurator.OPERATION_LABEL).iterator().next(),
+                createdElements.get(Configurator.COMPONENT_LABEL).iterator().next(),
+                createdElements.get(Configurator.NODE_LABEL).iterator().next());
     }
 
     @Override
@@ -133,6 +136,15 @@ public class UMLMvOperationToNCToNN extends UMLRefactoringAction {
         }
 
         return true;
+    }
+
+    public String getDestination() {
+    	return createdElements.get(Configurator.COMPONENT_LABEL).iterator().next();
+    }
+
+    @Override
+    public String getDeployment() {
+    	return createdElements.get(Configurator.NODE_LABEL).iterator().next();
     }
 
 }

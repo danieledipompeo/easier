@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Component;
@@ -27,36 +28,38 @@ public class UMLRemoveComponent extends UMLRefactoringAction {
         name = "remove_component";
     }
 
-    public UMLRemoveComponent(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements)
+    public UMLRemoveComponent(Map<String, Set<String>> availableElements, Map<String, Set<String>> sourceElements, Collection<?> modelContents)
             throws EasierException {
         this();
 
-        Set<String> availableComponent = availableElements.get(UMLRSolution.SupportedType.COMPONENT.toString());
+        Set<String> availableComponent = availableElements.get(Configurator.COMPONENT_LABEL);
         Set<String> targetElement = new HashSet<>();
         targetElement.add(
                 availableComponent.stream().skip(new Random().nextInt(availableComponent.size() - 1)).findFirst()
                         .orElseThrow(() -> new EasierException(
                                 "Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(UMLRSolution.SupportedType.COMPONENT.toString(), targetElement);
+        targetElements.put(Configurator.COMPONENT_LABEL, Set.copyOf(targetElement));
 
         // check whether the action is using an element created by another action
         setIndependent(sourceElements);
+
+        refactoringCost = computeArchitecturalChanges(modelContents);
     }
 
     @Override
     public String getTargetType() {
-        return UMLRSolution.SupportedType.COMPONENT.toString();
+        return Configurator.COMPONENT_LABEL;
     }
 
     @Override
     public String toString() {
-        return "Removing --> " + targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next();
+        return "Removing --> " + targetElements.get(Configurator.COMPONENT_LABEL).iterator().next();
     }
 
     @Override
     public String toCSV() {
         return String.format("%s,%s,,,,,", name,
-                targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next());
+                targetElements.get(Configurator.COMPONENT_LABEL).iterator().next());
     }
 
     /**
@@ -67,13 +70,12 @@ public class UMLRemoveComponent extends UMLRefactoringAction {
      * @return (intUsage + intReal + ops) the cost of the refactoring action
      * @throws EasierException if the target element is empty
      */
-    @Override
-    public double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
+    private double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException {
 
         Component compToMove =
                 (Component) modelContents.stream().filter(Component.class::isInstance)
                         .map(NamedElement.class::cast).filter(ne -> ne.getName()
-                                .equals(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator()
+                                .equals(targetElements.get(Configurator.COMPONENT_LABEL).iterator()
                                         .next())).findFirst().orElseThrow(() -> new EasierException(
                                 "Architectural changes of RemoveComponent cannot be computed. Target elements is empty"));
 
@@ -92,7 +94,7 @@ public class UMLRemoveComponent extends UMLRefactoringAction {
             executor.setModel(contextModel);
             executor.setSource(eolModulePath);
 
-            executor.setParameter(targetElements.get(UMLRSolution.SupportedType.COMPONENT.toString()).iterator().next(),
+            executor.setParameter(targetElements.get(Configurator.COMPONENT_LABEL).iterator().next(),
                     "String", "targetComponentName");
 
             executor.execute();
@@ -125,5 +127,9 @@ public class UMLRemoveComponent extends UMLRefactoringAction {
     @Override
     public void restoreAvailableElements(EasierModel easierModel) {
         easierModel.addElements(targetElements);
+    }
+
+    public String getDestination(){
+        return "";
     }
 }
