@@ -213,7 +213,7 @@ public abstract class Refactoring implements Cloneable {
      * @param action
      * @return
      */
-    boolean addRefactoringAction(RefactoringAction action) {
+    public boolean addRefactoringAction(RefactoringAction action) {
         action.updateAvailableElements(easierModel);
         getActions().add(action);
 

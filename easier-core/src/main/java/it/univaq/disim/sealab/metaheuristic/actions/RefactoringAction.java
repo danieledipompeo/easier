@@ -21,10 +21,6 @@ public interface RefactoringAction extends Cloneable {
 
 	String getName();
 
-	double getArchitecturalChanges();
-
-	double computeArchitecturalChanges(Collection<?> modelContents) throws EasierException;
-
 	void setIndependent(Map<String, Set<String>> initialElements);
 
 	boolean isIndependent();
@@ -32,4 +28,17 @@ public interface RefactoringAction extends Cloneable {
 	void updateAvailableElements(EasierModel model);
 
 	void restoreAvailableElements(EasierModel model);
+
+	double getRefactoringCost();
+
+	String getTargetElement();
+
+	String getDestination();
+
+	String getDeployment();
+
+	String getTaggedValue();
+
+	String getScalingFactor();
+
 }
