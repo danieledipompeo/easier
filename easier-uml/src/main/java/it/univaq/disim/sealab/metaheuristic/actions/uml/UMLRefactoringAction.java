@@ -20,6 +20,9 @@ public abstract class UMLRefactoringAction implements RefactoringAction {
     Map<String, Set<String>> createdElements = new HashMap<>();
 
     protected double refactoringCost;
+    protected double speedFactor;
+    protected double energyFactor;
+    protected double costFactor;
 
     abstract public void execute(EasierUmlModel model) throws EasierException;
 

@@ -3,12 +3,13 @@ package it.univaq.disim.sealab.metaheuristic.utils;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IParameterSplitter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Configurator {
 
@@ -125,7 +126,12 @@ public class Configurator {
 
 	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
 	private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy");
-	
+
+	@Parameter(names = {"-nodeChar", "--nodeCharacteristics"}, splitter = SemiColonSplitter.class, description = "The" +
+			" node characteristics")
+	private String nodeTypes = "[{\"label\":\"small\",\"performance\":1.0,\"energy\":1.5,\"cost\":1000.0}, " +
+			"{\"label\":\"medium\",\"performance\":2.5,\"energy\":3.5,\"cost\":2500.0}]";
+
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
 	}
@@ -271,7 +277,6 @@ public class Configurator {
 	    }
 	}
 
-
 	public Double getProbPas() {
 		return probPas;
 	}
@@ -292,4 +297,21 @@ public class Configurator {
 	public List<String> getObjectivesList(){
 		return objectivesList;
 	}
+
+	// Extract the node characteristics from the configurator
+	public List<NodeType> getNodeCharacteristics() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		List<NodeType> listNodeTypes = null;
+		try {
+			listNodeTypes = objectMapper.readValue(nodeTypes, new TypeReference<>() {});
+		} catch (JsonProcessingException e) {
+			EasierLogger.logger_.severe("Error when parsing the node characteristics: " + e.getMessage());
+			EasierLogger.logger_.severe("The default node characteristics will be used.");
+			e.printStackTrace();
+			listNodeTypes = List.of(new NodeType("small", 1, 1.5, 1000));
+		}
+		return listNodeTypes;
+	}
 }
+
+

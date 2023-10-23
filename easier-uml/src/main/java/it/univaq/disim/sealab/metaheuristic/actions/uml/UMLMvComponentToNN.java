@@ -9,6 +9,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.NodeType;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.uml2.uml.Component;
 import org.eclipse.uml2.uml.NamedElement;
@@ -43,8 +44,20 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
         targetElements.put(Configurator.COMPONENT_LABEL, targetElement);
         setIndependent(initialElements);
         Set<String> createdNodeElements = new HashSet<>();
-        createdNodeElements.add("New-Node_" + generateHash());
+
+        // random select a nodetype from the list of available node types
+        NodeType nodeType = Configurator.eINSTANCE.getNodeCharacteristics().stream()
+                .skip(new Random().nextInt(Configurator.eINSTANCE.getNodeCharacteristics().size() - 1)).findFirst()
+                .orElseThrow(() -> new EasierException(
+                        "Error when extracting the node type in: " + this.getClass().getSimpleName()));
+
+        createdNodeElements.add("New-Node_" + nodeType.getLabel() + "_" + generateHash());
         createdElements.put(Configurator.NODE_LABEL, createdNodeElements);
+
+        // Set the node characteristics. Randomly select a node type from the list of available node types
+        speedFactor = nodeType.getPerformance();
+        energyFactor = nodeType.getEnergy();
+        costFactor = nodeType.getCost();
 
         refactoringCost = computeArchitecturalChanges(modelContents);
     }
@@ -97,10 +110,15 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
             executor.setParameter(createdElements.get(Configurator.NODE_LABEL).iterator().next(),
                     "String",
                     "newNodeName");
+
+            executor.setParameter(String.valueOf(speedFactor), "Real", "speed");
+            executor.setParameter(String.valueOf(energyFactor), "Real", "energy");
+            executor.setParameter(String.valueOf(costFactor), "Real", "cost");
+
             executor.execute();
         } catch (EolRuntimeException e) {
-            String message = String.format("Error in execution the eolmodule %s%n ", eolModulePath);
-            message += e.getMessage();
+            String message = String.format("Error in execution the eolmodule %s on: %s. The reason is:" +
+                            " %s %n", eolModulePath, this, e.getMessage());
             throw new EasierException(message);
         }
 
