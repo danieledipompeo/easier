@@ -135,9 +135,9 @@
         </dependency>
 
         <dependency>
-            <groupId>it.univaq.disim.sealab.uml.profiles</groupId>
+            <groupId>org.eclipse.papyrus.marte</groupId>
             <artifactId>org.eclipse.papyrus.marte.static.profile</artifactId>
-            <version>1.2.0.201803031506</version>
+            <version>1.2.3.202303241341</version>
         </dependency>
 
         <!--dependency> <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.standard</artifactId>

@@ -76,11 +76,6 @@
 
     <repositories>
         <repository>
-            <id>Maven2 Repository</id>
-            <name>maven2 repository</name>
-            <url>http://central.maven.org/maven2/</url>
-        </repository>
-        <repository>
             <id>Eclipse Repository</id>
             <name>eclipse repository</name>
             <url>https://repo.eclipse.org/content/groups/releases/</url>
@@ -94,14 +89,6 @@
             <id>central</id>
             <name>atlassianuseast1-releases</name>
             <url>https://packages.atlassian.com/maven-3rdparty</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-sealabqualitygroup-maven-repository</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/sealabqualitygroup/maven-repository</url>
         </repository>
     </repositories>
 
