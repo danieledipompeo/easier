@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
@@ -63,7 +62,7 @@ public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
 
     @Test
     public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
-        super.testExecute();
+        assertDoesNotThrow(super::testExecute);
     }
 
     @Test

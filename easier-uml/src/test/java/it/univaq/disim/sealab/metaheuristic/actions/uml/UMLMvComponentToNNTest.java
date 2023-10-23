@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
@@ -44,7 +43,7 @@ public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
 
     @Test
     public void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
-        super.testExecute();
+        assertDoesNotThrow(super::testExecute);
     }
 
     @Test
