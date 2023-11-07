@@ -83,7 +83,7 @@ public class UMLRemoveComponent extends UMLRefactoringAction {
         int intReal = compToMove.getInterfaceRealizations().size();
         int ops = compToMove.getOperations().size();
 
-        return (intUsage + intReal + ops);
+        return (intUsage + intReal + ops) == 0 ? 1 : (intUsage + intReal + ops);
     }
 
     @Override

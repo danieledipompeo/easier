@@ -54,14 +54,18 @@ public class UMLCloneNode extends UMLRefactoringAction {
 
         Node targetObject = modelContents.stream().filter(Node.class::isInstance).
                 map(Node.class::cast).
-                filter(ne -> ne.getName().equals(targetElements.get(Configurator.NODE_LABEL).iterator().next())).findFirst().orElse(null);
+                filter(ne -> ne.getName().equals(targetElements.get(Configurator.NODE_LABEL).iterator().next()))
+                .findFirst().orElseThrow(() -> new EasierException("Error when computing the architectural changes of" +
+                        " " + this.getName() + " on " + targetElements.get(Configurator.NODE_LABEL).iterator().next()));
 
-        if (targetObject == null)
-            throw new EasierException("Error when computing the architectural changes of " + this.getName());
+//        if (targetObject == null)
+//            throw new EasierException("Error when computing the architectural changes of " + this.getName() + " on " +
+//                    targetElements.get(Configurator.NODE_LABEL).iterator().next());
 
         int cpSize = targetObject.getCommunicationPaths().size();
 
-        int artSize = (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();
+        int artSize =
+                (int) targetObject.getDeployments().stream().mapToLong(d -> d.getDeployedArtifacts().size()).sum();
 
         return (cpSize + artSize);
 

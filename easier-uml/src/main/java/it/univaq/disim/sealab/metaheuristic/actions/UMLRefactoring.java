@@ -6,6 +6,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.RefactoringActionFactory
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLRefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.uma.jmetal.util.JMetalLogger;
@@ -24,51 +25,43 @@ public class UMLRefactoring extends Refactoring {
         easierModel = rfSource.easierModel.clone();
     }
 
-
+    /**
+     * Apply the refactoring actions to the model.
+     *
+     * @return true when the refactoring has been applied successfully, false otherwise.
+     */
     public boolean execute() {
-        try{
-            EasierResourcesLogger.checkpoint("UMLRefactoring","execute_start");
+        boolean failed = false;
+        try {
+            EasierResourcesLogger.checkpoint("UMLRefactoring", "execute_start");
             actions.stream().map(UMLRefactoringAction.class::cast).forEach(a -> {
                 try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath)) {
                     model.setStoredOnDisposal(true);
                     a.execute(model);
-                } catch (EasierException e) {
+                } catch (EasierException | URISyntaxException | EolModelLoadingException e) {
                     String msg = String.format("Refactoring of solID: %s throws an exception when executing " +
                             "refactoring actions " +
                             "due to: %s", this.solutionID, e.getMessage());
                     throw new RuntimeException(msg);
-                } catch (URISyntaxException | EolModelLoadingException ex) {
-                    throw new RuntimeException(ex);
                 }
-//                a.updateAvailableElements(easierModel);
-//                easierModel.store(a.getCreatedElements());
             });
-            EasierResourcesLogger.checkpoint("UMLRefactoring","execute_end");
         } catch (RuntimeException e) {
-            JMetalLogger.logger.severe(e.getMessage());
-            return false;
+            EasierLogger.logger_.severe(e.getMessage());
+            failed = true;
         }
-        JMetalLogger.logger.info("Refactoring executed");
-        return true;
+
+        EasierResourcesLogger.checkpoint("UMLRefactoring", "execute_end");
+        EasierLogger.logger_.info("Refactoring executed on solID: " + this.solutionID);
+        return !failed;
     }
 
     public boolean tryRandomPush() throws EasierException {
 
         RefactoringAction candidate;
-//        do {
             candidate = RefactoringActionFactory.getRandomAction(easierModel.getAvailableElements(),
                     easierModel.getInitialElements(), easierModel.getAllContents());
-//        } while (candidate == null);
 
         return addRefactoringAction(candidate);
-        /*
-        getActions().add(candidate);
-
-        if (!this.isFeasible()) {
-            getActions().remove(candidate);
-            return false;
-        }
-        return true;*/
     }
 
 

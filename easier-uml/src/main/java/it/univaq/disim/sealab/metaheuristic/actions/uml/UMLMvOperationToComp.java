@@ -7,10 +7,7 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.uml2.uml.Element;
-import org.eclipse.uml2.uml.Message;
-import org.eclipse.uml2.uml.NamedElement;
-import org.eclipse.uml2.uml.Operation;
+import org.eclipse.uml2.uml.*;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
@@ -36,14 +33,21 @@ public class UMLMvOperationToComp extends UMLRefactoringAction {
             throws EasierException {
         this();
 
-        String OPERATION_LABEL = Configurator.OPERATION_LABEL;
-        String COMPONENT_LABEL = Configurator.COMPONENT_LABEL;
+        final String OPERATION_LABEL = Configurator.OPERATION_LABEL;
+        final String COMPONENT_LABEL = Configurator.COMPONENT_LABEL;
 
         Set<String> availableOperations =
                 availableElements.get(OPERATION_LABEL);
+
         String targetOperationName =
-                availableOperations.stream().skip(new Random().nextInt(availableOperations.size()-1)).findFirst()
-                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName()));
+                availableOperations.stream().collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                            Collections.shuffle(list);
+                            return list;
+                        })).stream()
+                        //                        skip(new Random().nextInt(availableOperations.size()-1))
+                        .findAny()
+                        .orElseThrow(() -> new EasierException(
+                                "Error when extracting the target element in: " + this.getClass().getSimpleName()));
 
         targetElements.put(OPERATION_LABEL, Set.of(targetOperationName));
 
@@ -58,11 +62,32 @@ public class UMLMvOperationToComp extends UMLRefactoringAction {
                 .findFirst().map(Operation::getOwner).map(NamedElement.class::cast).map(NamedElement::getName)
                 .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName()));
 
+        // Randomly extract a component that must be not the owner of the operation, and it must be deployed somewhere
+        List<Artifact> artifacts =
+                modelContents.stream().filter(Artifact.class::isInstance).map(Artifact.class::cast)
+                        // All artifacts that manifest at least a component
+                        .filter(a -> !a.getManifestations().isEmpty()).collect(Collectors.toList());
+
+        String selectedComponent = artifacts.stream().map(Artifact::getManifestations).flatMap(Collection::stream)
+                .map(Manifestation::getUtilizedElement)
+                .map(NamedElement::getName)
+                .filter(s -> !s.equals(componentOwner))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                    Collections.shuffle(list);
+                    return list;
+                })).stream().findAny()
+                .orElseThrow(() -> new EasierException(
+                        "Error when extracting an UML Artifact manifesting a component in: " +
+                                this.getClass().getSimpleName()));
+
+
+        targetElements.put(COMPONENT_LABEL, Set.of(selectedComponent));
+
         // Randomly select a component where to move the operation by excluding the owner of the operation
-        targetElements.put(COMPONENT_LABEL,
-                Set.of(availableComponents.stream().filter(s -> !s.equals(componentOwner))
-                        .skip(new Random().nextInt(availableComponents.size() - 2)).findFirst().orElseThrow(
-                                () -> new EasierException("Cannot find a component where to move the operation."))));
+//        targetElements.put(COMPONENT_LABEL,
+//                Set.of(availableComponents.stream().filter(s -> !s.equals(componentOwner))
+//                        .skip(new Random().nextInt(availableComponents.size() - 2)).findFirst().orElseThrow(
+//                                () -> new EasierException("Cannot find a component where to move the operation."))));
 
         refactoringCost = computeArchitecturalChanges(modelContents);
     }
@@ -101,10 +126,9 @@ public class UMLMvOperationToComp extends UMLRefactoringAction {
 
             executor.execute();
         } catch (EolRuntimeException e) {
-            String message = String.format("Error in execution the eolmodule %s%n", eolModulePath);
-//            message += String.format("No Node called \t %s %n", targetObject.getName());
-            message += e.getMessage();
-            throw new RuntimeException(message);
+            String message = String.format("Error in execution the eolmodule %s on: %s. The reason is:" +
+                            " %s %n", eolModulePath, this, e.getMessage());
+            throw new EasierException(message);
         }
 
         executor.clearMemory();

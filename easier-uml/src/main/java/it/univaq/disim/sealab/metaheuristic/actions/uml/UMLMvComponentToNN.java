@@ -11,7 +11,9 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.NodeType;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.uml2.uml.Artifact;
 import org.eclipse.uml2.uml.Component;
+import org.eclipse.uml2.uml.Manifestation;
 import org.eclipse.uml2.uml.NamedElement;
 
 import java.nio.file.FileSystems;
@@ -38,10 +40,38 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
         this();
 
         Set<String> availableComponents = availableElements.get(Configurator.COMPONENT_LABEL);
-        Set<String> targetElement = new HashSet<>();
-        targetElement.add(availableComponents.stream().skip(new Random().nextInt(availableComponents.size()-1)).findFirst()
-                .orElseThrow(() -> new EasierException("Error when extracting the target element in: " + this.getClass().getSimpleName())));
-        targetElements.put(Configurator.COMPONENT_LABEL, targetElement);
+
+        Artifact randomArtifact = modelContents.stream().filter(Artifact.class::isInstance).map(Artifact.class::cast)
+                .filter(a -> !a.getManifestations().isEmpty()).findAny()
+                .orElseThrow(() -> new EasierException(
+                        "Error when extracting an UML Artifact manifesting a component in: " + this.getClass().getSimpleName()));
+
+
+        // Retrieve artifacts manifesting at least one component
+        List<Artifact> artifacts = modelContents.stream()
+                .filter(Artifact.class::isInstance)
+                .map(Artifact.class::cast)
+                .filter(a -> !a.getManifestations().isEmpty())
+                .collect(Collectors.toList());
+
+        // Find available components manifested by an artifact then
+        // shuffling the list and then picking one
+        String selectedComponent = artifacts.stream()
+                .map(Artifact::getManifestations)
+                .flatMap(Collection::stream)
+                .map(Manifestation::getUtilizedElement)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(ArrayList::new), list -> {
+                            Collections.shuffle(list);
+                            return list;
+                        })).stream()
+                .map(NamedElement::getName)
+                .findAny()
+                .orElseThrow(
+                        () -> new EasierException("Error when extracting an UML Artifact manifesting a component in: " +
+                                this.getClass().getSimpleName()));
+
+        targetElements.put(Configurator.COMPONENT_LABEL, Set.of(selectedComponent));
         setIndependent(initialElements);
         Set<String> createdNodeElements = new HashSet<>();
 
@@ -67,17 +97,16 @@ public class UMLMvComponentToNN extends UMLRefactoringAction {
         Component compToMove =
                 (Component) modelContents.stream().filter(Component.class::isInstance)
                         .map(NamedElement.class::cast).filter(ne -> ne.getName()
-                                .equals(targetElements.get(Configurator.COMPONENT_LABEL).iterator().next())).findFirst().orElse(null);
-
-        if (compToMove == null)
-            throw new EasierException("Error when computing the architectural changes of " + this.getName());
+                                .equals(targetElements.get(Configurator.COMPONENT_LABEL).iterator().next())).findFirst()
+                        .orElseThrow(() -> new EasierException(
+                                "Error when computing the architectural changes of " + this.getName()));
 
 
         int intUsage = compToMove.getUsedInterfaces().size();
         int intReal = compToMove.getInterfaceRealizations().size();
         int ops = compToMove.getOperations().size();
 
-        return (intUsage + intReal + ops);
+        return (intUsage + intReal + ops) == 0 ? 1 : (intUsage + intReal + ops);
     }
 
     private String generateHash() {
