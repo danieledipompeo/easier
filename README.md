@@ -9,8 +9,6 @@ git submodule update --init --recursive
 mvn install -pl easier-uml -am -DskipTests
 ```
 
-maven repository hosted by [bintray](https://bintray.com/sealabqualitygroup/maven-repository)
-
 ## Publications
 
  - [Cortellessa, V., Diaz-Pace, J.A., Di Pompeo, D., & Tucci, M. (2023). Towards Assessing Spread in Sets of Software Architecture Designs. Software Architecture. ECSA 2023. Lecture Notes in Computer Science, vol 14212.](https://doi.org/10.1007/978-3-031-42592-9_9)
