@@ -1,4 +1,4 @@
-package it.univaq.disim.sealab.epsilon.utility;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +27,7 @@ public class Energy {
 			builder = factory.newDocumentBuilder();
 			return builder.parse(new File(filename));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			// TODO Use a logger
-			System.out.println("Cannot parse: " + filename + " because " + e.getMessage());
-//			e.printStackTrace();
+			EasierLogger.logger_.severe("Cannot parse: " + filename + " because " + e.getMessage());
 		}
 		return null;
 	}
@@ -127,7 +125,7 @@ public class Energy {
 				.sum();
 	}
 
-	public static Double computeSystemEnergy(final String uml, final String lqxo) {
+	public static double computeSystemEnergy(final String uml, final String lqxo) {
 		return systemEnergy(extractServiceTimes(lqxo), extractEnergyCoefficients(uml));
 	}
 

@@ -1,26 +1,19 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
-import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.ObjectiveEstimator;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
 import it.univaq.sealab.umlreliability.MissingTagException;
-import it.univaq.sealab.umlreliability.Reliability;
-import it.univaq.sealab.umlreliability.UMLReliability;
-import it.univaq.sealab.umlreliability.model.UMLModelPapyrus;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.solutionattribute.impl.CrowdingDistance;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +27,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
     private Path folderPath;
     private double[] scenarioRTs;
     private String algorithm;
+
 
     public UMLRSolution(Path sourceModelPath, String problemName) {
         super(sourceModelPath, problemName);
@@ -50,10 +44,8 @@ public class UMLRSolution extends RSolution<Refactoring> {
                 .collect(Collectors.toList()));
         this.setVariable(0, ref);
 
-//        this.perfQ = s.perfQ;
-//        this.reliability = s.reliability;
-//        this.architecturalChanges = s.architecturalChanges;
-//        this.numPAs = s.numPAs;
+
+        this.mapOfObjectives.putAll(s.getMapOfObjectives());
 
         for(int i = 0; i < s.getObjectives().length; i++) {
             this.setObjective(i, s.getObjective(i));
@@ -72,6 +64,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
 
         parents = new UMLRSolution[2];
         scenarioRTs = new double[3];
+        mapOfObjectives = new HashMap<>(Configurator.eINSTANCE.getObjectivesList().size());
 
         this.setName();
 
@@ -114,86 +107,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return new UMLRSolution(this);
     }
 
-    /*@Override
-    public void computeArchitecturalChanges() {
-        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_start");
-
-        try (EasierUmlModel model = EOLStandalone.createUmlModel(modelPath.toString())) {
-
-            for (RefactoringAction action : getVariable(0).getActions()) {
-
-                double brf = Configurator.eINSTANCE.getBRF(action.getName());
-                double aw = action.getRefactoringCost();
-
-                architecturalChanges += brf * aw;
-            }
-            architecturalChanges += Configurator.eINSTANCE.getInitialChanges();
-
-            EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeArchitecturalChanges_end");
-            EasierLogger.logger_.info(String.format("Architectural changes computed : %s", architecturalChanges));
-        } catch (URISyntaxException | EolModelLoadingException e) {
-            EasierLogger.logger_.severe(e.getMessage());
-        }
-    }*/
-
-    @Override
-    public void computeScenarioRT() {
-//
-//        /*
-//         * The updated model can have more nodes than the source node since original
-//         * nodes can be cloned. The benefits of cloning nodes is taken into account by
-//         * the performance model. For this reason, the perfQ analyzes only the
-//         * performance metrics of the nodes common among the models
-//         */
-//
-//        // Represent the reference point index of each UML scenario
-//        final int rebook_index = 0;
-//        final int update_user_index = 1;
-//        final int login_index = 2;
-//
-//        int scenarioIndex = 0;
-//
-//        // The elements of the source model;
-//        List<EObject> scenarios = null;
-//
-//        // The function considers only the elements having the stereotypes GaScenario
-//        try (EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-//            scenarios = (List<EObject>) uml.getAllOfType("UseCase");
-//            scenarios = filterByStereotype(scenarios, GQAM_NAMESPACE + "GaScenario");
-//
-//            // for each element of the source model, it is picked the element with the same
-//            // id in the refactored one
-//            for (EObject element : scenarios) {
-//                Stereotype stereotype = ((Element) element).getAppliedStereotype(GQAM_NAMESPACE + "GaScenario");
-//                EList<?> values = (EList<?>) ((Element) element).getValue(stereotype, "respT");
-//
-//                if (!values.isEmpty()) {
-//                    if ("Rebook a ticket".equals(((UseCase) element).getName())) {
-//                        scenarioIndex = rebook_index;
-//                    } else if ("Update user details".equals(((UseCase) element).getName())) {
-//                        scenarioIndex = update_user_index;
-//                    } else if ("Login".equals(((UseCase) element).getName())) {
-//                        scenarioIndex = login_index;
-//                    } else {
-//                        throw new RuntimeException("Scenario name does not support yet!");
-//                    }
-//
-//                    scenarioRTs[scenarioIndex] = Double.parseDouble(values.get(0).toString());
-//                }
-//
-//            }
-//            uml.dispose();
-//            new UMLMemoryOptimizer().cleanup();
-//        } catch (Exception e) {
-//            JMetalLogger.logger.severe(String.format("Solution # '%s' has trown an error while computing PerfQ!!!", this.name));
-//            e.printStackTrace();
-//        }
-    }
-
-    public double[] getScenarioRTs() {
-        return scenarioRTs;
-    }
-
     public void executeRefactoring() {
         final Refactoring ref = getVariable(VARIABLE_INDEX);
 
@@ -211,38 +124,6 @@ public class UMLRSolution extends RSolution<Refactoring> {
             FAILED_CROSSOVER++;
     }
 
-    /*@Override
-    public void computeReliability() {
-
-        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_start");
-        // stores the in memory model to a file
-        UMLReliability uml = null;
-        try {
-            uml = new UMLReliability(new UMLModelPapyrus(modelPath.toString()).getModel());
-            setReliability(new Reliability(uml.getScenarios()).compute());
-
-            ResourceSet rs = uml.getModel().eResource().getResourceSet();
-            while (rs.getResources().size() > 0) {
-                Resource res = rs.getResources().get(0);
-                res.eAdapters().clear();
-                res.unload();
-                rs.getResources().remove(res);
-            }
-        } catch (MissingTagException e) {
-            JMetalLogger.logger.severe("SolutionID : " + this.getName() + " Error in computing the reliability: " +
-                    "missing tag");
-            EasierLogger.logger_.severe(e.getMessage());
-
-            String line = this.name + "," + e.getMessage() + "," + getVariable(VARIABLE_INDEX).toString();
-
-            new FileUtils().reliabilityErrorLogToCSV(line);
-        }
-
-        new UMLMemoryOptimizer().cleanup();
-        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "computeReliability_end");
-        JMetalLogger.logger.info(String.format("Reliability computed : %s", this.reliability));
-    }*/
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -256,17 +137,31 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return true;
     }
 
-    // Set Reliability.
-    // If the rel param is greater than 1 reliability is set to 1
-//    public void setReliability(double rel) {
-//        this.reliability = rel < 1 ? rel : 1;
-//    }
+    /**
+     * Compute all available objectives of the solution.
+     * Then, the Problem::evaluate will select the ones to be used.
+     *
+     */
+    public void computeObjectives() {
+        mapOfObjectives.put(Configurator.PAS_LABEL,
+                ObjectiveEstimator.countPerformanceAntipattern(this.modelPath, this.getName()));
+        mapOfObjectives.put(Configurator.RELIABILITY_LABEL, ObjectiveEstimator.reliability(this.modelPath));
+        mapOfObjectives.put(Configurator.CHANGES_LABEL, ObjectiveEstimator.refactoringCost(this));
+        mapOfObjectives.put(Configurator.PERF_Q_LABEL, ObjectiveEstimator.perfQ(this.sourceModelPath, this.modelPath));
+        mapOfObjectives.put(Configurator.SYS_RESP_T_LABEL, ObjectiveEstimator.systemResponseTime(this.modelPath));
+        mapOfObjectives.put(Configurator.ENERGY_LABEL, ObjectiveEstimator.energyEstimation(this.modelPath));
+        mapOfObjectives.put(Configurator.POWER_LABEL, ObjectiveEstimator.powerEstimator(this.modelPath));
+        mapOfObjectives.put(Configurator.ECONOMIC_COST, ObjectiveEstimator.economicCost(this.modelPath));
+    }
 
-//    public void setPAs(int pas) {
-//        this.numPAs = pas;
-//    }
-
-
-
-
+    public void computeObjectivesToUnfeasibleValues(){
+        mapOfObjectives.put(Configurator.PAS_LABEL, Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.RELIABILITY_LABEL, -1 * Double.MIN_VALUE);
+        mapOfObjectives.put(Configurator.CHANGES_LABEL, Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.PERF_Q_LABEL, -1 * Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.SYS_RESP_T_LABEL, Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.ENERGY_LABEL, Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.POWER_LABEL, Double.MAX_VALUE);
+        mapOfObjectives.put(Configurator.ECONOMIC_COST, Double.MAX_VALUE);
+    }
 }

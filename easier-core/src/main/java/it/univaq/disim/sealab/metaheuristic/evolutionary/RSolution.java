@@ -9,6 +9,7 @@ import org.uma.jmetal.solution.AbstractSolution;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public abstract class RSolution<T extends Refactoring> extends AbstractSolution<T> {
 
@@ -35,6 +36,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
     protected int refactoringLength;
     protected String problemName;
 
+    protected Map<String, Double> mapOfObjectives;
+
     protected RSolution(Path srcModelPath, String pName) {
         super(1, Configurator.eINSTANCE.getObjectivesList().size());
         allowedFailures = Configurator.eINSTANCE.getAllowedFailures();
@@ -56,8 +59,6 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
     }
 
     public abstract void executeRefactoring();
-
-    public abstract void computeScenarioRT();
 
     public Path getModelPath() {
         return modelPath;
@@ -186,5 +187,9 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
 
     public void refactoringToCSV() {
         new FileUtils().refactoringDumpToCSV(((Refactoring) getVariable(0)).toCSV());
+    }
+
+    public Map<String, Double> getMapOfObjectives(){
+        return mapOfObjectives;
     }
 }

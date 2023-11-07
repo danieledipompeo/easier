@@ -21,13 +21,18 @@ public class EasierSolutionDAO {
     double perfq;
     double energy;
 
+    // All computed objectives
     Map<String, Double> objectives;
+
+    // List of objectives considered to compute the fitness
+    Map<String, Double> consideredObjectives;
     int solID;
     List<EasierRefactoringActionDAO> refactoring;
 
     public EasierSolutionDAO(RSolution<?> sol) {
         refactoring = new ArrayList<>();
         objectives = new HashMap<>();
+        consideredObjectives = new HashMap<>();
         setSolution(sol);
     }
 
@@ -37,26 +42,6 @@ public class EasierSolutionDAO {
     public static boolean alreadyIn(int id) {
         return ADDED_SOLUTION.contains(id);
     }
-
-   /* public double getReliability() {
-        return reliability;
-    }
-
-    public double getPas() {
-        return pas;
-    }
-
-    public double getChanges() {
-        return changes;
-    }
-
-    public double getPerfq() {
-        return perfq;
-    }
-
-    public double getEnergy() {
-        return energy;
-    }*/
 
     public List<EasierRefactoringActionDAO> getRefactoring() {
         return refactoring;
@@ -77,20 +62,27 @@ public class EasierSolutionDAO {
     private void setSolution(RSolution<?> sol) {
         solID = sol.getName();
         ADDED_SOLUTION.add(solID);
-        setObjectives(sol.getObjectives());
-        setRefactoring((Refactoring) sol.getVariable(0));
+        setConsideredObjectives(sol.getMapOfObjectives());
+        objectives.putAll(sol.getMapOfObjectives());
+        setRefactoring(sol.getVariable(0));
     }
 
-    public void setObjectives(double[] objValues) {
+    public void setConsideredObjectives(Map<String, Double> mapOfObjs) {
 
         List<String> objList =  Configurator.eINSTANCE.getObjectivesList();
-        for(String objName : objList) {
-            int index = objList.indexOf(objName);
-            this.objectives.put(objName, objValues[index]);
-        }
+
+        objList.forEach(objName -> {
+            if(mapOfObjs.containsKey(objName)) {
+                this.consideredObjectives.put(objName, mapOfObjs.get(objName));
+            }
+        });
     }
 
     public Map<String, Double> getObjectives() {
         return objectives;
+    }
+
+    public Map<String, Double> getConsideredObjectives() {
+        return consideredObjectives;
     }
 }
