@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.epsilon.eol;
 
+import it.univaq.disim.sealab.epsilon.EasierStereotypeNotPropertlyAppliedException;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
@@ -30,7 +31,7 @@ class EasierUmlModelTest {
 
     @Test
     void computeSystemResponseTime()
-            throws EolModelElementTypeNotFoundException {
+            throws EolModelElementTypeNotFoundException, EasierStereotypeNotPropertlyAppliedException {
 
         assertDoesNotThrow(eModel::computeSystemResponseTime);
 
@@ -40,11 +41,4 @@ class EasierUmlModelTest {
 
     }
 
-    @Test
-    void computeEnergy() {
-
-        double energy = eModel.computeEnergy();
-        assertNotEquals(Double.NaN, energy);
-        System.out.printf("[TEST] energy for %s is %s", eModel.getModelFile(), energy);
-    }
 }

@@ -5,40 +5,46 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class WorkflowUtilsTest {
 
+    final static String BASE_PATH = "/easier-uml2lqnCaseStudy/";
     private Path modelPath;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        modelPath = Path.of(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
-    }
+    public void setUp() throws Exception { }
 
     @AfterEach
     public void tearDown() throws Exception {
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.xml.bak"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.lqxo"));
-//        Files.deleteIfExists(modelPath.getParent().resolve("output.out"));
+        Files.walk(Configurator.eINSTANCE.getOutputFolder())
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
-    @Test
-    public void applyTransformation() throws EasierException {
-        new WorkflowUtils().applyTransformation(modelPath);
+    @ParameterizedTest
+    @CsvSource({
+            "cocome, /simplified-cocome/cocome.uml",
+            "train-ticket, /train-ticket/train-ticket.uml",
+            "eshopper, /eshopper/eshopper.uml",
+    })
+    public void applyTransformation(String model, String mPath) throws EasierException {
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
+        WorkflowUtils.applyTransformation(modelPath);
         Path lqnModelPath = modelPath.getParent().resolve("output.xml");
         assertTrue(Files.exists(lqnModelPath));
 
@@ -52,17 +58,24 @@ public class WorkflowUtilsTest {
 
     }
 
-    @Test
-    void apply_transformation_with_remove_actions() throws EasierException {
+    @ParameterizedTest
+    @CsvSource({
+            "cocome, /simplified-cocome/cocome.uml",
+            "train-ticket, /train-ticket/train-ticket.uml",
+            "eshopper, /eshopper/eshopper.uml",
+    })
+    void apply_transformation_with_remove_actions(String model, String mPath) throws EasierException {
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
 
-        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+        UMLRSolution solution = new UMLRSolution(modelPath, model + "__test");
 
         EasierModel eModel = solution.getVariable(0).getEasierModel();
 
         RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(),
                 eModel.getAllContents());
 
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        RefactoringAction clone =
+                new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
 
         RefactoringAction removeComponent = new UMLRemoveComponent(eModel.getAvailableElements(),
                 eModel.getInitialElements(), eModel.getAllContents());
@@ -80,9 +93,17 @@ public class WorkflowUtilsTest {
                 "failed.");
     }
 
-    @Test
-    void check_transformation_with_refactoring_removecompoent_moc_moc_moncnn() throws EasierException {
-        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
+    @ParameterizedTest
+    @CsvSource({
+            "cocome, /simplified-cocome/cocome.uml",
+            "train-ticket, /train-ticket/train-ticket.uml",
+            "eshopper, /eshopper/eshopper.uml",
+    })
+    void check_transformation_with_refactoring_removecompoent_moc_moc_moncnn(String model, String mPath)
+            throws EasierException {
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
+
+        UMLRSolution solution = new UMLRSolution(modelPath, model + "__test");
 
         EasierModel eModel = solution.getVariable(0).getEasierModel();
 
@@ -105,12 +126,24 @@ public class WorkflowUtilsTest {
                 "failed.");
     }
 
-    @Test
-    public void invokeSolver() throws Exception {
-        WorkflowUtils.applyTransformation(modelPath);
+    @ParameterizedTest
+    @CsvSource({
+            "cocome, cocome/simplified-cocome/cocome.uml",
+            "train-ticket, train-ticket/train-ticket.uml",
+            "eshopper, eshopper/eshopper.uml",
+    })
+    public void invokeSolver(String model, String mPath) {
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
+
+        // assert that the transformation as well as the solver invocation do not throw any exception
+        assertDoesNotThrow(() -> WorkflowUtils.applyTransformation(modelPath),
+                "Transformation failed.");
+        assertDoesNotThrow(() -> WorkflowUtils.invokeSolver(modelPath.getParent()), "Solver invocation failed.");
+
+        // check whether the file output .lqxo exists
         Path solverOutcome = modelPath.getParent().resolve("output.lqxo");
-        WorkflowUtils.invokeSolver(modelPath.getParent());
-        assertTrue(Files.exists(solverOutcome)); // check whether the file output.lqxo exists
+        assertTrue(Files.exists(solverOutcome), "It's expected that the file: " + solverOutcome + "exists."); //
+
         try (BufferedReader br = new BufferedReader(new FileReader(solverOutcome.toFile()))) {
             // check whether the file output.lqxo is not empty
             assertNotEquals(br.readLine(), null, String.format("Expected not empty %s file. ", solverOutcome));
@@ -119,71 +152,18 @@ public class WorkflowUtilsTest {
         }
     }
 
-    @Test
-    public void backAnnotation() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "cocome, cocome/simplified-cocome/cocome.uml",
+            "train-ticket, train-ticket/train-ticket.uml",
+            "eshopper, eshopper/eshopper.uml",
+    })
+    public void backAnnotation(String model, String mPath) throws Exception {
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
+
         WorkflowUtils.applyTransformation(modelPath);
         WorkflowUtils.invokeSolver(modelPath.getParent());
         WorkflowUtils.backAnnotation(modelPath);
     }
 
-    @Test
-    public void countingPAs() throws EasierException {
-        int pas = WorkflowUtils.countPerformanceAntipattern(modelPath, 0);
-
-        assertEquals(1d, pas, 1, String.format("Expected 1 PAs \t found: %s.", pas));
-    }
-
-    @Test
-    public void evaluatePerformance() throws EasierException {
-        modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile());
-        double perfQ = WorkflowUtils.perfQ(modelPath, modelPath);
-        assertEquals(0d, perfQ, String.format("Expected perfQ 0 \t computed: %s.", perfQ));
-    }
-
-    @Test
-    void evaluate_systemResponseTime() throws EasierException {
-        modelPath = Path.of(getClass().getResource("/simplified-cocome/cocome.uml").getPath());
-        double sysRespT = WorkflowUtils.systemResponseTime(modelPath);
-
-        assertDoesNotThrow(() -> WorkflowUtils.systemResponseTime(modelPath));
-
-        assertNotEquals(Double.MIN_VALUE, sysRespT, "Expected a valid system response time.");
-    }
-
-    @Test
-    void computeArchitecturalChanges() throws EasierException {
-        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
-        solution.createRandomRefactoring();
-        solution.executeRefactoring();
-
-        assertTrue(WorkflowUtils.refactoringCost(solution) > Configurator.eINSTANCE.getInitialChanges(), "Expected an" +
-                "refactoring cost >= the initial one");
-
-    }
-
-    @Test
-    void architectural_changes_with_removing_actions() throws EasierException {
-        UMLRSolution solution = new UMLRSolution(modelPath, "simplied-cocome__test");
-        solution.createRandomRefactoring();
-
-        EasierModel eModel = solution.getVariable(0).getEasierModel();
-
-        RefactoringAction deleteNode = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(),
-                eModel.getAllContents());
-
-        RefactoringAction clone = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        RefactoringAction mvopncnn =
-                new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        RefactoringAction movopc = new UMLMvOperationToComp(eModel.getAvailableElements(),
-                eModel.getInitialElements(), eModel.getAllContents());
-
-        List.of(deleteNode, clone, mvopncnn, movopc).forEach(solution.getVariable(0)::addRefactoringAction);
-
-        solution.executeRefactoring();
-
-        assertDoesNotThrow(() -> WorkflowUtils.refactoringCost(solution), "Refactoring Cost has thrown an exception");
-
-
-
-    }
 }

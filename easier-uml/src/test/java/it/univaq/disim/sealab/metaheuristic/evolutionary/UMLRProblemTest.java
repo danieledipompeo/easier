@@ -24,7 +24,7 @@ class UMLRProblemTest {
 
     @AfterAll
     static void tearDownAfterClass() throws IOException {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+//        Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
 
     @BeforeEach

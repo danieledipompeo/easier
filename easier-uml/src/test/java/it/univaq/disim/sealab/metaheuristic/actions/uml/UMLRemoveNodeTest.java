@@ -2,6 +2,7 @@ package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URISyntaxException;
 import java.util.stream.Collectors;
@@ -23,8 +26,8 @@ class UMLRemoveNodeTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+//        oldAction = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+//        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
 
     }
 
@@ -32,14 +35,25 @@ class UMLRemoveNodeTest extends UMLRefactoringActionTest {
     void tearDown() {
     }
 
-    @Test
-    void execute_does_not_throw_exception() {
+    @ParameterizedTest
+    @ValueSource(strings = {"cocome/simplified-cocome/cocome.uml", "train-ticket/train-ticket.uml",
+            "eshopper/eshopper.uml"})
+    void execute_does_not_throw_exception(String mPath) throws EasierException {
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         Assertions.assertDoesNotThrow(super::testExecute);
     }
 
-    @Test
-    void target_node_should_be_removed() throws URISyntaxException, EolModelLoadingException, EasierException {
-        //super.testExecute();
+    @ParameterizedTest
+    @ValueSource(strings = {"cocome/simplified-cocome/cocome.uml", "train-ticket/train-ticket.uml",
+            "eshopper/eshopper.uml"})
+    void target_node_should_be_removed(String mPath) throws URISyntaxException, EolModelLoadingException,
+            EasierException {
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+
         EasierUmlModel model = EOLStandalone.createUmlModel(modelpath);
         model.setStoredOnDisposal(true);
         action.execute(model);
@@ -59,8 +73,14 @@ class UMLRemoveNodeTest extends UMLRefactoringActionTest {
     }
 
 
-    @Test
-    void computeArchitecturalChanges() throws EasierException, URISyntaxException, EolModelLoadingException {
+    @ParameterizedTest
+    @ValueSource(strings = {"cocome/simplified-cocome/cocome.uml", "train-ticket/train-ticket.uml",
+            "eshopper/eshopper.uml"})
+    void computeArchitecturalChanges(String mPath) throws EasierException, URISyntaxException,
+            EolModelLoadingException {
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLRemoveNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testComputeArchitecturalChanges();
     }
 }

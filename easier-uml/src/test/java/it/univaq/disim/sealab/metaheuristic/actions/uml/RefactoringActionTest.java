@@ -33,14 +33,9 @@ public class RefactoringActionTest {
     protected Map<String, Set<String>> expectedName;
 
     public void setUp() throws Exception {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
         solution = p.createSolution();
-
     }
 
     public void testToCSV() {

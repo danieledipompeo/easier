@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 public class UMLFileUtilsTest {
 
     UMLRSolution sol;
-    UMLRProblem<RSolution<?>> p;
 
     @BeforeAll
     public static void beforeClass() throws IOException {
@@ -38,9 +37,6 @@ public class UMLFileUtilsTest {
 
     @BeforeEach
     public void setup() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
 
         String modelpath = getClass().getResource("/models/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<RSolution<?>> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");

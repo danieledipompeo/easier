@@ -35,10 +35,6 @@ public class RefactoringActionFactoryTest {
 
     @AfterAll
     static void tearDownAfterClass() throws IOException {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder())
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
         Files.walk(Configurator.eINSTANCE.getTmpFolder())
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
@@ -47,11 +43,8 @@ public class RefactoringActionFactoryTest {
 
     @BeforeEach
     public void init() {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
-        String modelpath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
+        String BASE_PATH = "/easier-uml2lqnCaseStudy/";
+        String modelpath = getClass().getResource(BASE_PATH + "cocome/simplified-cocome/cocome.uml").getFile();
         UMLRProblem<RSolution<?>> p = new UMLRProblem<>(Paths.get(modelpath), "ccm__test");
         sol = (UMLRSolution) p.createSolution();
     }

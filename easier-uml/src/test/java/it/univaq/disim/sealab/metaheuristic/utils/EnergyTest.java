@@ -1,4 +1,4 @@
-package it.univaq.disim.sealab.epsilon.utility;
+package it.univaq.disim.sealab.metaheuristic.utils;
 
 import java.util.Map;
 

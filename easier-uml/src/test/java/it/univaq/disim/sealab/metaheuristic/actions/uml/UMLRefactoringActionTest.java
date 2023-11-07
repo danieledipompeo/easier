@@ -10,9 +10,9 @@ import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,32 +33,22 @@ public class UMLRefactoringActionTest {
     protected EasierModel eModel;
     protected String modelpath;
 
+    final static String BASE_PATH = "/easier-uml2lqnCaseStudy/";
+
     void setUp() throws Exception {
-        int allowedFailures = 100;
-        int desired_length = 4;
-        int populationSize = 4;
-
-        modelpath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
-        //        p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
-
-        //        solution = p.createSolution();
-        //        solution = new UMLRSolution(Paths.get(modelpath), "simplied-cocome__test");
-
-        eModel = new UMLEasierModel(modelpath);
+//        eModel = new UMLEasierModel(modelpath);
     }
 
-    void testToCSV() {
+    void testToCSV() throws EasierException {
         generatedCSV = action.toCSV();
         // Header hardcoded in FileUtils.refactoringDumpToCSV. It has been removed the SOLUTION_ID field
-        System.out.println("operation,target,to,where,tagged_value,factor");
-        System.out.println(generatedCSV);
         assertEquals(numberOfCSVField, generatedCSV.split(",").length,
                 String.format("Expected length %s \t generated %s", numberOfCSVField, generatedCSV.split(",").length));
         assertEquals(actionName, generatedCSV.split(",")[0],
                 String.format("Expected first entry %s \t generated %s", actionName, action.getName()));
     }
 
-    void testEquals() {
+    void testEquals() throws EasierException {
         RefactoringAction action2 = action;
         assertEquals(action, action2);
 
@@ -69,38 +59,36 @@ public class UMLRefactoringActionTest {
 
     void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
         EasierUmlModel model = EOLStandalone.createUmlModel(modelpath);
-        action.execute(model);
+        assertDoesNotThrow(() -> action.execute(model), String.format("Expected no exceptions when executing the " +
+                "action %s on the model %s", action.getName(), modelpath));
     }
 
 
-    void testGetTargetType() {
+    void testGetTargetType() throws EasierException {
         assertEquals(expectedType, action.getTargetType(), String.format("Expected target type %s \t found %s",
                 expectedType, action.getTargetType()));
     }
 
-    void testGetTargetElement() {
+    void testGetTargetElement() throws EasierException {
         assertEquals(expectedName, action.getTargetElements(), String.format("Expected target name %s \t found %s",
                 expectedName, action.getTargetType()));
     }
 
-    void testClone() {
-        //        RefactoringAction clonedAction = action.clone(solution);
-        RefactoringAction clonedAction = (RefactoringAction) action.clone();
+    void testClone() throws EasierException {
+        RefactoringAction clonedAction = action.clone();
         assertEquals(action, clonedAction);
     }
 
     void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
 
-        Collection<?> modelContents =
-                EOLStandalone.createUmlModel(modelpath).allContents();
+        AtomicReference<Double> archChanges = new AtomicReference<>(0d);
 
-        double archChanges = action.getRefactoringCost();
+        assertDoesNotThrow(() -> archChanges.set(action.getRefactoringCost()), "Expected no exception");
+        assertNotEquals(0, archChanges.get(), String.format("The action: %s on: %s should have arcChanges != 0",
+                action.getName(), action.getTargetElements().get(action.getTargetType()).iterator().next()));
+
         EasierLogger.logger_.info(
-                String.format("[TEST] architectural changes %s of the action %s target %s", archChanges,
-                        action.getName(),
-                        action.getTargetElements().get(action.getTargetType()).iterator().next()));
-
-        assertDoesNotThrow(() -> action.getRefactoringCost(), "Expected no exception");
-        assertNotEquals(0, archChanges, "Expected arcChanges != 0");
+                String.format("Architectural changes %s of the action %s target %s", archChanges,
+                        action.getName(), action.getTargetElements().get(action.getTargetType()).iterator().next()));
     }
 }

@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
+import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
@@ -7,14 +8,15 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UMLCloneNodeTest extends UMLRefactoringActionTest {
@@ -24,14 +26,17 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     void setUp() throws Exception {
         super.setUp();
 
-        oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-
-
+//        oldAction = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+//        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
     }
 
     @Test
-    void testConstructor() {
+    void testConstructor() throws EasierException {
+        String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+
         String targetNode = action.getTargetElements().get(Configurator.NODE_LABEL).iterator().next();
         assertFalse(eModel.getAvailableElements().values().stream().noneMatch(set -> set.contains(targetNode)), String.format("Expected target node %s belongs to the availableElements.", targetNode));
 
@@ -40,27 +45,42 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    void testToCSV() {
-//        String generatedCSV = action.toCSV();
-//        System.out.println(generatedCSV);
+    void testToCSV() throws EasierException {
         numberOfCSVField = 3;
         actionName = "UMLCloneNode";
+        String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testToCSV();
     }
 
-    @Test
-    void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
-        super.testExecute();
+    @ParameterizedTest
+    @ValueSource(strings = {"cocome/simplified-cocome/cocome.uml", "train-ticket/train-ticket.uml",
+            "eshopper/eshopper.uml"})
+    void testExecute(String mPath) throws URISyntaxException, EolModelLoadingException, EasierException {
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        assertDoesNotThrow(super::testExecute);
     }
 
     @Test
-    void testGetTargetType() {
+    void testGetTargetType() throws EasierException {
         expectedType = Configurator.NODE_LABEL;
+        String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testGetTargetType();
     }
 
     @Test
-    void testEquals() {
+    void testEquals() throws EasierException {
+       String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testEquals();
     }
 
@@ -80,18 +100,32 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
 
 
     @Test
-    void testGetTargetElement() {
+    void testGetTargetElement() throws EasierException {
+       String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 
     @Test
-    void testClone() {
+    void testClone() throws EasierException {
+        String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testClone();
     }
 
-    @Test
-    void testComputeArchitecturalChanges() throws URISyntaxException, EolModelLoadingException, EasierException {
+    @ParameterizedTest
+    @ValueSource(strings = {"cocome/simplified-cocome/cocome.uml", "train-ticket/train-ticket.uml",
+            "eshopper/eshopper.uml"})
+    void testComputeArchitecturalChanges(String mPath) throws URISyntaxException, EolModelLoadingException,
+            EasierException {
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testComputeArchitecturalChanges();
     }
 }
