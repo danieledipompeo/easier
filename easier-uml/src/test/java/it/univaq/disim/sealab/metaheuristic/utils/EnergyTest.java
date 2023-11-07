@@ -39,8 +39,20 @@ public class EnergyTest {
 		entry("BarCodeScanner", 3.26),
 		entry("StoreServer", 4.0)
 	);
+
+	private final Map<String, Double> utilizations = Map.ofEntries(
+		entry("EnterpriseClient", .31),
+		entry("CashBox", .58),
+		entry("LightDisplay", .67),
+		entry("EnterpriseServer", .25),
+		entry("CashDeskPC", .12),
+		entry("Printer", .98),
+		entry("BarCodeScanner", .26),
+		entry("StoreServer", .1)
+	);
 	
 	private final Double systemEnergyOracle = 373.89821267445416;
+	private final Double systemPowerOracle = 5.791542;
 
 	@Test
 	void extractServiceTimesTest() {
@@ -53,7 +65,13 @@ public class EnergyTest {
 	}
 
 	@Test
+	void computeSystemPowerTest() {
+		double k = 0.66;
+		assertEquals(systemPowerOracle, Energy.systemPower(energyCoefficientsOracle, utilizations, k));
+	}
+
+	@Test
 	void computeSystemEnergyTest() {
-		assertEquals(systemEnergyOracle, Energy.computeSystemEnergy(serviceTimesOracle, energyCoefficientsOracle));
+		assertEquals(systemEnergyOracle, Energy.systemEnergy(serviceTimesOracle, energyCoefficientsOracle));
 	}
 }

@@ -28,8 +28,8 @@ public class Energy {
 			return builder.parse(new File(filename));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			// TODO Use a logger
-			System.out.println("Cannot parse: " + filename);
-			e.printStackTrace();
+			System.out.println("Cannot parse: " + filename + " because " + e.getMessage());
+//			e.printStackTrace();
 		}
 		return null;
 	}
@@ -114,7 +114,7 @@ public class Energy {
 	 * Therefore, we compute energy consumption only for those node that have an
 	 * energy coefficient set.
 	 */
-	public static Double computeSystemEnergy(
+	static Double systemEnergy(
 			final Map<String, Double> serviceTimes,
 			final Map<String, Double> energyCoefficients) {
 
@@ -128,7 +128,73 @@ public class Energy {
 	}
 
 	public static Double computeSystemEnergy(final String uml, final String lqxo) {
-		return computeSystemEnergy(extractServiceTimes(lqxo), extractEnergyCoefficients(uml));
+		return systemEnergy(extractServiceTimes(lqxo), extractEnergyCoefficients(uml));
+	}
+
+	public static double computeSystemPower(final String uml, final String lqxo, final double k) {
+		return systemPower(extractUtilization(lqxo), extractEnergyCoefficients(uml), k);
+	}
+
+	/**
+	 * Compute the energy for the entire system by multiplying the energy coefficients
+	 * of each node by the utilization of the corresponding processor in LQN,
+	 * and then summing these values. We assume that when the processor is utilized,
+	 * it consumes the maximum energy, while it is otherwise idle.
+	 * This model comes from: https://doi.org/10.1007/s10586-023-04030-w.
+	 * We consider the value of the energy specified in UML Node as the maximum
+	 * energy consumption of the node (p_max).
+	 * k is the factor (0, 1) by which the idle energy consumption is scaled from p_max.
+	 *
+	 * We assume that the utilization is available for all the nodes (processors in
+	 * the LQN), but the energy coefficient is provided only for a subset of them.
+	 * Therefore, we compute energy consumption only for those node that have an
+	 * energy coefficient set.
+	 */
+	public static Double systemPower(
+			final Map<String, Double> utilizations,
+			final Map<String, Double> energyCoefficients,
+			final double k) {
+
+		if(utilizations == null || energyCoefficients == null)
+			return Double.MAX_VALUE;
+
+		return utilizations.entrySet().stream()
+				.filter(e -> energyCoefficients.containsKey(e.getKey()))
+				.mapToDouble(e -> {
+					Double p_max = energyCoefficients.get(e.getKey());
+					// k * p_max + (1 - k) * p_max * u
+					return k * p_max + (1 - k) * p_max * e.getValue();
+				})
+				.sum();
+	}
+
+
+	/**
+	 * Get the utilization of each processor and return a Map with the node name
+	 * as key and the utilization as value.
+	 */
+	public static Map<String, Double> extractUtilization(final String lqxo) {
+		// Read the lqxo as an XML file
+		final Document doc = parseXML(lqxo);
+
+		if( doc == null)
+			return null;
+
+		// Get the processors
+		final NodeList processors = doc.getElementsByTagName("processor");
+
+		final Map<String, Double> utilizations = new HashMap<>();
+		for (int i = 0; i < processors.getLength(); i++) {
+			// Get the "result-processor" node from each processor.
+			// The "utilization" tag of that element will contain
+			// the actual utilization of the processor.
+			final Element processor = (Element) processors.item(i);
+			final Element result = (Element) processor.getElementsByTagName("result-processor").item(0);
+			final Double utilization = Double.parseDouble(result.getAttribute("utilization"));
+			utilizations.put(processor.getAttribute("name"), utilization);
+		}
+
+		return utilizations;
 	}
 
 	public static void main(String[] args) {
@@ -144,7 +210,7 @@ public class Energy {
 
 		final Map<String, Double> serviceTimes = extractServiceTimes(lqxo);
 		final Map<String, Double> energyCoefficients = extractEnergyCoefficients(uml);
-		final Double systemEnergy = computeSystemEnergy(serviceTimes, energyCoefficients);
+		final Double systemEnergy = systemEnergy(serviceTimes, energyCoefficients);
 
 		// print
 		serviceTimes.forEach((node, serviceTime) -> {
