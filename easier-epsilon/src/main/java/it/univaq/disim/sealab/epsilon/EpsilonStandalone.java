@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.univaq.disim.sealab.epsilon.utility.EasierEpsilonLogger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryRegistryImpl;
@@ -293,7 +294,8 @@ public abstract class EpsilonStandalone {
 		try {
 			model.load(properties);
 		} catch (EolModelLoadingException ex) {
-			ex.printStackTrace();
+			EasierEpsilonLogger.logger_.severe(
+					String.format("Error in loading the model: %s with properties", xmlFilePath));
 		}
 		return model;
 	}
