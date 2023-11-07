@@ -19,6 +19,9 @@ public class Configurator {
 	public static final String RELIABILITY_LABEL = "reliability";
 	public static final String CHANGES_LABEL = "changes";
 	public static final String SYS_RESP_T_LABEL = "sysRespT";
+	public static final String POWER_LABEL = "power";
+	public static final String ECONOMIC_COST = "economicCost";
+
 	public static final String OPERATION_LABEL = "operation";
 	public static final String COMPONENT_LABEL = "component";
 	public static final String NODE_LABEL = "node";
@@ -131,6 +134,9 @@ public class Configurator {
 			" node characteristics")
 	private String nodeTypes = "[{\"label\":\"small\",\"performance\":1.0,\"energy\":1.5,\"cost\":1000.0}, " +
 			"{\"label\":\"medium\",\"performance\":2.5,\"energy\":3.5,\"cost\":2500.0}]";
+
+	@Parameter(names = {"--power-ratio", "-pwr"}, description = "k is the ratio of power idle to power max.")
+	private double powerRatio = 0.66;
 
 	public long getStoppingCriterionTimeThreshold() {
 		return searchBudgetTimeThreshold;
@@ -269,6 +275,10 @@ public class Configurator {
 			listOfActions.add(s.split(":")[0]);
 		}
 		return listOfActions;
+	}
+
+	public double getPowerRatioIdleMax() {
+		return powerRatio;
 	}
 
 	public static class SemiColonSplitter implements IParameterSplitter {
