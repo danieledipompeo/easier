@@ -18,7 +18,7 @@ public class XMLUtil {
 			result = Files.readAllLines(file);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			EasierLogger.logger_.severe("Error in reading the file : " + e.getMessage());
 		}
 
 		if (result != null) {
@@ -30,14 +30,12 @@ public class XMLUtil {
 					try {
 						writer.write(st);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						EasierLogger.logger_.severe("Error in writing the file : " + e.getMessage());
 					}
 				});
 			} catch (IOException e) {
-				e.printStackTrace();
+				EasierLogger.logger_.severe("Error in writing the file : " + e.getMessage());
 			}
-//			writer.close();
 		}
 
 		/*
