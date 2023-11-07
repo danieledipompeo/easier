@@ -53,171 +53,75 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
         // 1. Execute refactoring action
         solution.executeRefactoring();
 
-        // 2. Generate the performance model
         try {
+            // 2. Generate the performance model
             WorkflowUtils.applyTransformation(solution.getModelPath());
-        } catch (EasierException e) {
-            JMetalLogger.logger.severe(e.getMessage());
-        }
 
-        // 3. Invoke the performance solver
-        try {
+            // 3. Invoke the performance solver
             WorkflowUtils.invokeSolver(solution.getFolderPath());
-        } catch (EasierException | LQNException e) {
+
+            // 4. Feed back the software model with performance indices
+            WorkflowUtils.backAnnotation(solution.getModelPath());
+
+            // compute all the available objectives.
+            // It impacts the execution time of the process. However, it enables a post-hoc analysis
+            solution.computeObjectives();
+
+            // Add the solution to the population of the experiment for the export to JSON
+            EasierExperimentDAO.eINSTANCE.addPopulation(solution);
+
+        } catch (EasierException | LQNException | URISyntaxException | EolRuntimeException e) {
             String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString();
             new FileUtils().failedSolutionLogToCSV(line);
-            EasierLogger.logger_.severe(e.getMessage());
+            EasierLogger.logger_.severe("All the objectives have been set to the relative unfeasible value, due to: " + e.getMessage());
+
+            // In case of any failures within the evaluation process, set all the objectives to the unfeasible value
+            // should avoid selecting the solution for the next generation
+            solution.computeObjectivesToUnfeasibleValues();
         }
 
-        // 4. Feed back the software model with performance indices
-        try {
-            WorkflowUtils.backAnnotation(solution.getModelPath());
-        } catch (URISyntaxException | EolRuntimeException e) {
-            String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString() + "," +
-                    solution.isMutated() + "," + solution.isCrossover();
-            new FileUtils().failedSolutionLogToCSV(line);
-            JMetalLogger.logger.severe(e.getMessage());
-        }
-
-        // Compute objectives
+        // set objectives for the fitness function
         setObjectives(solution);
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_end");
-
-        // Add the solution to the population of the experiment for the export to JSON
-        EasierExperimentDAO.eINSTANCE.addPopulation(solution);
-
-        EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
-
     }
-
 
     private void setObjectives(UMLRSolution solution) {
 
-        /*if (Configurator.eINSTANCE.getProbPas() != 0)
-            WorkflowUtils.countPerformanceAntipattern(solution.getModelPath(), solution.getName());
-
-        try {
-            // it will use the system response time as objective if the isPerfQ returns false
-            if(Configurator.eINSTANCE.isPerfQ())
-                solution.setPerfQ(WorkflowUtils.perfQ(sourceModelPath, solution.getModelPath()));
-            else
-                solution.setPerfQ(WorkflowUtils.systemResponseTime(solution.getModelPath()));
-        } catch (EasierException e) {
-            EasierLogger.logger_.severe(String.format("Solution # '%s' has thrown an error when evaluating " +
-                            "performance. The objective will be set to Double.MIN_VALUE.",
-                    solution.getName()));
-            // TODO check whether using the min value is the best choice
-            solution.setPerfQ(Double.MIN_VALUE);
-        }
-
-        try {
-            solution.setSystemEnergy(WorkflowUtils.energyEstimation(solution.getModelPath()));
-        } catch (EasierException e) {
-            EasierLogger.logger_.severe(String.format("Solution # '%s' has thrown an error when evaluating " +
-                            "energy. The objective will be set to Double.MAX_VALUE.",
-                    solution.getName()));
-            solution.setSystemEnergy(Double.MAX_VALUE);
-        }
-        solution.computeReliability();
-        solution.computeArchitecturalChanges();*/
-
         List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
 
-        for(String obj : objectives){
+        for (String obj : objectives) {
             int index = objectives.indexOf(obj);
-            switch (obj){
+            switch (obj) {
                 case Configurator.PERF_Q_LABEL:
-                    // to be maximized
-                    try {
-                        solution.setObjective(index,
-                                (-1 * WorkflowUtils.perfQ(sourceModelPath, solution.getModelPath())));
-                    } catch (EasierException e) {
-                        EasierLogger.logger_.severe("SolutionID : " + solution.getName() + " error in computing the " +
-                                "perfQ: " + e.getMessage());
-                        EasierLogger.logger_.info("PerfQ is set to Double.MAX_VALUE");
-                        solution.setObjective(index, -1 * Double.MAX_VALUE);
-                    }
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PERF_Q_LABEL));
                     break;
                 case Configurator.SYS_RESP_T_LABEL:
-                    // to be minimized
-                    try {
-                        solution.setObjective(index, WorkflowUtils.systemResponseTime(solution.getModelPath()));
-                    } catch (EasierException e) {
-                        EasierLogger.logger_.severe("SolutionID : " + solution.getName() + " error in computing the " +
-                                "system response time: " + e.getMessage());
-                        EasierLogger.logger_.info("System response time is set to Double.MAX_VALUE");
-                        solution.setObjective(index, Double.MAX_VALUE);
-                    }
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.SYS_RESP_T_LABEL));
                     break;
                 case Configurator.CHANGES_LABEL:
-                    // to be minimized
-                    try {
-                        solution.setObjective(index, WorkflowUtils.refactoringCost(solution));
-                    } catch (EasierException e) {
-                       EasierLogger.logger_.severe("SolutionID : " + solution.getName() + " error in computing the " +
-                                "refactoring cost: " + e.getMessage());
-                        EasierLogger.logger_.info("Refactoring cost is set to Double.MAX_VALUE");
-                        solution.setObjective(index, Double.MAX_VALUE);
-                    }
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.CHANGES_LABEL));
                     break;
                 case Configurator.RELIABILITY_LABEL:
-                    // to be maximized
-                    try {
-                        solution.setObjective(index, (-1 * WorkflowUtils.reliability(solution.getModelPath())));
-                    } catch (MissingTagException e) {
-                        EasierLogger.logger_.severe(
-                                "SolutionID : " + solution.getName() + " error in computing the reliability: " +
-                                        e.getMessage());
-                        String line =
-                                solution.getName() + "," + e.getMessage() + "," +
-                                        solution.getVariable(RSolution.VARIABLE_INDEX).toString();
-                        new FileUtils().reliabilityErrorLogToCSV(line);
-
-                        EasierLogger.logger_.info("Reliability is set to Double.MAX_VALUE");
-                        solution.setObjective(index, -1 * Double.MIN_VALUE);
-                    }
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.RELIABILITY_LABEL));
                     break;
                 case Configurator.ENERGY_LABEL:
-                    // to be minimized
-                    try {
-                        solution.setObjective(index, WorkflowUtils.energyEstimation(solution.getModelPath()));
-                    } catch (EasierException e) {
-                        EasierLogger.logger_.severe("SolutionID : " + solution.getName() + " error in computing the " +
-                                "energy: " + e.getMessage());
-                        EasierLogger.logger_.info("Energy is set to Double.MAX_VALUE");
-                        solution.setObjective(index, Double.MAX_VALUE);
-                    }
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.ENERGY_LABEL));
                     break;
                 case Configurator.PAS_LABEL:
-                    // to be minimized
-                    try {
-                        solution.setObjective(index,
-                                WorkflowUtils.countPerformanceAntipattern(solution.getModelPath(), solution.getName()));
-                    } catch (EasierException e) {
-                        EasierLogger.logger_.severe(
-                                String.format("Solution: #%s has thrown an error when computing the pas on: %s " +
-                                        "because of: %s", solution.getName(), sourceModelPath, e.getMessage()));
-                        EasierLogger.logger_.info("PAs is set to Double.MAX_VALUE");
-                        solution.setObjective(index, Double.MAX_VALUE);
-                    }
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.PAS_LABEL));
+                    break;
+                case Configurator.POWER_LABEL:
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.POWER_LABEL));
+                    break;
+                case Configurator.ECONOMIC_COST:
+                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.ECONOMIC_COST));
                     break;
                 default:
                     EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
                     break;
             }
-
         }
-
-        // Set objectives
-        /*solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
-        solution.setObjective(1, solution.getArchitecturalChanges());
-        if (Configurator.eINSTANCE.getProbPas() != 0) {
-            solution.setObjective(2, solution.getPAs());
-            solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
-        } else {
-            solution.setObjective(2, solution.getSystemEnergy()); // to be minimized
-            solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
-        }*/
+        EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
     }
 }

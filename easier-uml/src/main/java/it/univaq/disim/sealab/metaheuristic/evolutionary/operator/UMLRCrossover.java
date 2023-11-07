@@ -133,7 +133,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
                 }
             });*/
             offspring.forEach(solution -> {
-                for(int objectiveIndex = 0; objectiveIndex <= solution.getObjectives().length; objectiveIndex++){
+                for(int objectiveIndex = 0; objectiveIndex < solution.getObjectives().length; objectiveIndex++){
                     solution.setObjective(objectiveIndex, solution.getObjective(objectiveIndex));
                 }
             });
