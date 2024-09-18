@@ -10,59 +10,6 @@
     <artifactId>easier-core</artifactId>
     <packaging>jar</packaging>
 
-    <!-- 	<build> -->
-    <!-- 		<plugins> -->
-    <!-- 			<plugin> -->
-    <!-- 				<artifactId>maven-assembly-plugin</artifactId> -->
-    <!-- 				<configuration> -->
-    <!-- 					<archive> -->
-    <!-- 						<manifest> -->
-    <!-- 							<mainClass>it.univaq.disim.sealab.metaheuristic.Launcher</mainClass> -->
-    <!-- 						</manifest> -->
-    <!-- 					</archive> -->
-    <!-- 					<descriptorRefs> -->
-    <!-- 						<descriptorRef>jar-with-dependencies</descriptorRef> -->
-    <!-- 					</descriptorRefs> -->
-    <!-- 				</configuration> -->
-    <!-- 				<executions> -->
-    <!-- 					<execution> -->
-    <!-- 						<id>make-assembly</id> this is used for inheritance merges -->
-    <!-- 						<phase>package</phase> bind to the packaging phase -->
-    <!-- 						<goals> -->
-    <!-- 							<goal>single</goal> -->
-    <!-- 						</goals> -->
-    <!-- 					</execution> -->
-    <!-- 				</executions> -->
-    <!-- 			</plugin> -->
-    <!-- 			<plugin> -->
-    <!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-    <!-- 				<artifactId>maven-jar-plugin</artifactId> -->
-    <!-- 				<configuration> -->
-    <!-- 					<archive> -->
-    <!-- 						<manifest> -->
-    <!-- 							<addClasspath>true</addClasspath> -->
-    <!-- 							<mainClass>it.univaq.disim.sealab.metaheuristic.Launcher</mainClass> -->
-    <!-- 						</manifest> -->
-    <!-- 					</archive> -->
-    <!-- 				</configuration> -->
-    <!-- 			</plugin> -->
-    <!-- 		</plugins> -->
-    <!-- 	</build> -->
-
-    <repositories>
-        <repository>
-            <id>mvnRepo</id>
-            <name>Mvn Repository</name>
-            <url>http://mvnrepository.com</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.uma.jmetal</groupId>
@@ -79,40 +26,18 @@
             <artifactId>jmetal-lab</artifactId>
             <version>${jmetal-version}</version>
         </dependency>
-        <!-- 		<dependency> -->
-        <!-- 			<groupId>org.uma.jmetal</groupId> -->
-        <!-- 			<artifactId>jmetal-problem</artifactId> -->
-        <!-- 			<version>${jmetal-version}</version> -->
-        <!-- 		</dependency> -->
         <dependency>
             <groupId>org.uma.jmetal</groupId>
             <artifactId>jmetal-exec</artifactId>
             <version>5.9</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.ocl/org.eclipse.ocl.ecore -->
-        <dependency>
-            <groupId>org.eclipse.acceleo</groupId>
-            <artifactId>org.eclipse.ocl.ecore</artifactId>
-            <version>3.3.100.v20140610-0641</version>
-        </dependency>
 
 	<!-- https://mvnrepository.com/artifact/lpg.runtime/java -->
 	<dependency>
 		<groupId>lpg.runtime</groupId>
 		<artifactId>java</artifactId>
 		<version>2.0.17-v201004271640</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.eclipse.ocl/org.eclipse.ocl.common -->
-	<dependency>
-		<groupId>org.eclipse.ocl</groupId>
-		<artifactId>org.eclipse.ocl.common</artifactId>
-		<version>1.2.0.v20140610-0641</version>
-	</dependency>
-	<dependency>
-		<groupId>org.eclipse.ocl</groupId>
-		<artifactId>org.eclipse.ocl</artifactId>
-		<version>3.4.2.v20140725-2242</version>
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 	<dependency>
