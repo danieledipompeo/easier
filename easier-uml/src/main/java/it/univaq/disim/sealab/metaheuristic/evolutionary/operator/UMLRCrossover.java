@@ -4,9 +4,11 @@ import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
@@ -30,6 +32,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
      * List of the offspring solutions that are candidates for crossover
      */
     private static final ArrayList<UMLRSolution> crossoverCandidates = new ArrayList<>();
+    int crossoverPoint;
 
     /**
      * Constructor
@@ -40,7 +43,6 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 //        easierResourcesLogger = new EasierResourcesLogger("UMLCrossoverOperator");
     }
 
-    int crossoverPoint;
     /**
      * Perform the crossover operation.
      * <p>
@@ -58,89 +60,87 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
     public List<S> doCrossover(double probability, UMLRSolution parent1, UMLRSolution parent2) {
 
         // Store elapsed time and consumed memory before applying the crossover
-        easierResourcesLogger.checkpoint("UMLCrossoverOperator", "doCrossover_start");
+        EasierResourcesLogger.checkpoint("UMLCrossoverOperator", "doCrossover_start");
 
         List<UMLRSolution> offspring = new ArrayList<>(2);
 
         UMLRSolution parent1copy = new UMLRSolution(parent1);
-        offspring.add(parent1copy);
-
         UMLRSolution parent2copy = new UMLRSolution(parent2);
+
+        offspring.add(parent1copy);
         offspring.add(parent2copy);
 
-        if (JMetalRandom.getInstance().nextDouble() < probability) {
-            // Get the length of a solution
-            int refactoringLength = Configurator.eINSTANCE.getLength();
+        try {
 
-            Path sourceModelPath = parent1.getSourceModelPath();
-            String problemName = parent1.getProblemName();
+            if (JMetalRandom.getInstance().nextDouble() < probability) {
+                // Get the length of a solution
+                int refactoringLength = Configurator.eINSTANCE.getLength();
 
-            // Create the offspring
-            UMLRSolution child1 = new UMLRSolution(sourceModelPath, problemName);
-            UMLRSolution child2 = new UMLRSolution(sourceModelPath, problemName);
+                Path sourceModelPath = parent1.getSourceModelPath();
+                String problemName = parent1.getProblemName();
 
-            // Set offspring parents
-            child1.setParents(parent1, parent2);
-            child2.setParents(parent2, parent1);
+                // Create the offspring
+                UMLRSolution child1 = new UMLRSolution(sourceModelPath, problemName);
+                UMLRSolution child2 = new UMLRSolution(sourceModelPath, problemName);
 
-            // Extract all possible independent sequence of refactoring actions for the subsequent crossover operation
-            Map<Integer, List<List<RefactoringAction>>> parent1IndependentSequence = independentSequence(parent1);
-            Map<Integer, List<List<RefactoringAction>>> parent2IndependentSequence = independentSequence(parent2);
+                // Set offspring parents
+                child1.setParents(parent1, parent2);
+                child2.setParents(parent2, parent1);
 
-            // Find a feasible crossover point.
-            crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
+                // Extract all possible independent sequence of refactoring actions for the subsequent crossover operation
+                Map<Integer, List<List<RefactoringAction>>> parent1IndependentSequence = independentSequence(parent1);
+                Map<Integer, List<List<RefactoringAction>>> parent2IndependentSequence = independentSequence(parent2);
 
-            // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
-            if (crossoverPoint == -1) {
-                JMetalLogger.logger.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
-                return (List<S>) offspring;
-            }
+                // Find a feasible crossover point.
+                crossoverPoint = extractCrossoverPoint(refactoringLength, parent1IndependentSequence, parent2IndependentSequence);
 
-            // Create offspring refactoring by combining the two parents using the crossover point
-            Refactoring child1Refactoring = createChild(refactoringLength, crossoverPoint, child1.getModelPath().toString(), parent1IndependentSequence, parent2IndependentSequence);
-            Refactoring child2Refactoring = createChild(refactoringLength, crossoverPoint, child2.getModelPath().toString(), parent2IndependentSequence, parent1IndependentSequence);
-
-            // Safety check
-            if (child1Refactoring == null || child2Refactoring == null) {
-                JMetalLogger.logger.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
-                return (List<S>) offspring;
-            }
-
-            child1Refactoring.setSolutionID(child1.getName());
-            child1.setVariable(0, child1Refactoring);
-            child1.setCrossovered(true);
-
-            child2Refactoring.setSolutionID(child2.getName());
-            child2.setVariable(0, child2Refactoring);
-            child2.setCrossovered(true);
-
-            // Remove the copy of the parent1, and parent2 from the offspring
-            offspring.set(0, child1);
-            offspring.set(1, child2);
-
-            // Add the offsprings to the list of candidates
-            crossoverCandidates.addAll(offspring);
-
-            // Evaluate the offsprings
-            /*offspring.forEach(solution -> {
-                solution.setObjective(0, (-1 * solution.getPerfQ())); // to be maximized
-                solution.setObjective(1, solution.getArchitecturalChanges());
-                if (Configurator.eINSTANCE.getProbPas() != 0) {
-                    solution.setObjective(2, solution.getPAs());
-                    solution.setObjective(3, (-1 * solution.getReliability())); // to be maximized
-                } else {
-                    solution.setObjective(2, (-1 * solution.getReliability())); // to be maximized
+                // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
+                if (crossoverPoint == -1) {
+                    JMetalLogger.logger.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
+                    return (List<S>) offspring;
                 }
-            });*/
-            offspring.forEach(solution -> {
-                for(int objectiveIndex = 0; objectiveIndex < solution.getObjectives().length; objectiveIndex++){
-                    solution.setObjective(objectiveIndex, solution.getObjective(objectiveIndex));
+
+                // Create offspring refactoring by combining the two parents using the crossover point
+                Refactoring child1Refactoring = createChild(refactoringLength, crossoverPoint, child1.getModelPath().toString(), parent1IndependentSequence, parent2IndependentSequence);
+                Refactoring child2Refactoring = createChild(refactoringLength, crossoverPoint, child2.getModelPath().toString(), parent2IndependentSequence, parent1IndependentSequence);
+
+                // Safety check
+                if (child1Refactoring == null || child2Refactoring == null) {
+                    JMetalLogger.logger.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
+                    return (List<S>) offspring;
                 }
-            });
+
+                child1Refactoring.setSolutionID(child1.getName());
+                child1.setVariable(0, child1Refactoring);
+                child1.setCrossovered(true);
+
+                child2Refactoring.setSolutionID(child2.getName());
+                child2.setVariable(0, child2Refactoring);
+                child2.setCrossovered(true);
+
+                // Remove the copy of the parent1, and parent2 from the offspring
+                offspring.set(0, child1);
+                offspring.set(1, child2);
+
+                // Add the offsprings to the list of candidates
+                crossoverCandidates.addAll(offspring);
+
+                // Evaluate the offsprings
+                for (UMLRSolution umlrSolution : offspring) {
+                    new ObjectiveEstimator().computeObjectives(umlrSolution);
+                }
+                offspring.forEach(solution -> new ObjectiveEstimator().setConsideredObjectives(solution));
+            }
+        }catch (EasierException e) {
+            EasierLogger.logger_.info("Error in the crossover operation. The offspring have been replaced because: " + e.getMessage());
+
+            // Replace the offspring with parents copies in case of any error within the computation of the computeObjectives function
+            offspring.set(0, parent1copy);
+            offspring.set(1, parent2copy);
         }
 
         // Store elapsed time and consumed memory by the crossover operator
-        easierResourcesLogger.checkpoint("UMLCrossoverOperator", "do_crossover_end");
+        EasierResourcesLogger.checkpoint("UMLCrossoverOperator", "do_crossover_end");
 
 //        easierResourcesLogger.toCSV();
         // add the offsprings to the population of the experiment for the export to JSON
@@ -166,7 +166,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
         // Try all possible crossover points
         while (!possibleCrossoverPoints.isEmpty()) {
             // Extract a crossover point randomly
-            int selected = JMetalRandom.getInstance().nextInt(0, possibleCrossoverPoints.size()-1);
+            int selected = JMetalRandom.getInstance().nextInt(0, possibleCrossoverPoints.size() - 1);
             int crossoverPoint = possibleCrossoverPoints.get(selected);
             possibleCrossoverPoints.remove(selected);
 
@@ -209,7 +209,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
         while (!candidates.isEmpty()) {
             // Randomly select one, and remove it from the list
-            int selected = JMetalRandom.getInstance().nextInt(0, candidates.size()-1);
+            int selected = JMetalRandom.getInstance().nextInt(0, candidates.size() - 1);
             int[] childSequences = candidates.get(selected);
             candidates.remove(selected);
 

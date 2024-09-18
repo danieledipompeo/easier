@@ -114,10 +114,10 @@ public class Energy {
 	 */
 	static Double systemEnergy(
 			final Map<String, Double> serviceTimes,
-			final Map<String, Double> energyCoefficients) {
+			final Map<String, Double> energyCoefficients) throws EasierException {
 
 		if(serviceTimes == null || energyCoefficients == null)
-			return Double.MAX_VALUE;
+			throw new EasierException("Service times or energy coefficients are null");
 
 		return serviceTimes.entrySet().stream()
 				.filter(e -> energyCoefficients.containsKey(e.getKey()))
@@ -125,11 +125,11 @@ public class Energy {
 				.sum();
 	}
 
-	public static double computeSystemEnergy(final String uml, final String lqxo) {
+	public static double computeSystemEnergy(final String uml, final String lqxo) throws EasierException {
 		return systemEnergy(extractServiceTimes(lqxo), extractEnergyCoefficients(uml));
 	}
 
-	public static double computeSystemPower(final String uml, final String lqxo, final double k) {
+	public static double computeSystemPower(final String uml, final String lqxo, final double k) throws EasierException {
 		return systemPower(extractUtilization(lqxo), extractEnergyCoefficients(uml), k);
 	}
 
@@ -151,10 +151,11 @@ public class Energy {
 	public static Double systemPower(
 			final Map<String, Double> utilizations,
 			final Map<String, Double> energyCoefficients,
-			final double k) {
+			final double k) throws EasierException {
 
 		if(utilizations == null || energyCoefficients == null)
-			return Double.MAX_VALUE;
+			throw new EasierException("Utilizations or energy coefficients are null");
+
 
 		return utilizations.entrySet().stream()
 				.filter(e -> energyCoefficients.containsKey(e.getKey()))
@@ -195,7 +196,7 @@ public class Energy {
 		return utilizations;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws EasierException {
 
 		// Expect two files in input: a UML model and a lxqo file
 		if (args.length != 2) {

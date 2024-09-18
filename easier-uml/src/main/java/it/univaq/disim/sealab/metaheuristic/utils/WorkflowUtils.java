@@ -4,6 +4,8 @@ import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EOLStandalone;
 import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.etl.ETLStandalone;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -22,6 +24,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WorkflowUtils {
+
+    public void executeFlow(RSolution<?> solution) throws EasierException {
+
+        try {
+
+            // 1. Execute refactoring action
+            solution.executeRefactoring();
+
+            // 2. Generate the performance model
+            applyTransformation(solution.getModelPath());
+
+            // 3. Invoke the performance solver
+            invokeSolver(solution.getFolderPath());
+
+            // 4. Feed back the software model with performance indices
+            backAnnotation(solution.getModelPath());
+
+        } catch (EasierException | LQNException | EolRuntimeException | URISyntaxException e) {
+            throw new EasierException(e);
+        }
+
+    }
 
     /**
      * Invokes the ETL engine in order to run the UML2LQN transformation.
@@ -80,13 +104,13 @@ public class WorkflowUtils {
                 throw new LQNException(String.format("LQN solver cannot solve the model: %s. The reason is: %s",
                     lqnModelPath, lqnError));
             }
+            EasierLogger.logger_.info("LQN solver invoked on " + folderPath.getFileName().toString());
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new EasierException(String.format("Failed execution of the LQN solver on the model: %s. The " +
                             "reason is: %s", lqnModelPath, e.getMessage()), e);
         }
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "invokeSolver_end");
-        EasierLogger.logger_.info("LQN solver invoked on " + folderPath.getFileName().toString());
     }
 
     public static void backAnnotation(Path modelPath) throws URISyntaxException, EolRuntimeException {

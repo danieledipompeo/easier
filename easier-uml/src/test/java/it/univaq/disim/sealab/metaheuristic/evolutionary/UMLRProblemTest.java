@@ -53,4 +53,15 @@ class UMLRProblemTest {
 
         assertTrue(Arrays.stream(sol.getObjectives()).allMatch(o -> o != 0));
     }
+
+    // Exclude solutions that have unfeasible objectives
+    @Test
+    void evaluateUnfeasible() {
+        UMLRSolution sol = problem.createSolution();
+        sol.setObjective(0, 0);
+        problem.evaluate(sol);
+
+        assertTrue(Arrays.stream(sol.getObjectives()).allMatch(o -> o == 0));
+    }
+
 }

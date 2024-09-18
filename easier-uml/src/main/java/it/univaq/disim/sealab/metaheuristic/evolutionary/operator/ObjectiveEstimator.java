@@ -7,6 +7,7 @@ import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
 import it.univaq.sealab.umlreliability.MissingTagException;
 import it.univaq.sealab.umlreliability.Reliability;
@@ -22,10 +23,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ObjectiveEstimator {
-
 
     /**
      * This method counts the number of Performance Antipatterns (PAs) invoking
@@ -85,7 +86,7 @@ public class ObjectiveEstimator {
      * @return the performance quality indicator as described in
      * <a href="https://doi.org/10.1109/ICSA.2018.00020">https://doi.org/10.1109/ICSA.2018.00020</a>
      */
-    public static double perfQ(Path sourceModelPath, Path modelPath) {
+    public static double perfQ(Path sourceModelPath, Path modelPath) throws EasierException {
 
         /*
          * The updated model can have more nodes than the source node since original
@@ -98,22 +99,26 @@ public class ObjectiveEstimator {
              EasierUmlModel uml = EpsilonStandalone.createUmlModel(modelPath.toString())) {
 
             double perfQ = source.computePerfQ(uml);
-            if (perfQ == Double.MAX_VALUE) {
-                EasierLogger.logger_.severe(String.format("PerfQ is %s because no performance index has been " +
-                        "computed.", Double.MAX_VALUE));
-                return -1 * Double.MAX_VALUE;
-            }
+//            if (perfQ == Double.MAX_VALUE) {
+//                EasierLogger.logger_.severe(String.format("PerfQ is %s because no performance index has been " +
+//                        "computed.", Double.MAX_VALUE));
+//                throw new EasierException();
+//                return -1 * Double.MAX_VALUE;
+//            }
 
             new UMLMemoryOptimizer().cleanup();
             EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_end");
             EasierLogger.logger_.info(String.format("PerfQ : %s", perfQ));
-            return perfQ;
+            // It must be minimized
+            return -1 * perfQ;
         } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException |
                  EasierModelElementNotFoundException e) {
             EasierLogger.logger_.severe(String.format("PerfQ cannot be computed on %s because of: %s",
                     modelPath, e.getMessage()));
             EasierLogger.logger_.info("PerfQ is set to -1 * Double.MAX_VALUE");
-            return -1 * Double.MAX_VALUE;
+            throw new EasierException(String.format("PerfQ cannot be computed on %s because of: %s",
+                    modelPath, e.getMessage()));
+//            return -1 * Double.MAX_VALUE;
         }
     }
 
@@ -124,7 +129,7 @@ public class ObjectiveEstimator {
      * @param modelPath the path of the UML model
      * @return the system response time
      */
-    public static double systemResponseTime(Path modelPath) {
+    public static double systemResponseTime(Path modelPath) throws EasierException {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_start");
         try (EasierUmlModel model = EpsilonStandalone.createUmlModel(modelPath.toString())) {
             double sysRespT = model.computeSystemResponseTime();
@@ -133,15 +138,12 @@ public class ObjectiveEstimator {
             EasierLogger.logger_.info(String.format("System RespT : %s", sysRespT));
 
             return sysRespT;
-        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException e) {
-            EasierLogger.logger_.severe(String.format("Error while computing the System RespT on:  " + modelPath, e));
+        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException | EasierStereotypeNotPropertlyAppliedException e) {
+            EasierLogger.logger_.severe(String.format("Error while computing the System RespT on: %s for the reason: %s",
+                    modelPath, e.getMessage()));
             EasierLogger.logger_.info("System response time is set to Double.MAX_VALUE");
-            return Double.MAX_VALUE;
-        } catch (EasierStereotypeNotPropertlyAppliedException e) {
-           EasierLogger.logger_.severe(String.format("Error while computing the System RespT on: %s for the reason: %s",
-                   modelPath, e.getMessage()));
-           EasierLogger.logger_.info("System response time is set to Double.MAX_VALUE");
-           return Double.MAX_VALUE;
+            throw new EasierException(String.format("Error while computing the System RespT on: %s for the reason: %s",
+                    modelPath, e.getMessage()));
         }
     }
 
@@ -158,7 +160,7 @@ public class ObjectiveEstimator {
      * @return the system energy consumption
      * @throws EasierException when the system energy cannot be computed
      */
-    public static double energyEstimation(Path modelPath) {
+    public static double energyEstimation(Path modelPath) throws EasierException {
         double energy;
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluateEnergy_start");
 
@@ -184,7 +186,7 @@ public class ObjectiveEstimator {
      * @return the system reliability
      * @throws MissingTagException when the reliability cannot be computed due to a not well-formed UML model
      */
-    public static double reliability(Path modelPath) {
+    public static double reliability(Path modelPath) throws EasierException {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeReliability_start");
         // stores the in memory model to a file
         UMLReliability uml = null;
@@ -202,13 +204,12 @@ public class ObjectiveEstimator {
             new UMLMemoryOptimizer().cleanup();
             EasierLogger.logger_.info(String.format("Reliability : %s", reliability));
             EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeReliability_end");
-            return reliability;
+            // It must be minimized
+            return -1 * reliability;
         } catch (MissingTagException e) {
             EasierLogger.logger_.severe( "Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
-            EasierLogger.logger_.info("Reliability is set to -1 * Double.MIN_VALUE");
-            return -1 * Double.MIN_VALUE;
+            throw new EasierException( "Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
         }
-
     }
 
     public static double refactoringCost(RSolution<?> solution) {
@@ -245,7 +246,7 @@ public class ObjectiveEstimator {
      * @param modelPath the path of the UML model
      * @return the system power consumption
      */
-    public static double powerEstimator(Path modelPath) {
+    public static double powerEstimator(Path modelPath) throws EasierException {
         double power;
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePower_start");
 
@@ -272,6 +273,67 @@ public class ObjectiveEstimator {
             EasierLogger.logger_.info("The cost is set to Double.MAX_VALUE");
             return Double.MAX_VALUE;
         }
+    }
+
+    /**
+     * Compute all available objectives of the solution.
+     * Then, the Problem::evaluate will select the ones to be used.
+     * The objectives that should be maximized are negated by the proper method.
+     *
+     */
+    public void computeObjectives(RSolution<?> solution) throws EasierException {
+
+        solution.getMapOfObjectives().put(Configurator.PAS_LABEL,
+                ObjectiveEstimator.countPerformanceAntipattern(solution.getModelPath(), solution.getName()));
+        solution.getMapOfObjectives().put(Configurator.RELIABILITY_LABEL, ObjectiveEstimator.reliability(solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.CHANGES_LABEL, ObjectiveEstimator.refactoringCost(solution));
+        solution.getMapOfObjectives().put(Configurator.PERF_Q_LABEL, ObjectiveEstimator.perfQ(solution.getSourceModelPath(), solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.SYS_RESP_T_LABEL, ObjectiveEstimator.systemResponseTime(solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.ENERGY_LABEL, ObjectiveEstimator.energyEstimation(solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.POWER_LABEL, ObjectiveEstimator.powerEstimator(solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.ECONOMIC_COST, ObjectiveEstimator.economicCost(solution.getModelPath()));
+
+        EasierLogger.logger_.info(String.format("Solution id: # %d has been evaluated: %s", solution.getName(), solution.getMapOfObjectives()));
+    }
+
+
+    public void setConsideredObjectives(RSolution<?> solution) {
+
+        List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
+
+        for (String obj : objectives) {
+            int index = objectives.indexOf(obj);
+            switch (obj) {
+                case Configurator.PERF_Q_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PERF_Q_LABEL));
+                    break;
+                case Configurator.SYS_RESP_T_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.SYS_RESP_T_LABEL));
+                    break;
+                case Configurator.CHANGES_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.CHANGES_LABEL));
+                    break;
+                case Configurator.RELIABILITY_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.RELIABILITY_LABEL));
+                    break;
+                case Configurator.ENERGY_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.ENERGY_LABEL));
+                    break;
+                case Configurator.PAS_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PAS_LABEL));
+                    break;
+                case Configurator.POWER_LABEL:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.POWER_LABEL));
+                    break;
+                case Configurator.ECONOMIC_COST:
+                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.ECONOMIC_COST));
+                    break;
+                default:
+                    EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
+                    break;
+            }
+        }
+        EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
     }
 
 }

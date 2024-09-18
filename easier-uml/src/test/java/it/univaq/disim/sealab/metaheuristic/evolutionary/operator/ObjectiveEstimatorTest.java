@@ -170,4 +170,9 @@ class ObjectiveEstimatorTest {
 
         assertDoesNotThrow(() -> ObjectiveEstimator.powerEstimator(modelPath));
     }
+
+//    @Test
+//    void compute_objectives_should_not_fail_when_lqxo_does_not_exist(){
+//        assertDoesNotThrow(solution::computeObjectives);
+//    }
 }

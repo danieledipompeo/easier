@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -137,31 +138,25 @@ public class UMLRSolution extends RSolution<Refactoring> {
         return true;
     }
 
-    /**
-     * Compute all available objectives of the solution.
-     * Then, the Problem::evaluate will select the ones to be used.
-     *
-     */
-    public void computeObjectives() {
-        mapOfObjectives.put(Configurator.PAS_LABEL,
-                ObjectiveEstimator.countPerformanceAntipattern(this.modelPath, this.getName()));
-        mapOfObjectives.put(Configurator.RELIABILITY_LABEL, ObjectiveEstimator.reliability(this.modelPath));
-        mapOfObjectives.put(Configurator.CHANGES_LABEL, ObjectiveEstimator.refactoringCost(this));
-        mapOfObjectives.put(Configurator.PERF_Q_LABEL, ObjectiveEstimator.perfQ(this.sourceModelPath, this.modelPath));
-        mapOfObjectives.put(Configurator.SYS_RESP_T_LABEL, ObjectiveEstimator.systemResponseTime(this.modelPath));
-        mapOfObjectives.put(Configurator.ENERGY_LABEL, ObjectiveEstimator.energyEstimation(this.modelPath));
-        mapOfObjectives.put(Configurator.POWER_LABEL, ObjectiveEstimator.powerEstimator(this.modelPath));
-        mapOfObjectives.put(Configurator.ECONOMIC_COST, ObjectiveEstimator.economicCost(this.modelPath));
+    public void computeObjectives() throws EasierException {
+        new ObjectiveEstimator().computeObjectives(this);
     }
 
-    public void computeObjectivesToUnfeasibleValues(){
-        mapOfObjectives.put(Configurator.PAS_LABEL, Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.RELIABILITY_LABEL, -1 * Double.MIN_VALUE);
-        mapOfObjectives.put(Configurator.CHANGES_LABEL, Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.PERF_Q_LABEL, -1 * Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.SYS_RESP_T_LABEL, Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.ENERGY_LABEL, Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.POWER_LABEL, Double.MAX_VALUE);
-        mapOfObjectives.put(Configurator.ECONOMIC_COST, Double.MAX_VALUE);
+    public void executeFlow() throws EasierException {
+        new WorkflowUtils().executeFlow(this);
     }
+
+
+//    public void computeObjectivesToUnfeasibleValues(){
+//        mapOfObjectives.put(Configurator.PAS_LABEL, Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.RELIABILITY_LABEL, -1 * Double.MIN_VALUE);
+//        mapOfObjectives.put(Configurator.CHANGES_LABEL, Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.PERF_Q_LABEL, -1 * Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.SYS_RESP_T_LABEL, Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.ENERGY_LABEL, Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.POWER_LABEL, Double.MAX_VALUE);
+//        mapOfObjectives.put(Configurator.ECONOMIC_COST, Double.MAX_VALUE);
+//    }
+
+
 }

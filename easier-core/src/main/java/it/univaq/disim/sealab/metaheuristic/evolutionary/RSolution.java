@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.solution.AbstractSolution;
 
@@ -192,4 +193,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
     public Map<String, Double> getMapOfObjectives(){
         return mapOfObjectives;
     }
+
+    public abstract void executeFlow() throws EasierException;
+
+    public abstract void computeObjectives() throws EasierException;
 }

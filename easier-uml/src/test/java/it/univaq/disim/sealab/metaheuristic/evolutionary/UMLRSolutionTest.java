@@ -7,20 +7,13 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.UnexpectedException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -225,10 +218,6 @@ public class UMLRSolutionTest {
     }
 
 
-    @Test
-    void compute_objectives_should_not_fail_when_lqxo_does_not_exist(){
-        assertDoesNotThrow(solution::computeObjectives);
-    }
 
 
     //    @ParameterizedTest
@@ -238,6 +227,20 @@ public class UMLRSolutionTest {
 //        assertFalse(solution.doAlter(point, candidate), String.format("Expected unfeasible solution %s%n", solution.toString()));
 //
 //        assertTrue(solution.isFeasible());
+//    }
+
+//    // the test should verify that the objectives are computed correctly.
+//    // This means that some of them should be maximized and some minimized.
+//    @Test
+//    public void testComputeObjectives() throws EasierException {
+//        solution.computeObjectives();
+//        Map<String, Double> objectives = solution.mapOfObjectives;
+//        assertTrue(objectives.get(Configurator.SYS_RESP_T_LABEL) >= 0, "Expected a positive value for SysRespT");
+//        assertTrue(objectives.get(Configurator.CHANGES_LABEL) >= 0, "Expected a positive value for Changes");
+//        assertTrue(objectives.get(Configurator.ECONOMIC_COST) >= 0, "Expected a positive value for Cost");
+//        assertTrue(objectives.get(Configurator.PAS_LABEL) >= 0, "Expected a positive value for Pas");
+//        assertTrue(objectives.get(Configurator.RELIABILITY_LABEL) <= 0, "Expected a negative value for Reliability");
+//        assertTrue(objectives.get(Configurator.PERF_Q_LABEL) <= 0, "Expected a negative value for PerfQ");
 //    }
 
 }

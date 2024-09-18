@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 

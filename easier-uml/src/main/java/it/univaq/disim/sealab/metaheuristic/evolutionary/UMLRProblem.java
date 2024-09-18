@@ -1,15 +1,13 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.ObjectiveEstimator;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
-import it.univaq.sealab.umlreliability.MissingTagException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.uma.jmetal.util.JMetalLogger;
 
-import java.io.ObjectInputFilter;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Arrays;
 
 public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
 
@@ -48,80 +46,47 @@ public class UMLRProblem<S extends RSolution<?>> extends RProblem<S> {
     public void evaluate(S s) {
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_start");
-        UMLRSolution solution = (UMLRSolution) s;
+//        UMLRSolution solution = (UMLRSolution) s;
 
-        // 1. Execute refactoring action
-        solution.executeRefactoring();
+        /*while (solution.getMapOfObjectives().isEmpty()) {
 
-        try {
-            // 2. Generate the performance model
-            WorkflowUtils.applyTransformation(solution.getModelPath());
+            // 1. Execute refactoring action
+            solution.executeRefactoring();
 
-            // 3. Invoke the performance solver
-            WorkflowUtils.invokeSolver(solution.getFolderPath());
+            try {
+                // 2. Generate the performance model
+                IWorkflowUtils.applyTransformation(solution.getModelPath());
 
-            // 4. Feed back the software model with performance indices
-            WorkflowUtils.backAnnotation(solution.getModelPath());
+                // 3. Invoke the performance solver
+                IWorkflowUtils.invokeSolver(solution.getFolderPath());
 
-            // compute all the available objectives.
-            // It impacts the execution time of the process. However, it enables a post-hoc analysis
-            solution.computeObjectives();
+                // 4. Feed back the software model with performance indices
+                IWorkflowUtils.backAnnotation(solution.getModelPath());
 
-            // Add the solution to the population of the experiment for the export to JSON
-            EasierExperimentDAO.eINSTANCE.addPopulation(solution);
+                // compute all the available objectives.
+                // It impacts the execution time of the process. However, it enables a post-hoc analysis
+                ObjectiveEstimator.computeObjectives(solution);
 
-        } catch (EasierException | LQNException | URISyntaxException | EolRuntimeException e) {
-            String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString();
-            new FileUtils().failedSolutionLogToCSV(line);
-            EasierLogger.logger_.severe("All the objectives have been set to the relative unfeasible value, due to: " + e.getMessage());
+            } catch (EasierException | LQNException | URISyntaxException | EolRuntimeException e) {
+                String line = solution.getName() + "," + e.getMessage() + "," + solution.getVariable(0).toString();
+                new FileUtils().failedSolutionLogToCSV(line);
 
-            // In case of any failures within the evaluation process, set all the objectives to the unfeasible value
-            // should avoid selecting the solution for the next generation
-            solution.computeObjectivesToUnfeasibleValues();
+                // In case of any failures within the evaluation process, set all the objectives to the unfeasible value
+                // should avoid selecting the solution for the next generation
+                EasierLogger.logger_.severe(String.format("Solution id: # %d has been replaced because %s", solution.getName(), e.getMessage()));
+                solution = (UMLRSolution) createSolution();
+            }
         }
 
+        EasierLogger.logger_.info(String.format("Solution id: # %d has been evaluated: %s", solution.getName(), solution.getMapOfObjectives()));
+*/
         // set objectives for the fitness function
-        setObjectives(solution);
+        new ObjectiveEstimator().setConsideredObjectives(s);
+
+        // Add the solution to the population of the experiment for the export to JSON
+        EasierExperimentDAO.eINSTANCE.addPopulation(s);
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_end");
     }
 
-    private void setObjectives(UMLRSolution solution) {
-
-        List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
-
-        for (String obj : objectives) {
-            int index = objectives.indexOf(obj);
-            switch (obj) {
-                case Configurator.PERF_Q_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PERF_Q_LABEL));
-                    break;
-                case Configurator.SYS_RESP_T_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.SYS_RESP_T_LABEL));
-                    break;
-                case Configurator.CHANGES_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.CHANGES_LABEL));
-                    break;
-                case Configurator.RELIABILITY_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.RELIABILITY_LABEL));
-                    break;
-                case Configurator.ENERGY_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.ENERGY_LABEL));
-                    break;
-                case Configurator.PAS_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.PAS_LABEL));
-                    break;
-                case Configurator.POWER_LABEL:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.POWER_LABEL));
-                    break;
-                case Configurator.ECONOMIC_COST:
-                    solution.setObjective(index, solution.mapOfObjectives.get(Configurator.ECONOMIC_COST));
-                    break;
-                default:
-                    EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
-                    break;
-            }
-        }
-        EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
-    }
 }

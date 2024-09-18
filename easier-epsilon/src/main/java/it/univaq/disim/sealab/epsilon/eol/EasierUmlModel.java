@@ -300,7 +300,10 @@ public class EasierUmlModel extends UmlModel {
             }
         }
 
-        return numberOfMetrics!=0 ? value / numberOfMetrics : Double.MAX_VALUE;
+        if (numberOfMetrics == 0)
+            throw new EasierModelElementNotFoundException("PerfQ cannot be computed because no performance index were found");
+
+        return value / numberOfMetrics;
     }
 
     /**

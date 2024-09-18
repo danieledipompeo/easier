@@ -65,13 +65,13 @@ public class EnergyTest {
 	}
 
 	@Test
-	void computeSystemPowerTest() {
+	void computeSystemPowerTest() throws EasierException {
 		double k = 0.66;
 		assertEquals(systemPowerOracle, Energy.systemPower(energyCoefficientsOracle, utilizations, k));
 	}
 
 	@Test
-	void computeSystemEnergyTest() {
+	void computeSystemEnergyTest() throws EasierException {
 		assertEquals(systemEnergyOracle, Energy.systemEnergy(serviceTimesOracle, energyCoefficientsOracle));
 	}
 }
