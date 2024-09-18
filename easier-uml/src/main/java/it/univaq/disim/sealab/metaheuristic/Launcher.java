@@ -9,10 +9,10 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentB
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util.RComputeQualityIndicators;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.util.RGenerateReferenceParetoFront;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.factory.FactoryBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
-import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
@@ -154,7 +154,7 @@ public class Launcher {
         FactoryBuilder<UMLRSolution> fBuilder = new FactoryBuilder<>();
 //        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
 
-        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new SequentialSolutionListEvaluator<>();
+        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new RSolutionListEvaluator<>();
 
         final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
 
