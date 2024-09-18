@@ -15,16 +15,10 @@ public class EasierSolutionDAO {
         ADDED_SOLUTION = new HashSet<>();
     }
 
-    double reliability;
-    double pas;
-    double changes;
-    double perfq;
-    double energy;
-
-    // All computed objectives
+    // All objectives
     Map<String, Double> objectives;
 
-    // List of objectives considered to compute the fitness
+    // List of considered objectives by the fitness
     Map<String, Double> consideredObjectives;
     int solID;
     List<EasierRefactoringActionDAO> refactoring;

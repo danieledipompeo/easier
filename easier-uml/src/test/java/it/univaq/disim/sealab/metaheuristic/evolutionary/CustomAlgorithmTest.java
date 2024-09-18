@@ -47,7 +47,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
     }
 
     public void setUp() {
-        String modelpath = getClass().getResource("/simplified-cocome/cocome.uml").getFile();
+        String modelpath = getClass().getResource("/easier-uml2lqnCaseStudy/cocome/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
     }
 

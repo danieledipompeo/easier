@@ -11,11 +11,8 @@ public abstract class RMutation<S extends RSolution<?>> implements MutationOpera
 
     private static final long serialVersionUID = 1L;
 
-    private static final double DEFAULT_PROBABILITY = 0.01;
-    private static final double DEFAULT_DISTRIBUTION_INDEX = 20.0;
     private final double distributionIndex;
     private final double mutationProbability;
-    private RepairRSolution solutionRepair;
 
     protected EasierResourcesLogger easierResourcesLogger;
 

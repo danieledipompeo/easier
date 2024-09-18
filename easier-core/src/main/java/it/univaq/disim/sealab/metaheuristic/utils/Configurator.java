@@ -262,7 +262,8 @@ public class Configurator {
 	}
 
 	public Path getSolver() {
-		return Paths.get(solver);
+//		String solver = String.format("docker run --rm -v %s:%s lqns lqns", mountPoint, mountPoint);
+		return Path.of(solver);
 	}
 
 	public double getDistributionIndex() {

@@ -2,13 +2,10 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii;
 
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
-import it.univaq.disim.sealab.metaheuristic.domain.EasierPopulationDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -18,15 +15,18 @@ import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 @SuppressWarnings("serial")
 public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements EasierAlgorithm {
 
+    private final long durationThreshold;
+    private final float prematureConvergenceThreshold;
     // It will be exploited to identify stagnant situation
     List<S> oldPopulation;
-    private long durationThreshold, iterationStartingTime;
-    private float prematureConvergenceThreshold;
+    private long iterationStartingTime;
 
     /**
      * Constructor matingPopulationSize = offspringPopulationSize = populationSize
@@ -46,7 +46,6 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
     /**
      * Prints to CSV each generated population
      * "algorithm,problem_tag,solID,perfQ,#changes,pas,reliability"
-     *
      */
     public void populationToCSV() {
 
@@ -84,9 +83,9 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
 
     @Override
     protected void initProgress() {
-        EasierResourcesLogger.checkpoint(getName(),"initProgess_start");
+        EasierResourcesLogger.checkpoint(getName(), "initProgess_start");
         super.initProgress();
-        EasierResourcesLogger.checkpoint(getName(),"initProgess_end");
+        EasierResourcesLogger.checkpoint(getName(), "initProgess_end");
 
         iterationStartingTime = System.currentTimeMillis();
         oldPopulation = this.getPopulation(); // store the initial population
@@ -95,43 +94,23 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
     @Override
     protected void updateProgress() {
         EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
-                evaluations / getMaxPopulationSize() ));
+                evaluations / getMaxPopulationSize()));
 
-        EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
+        EasierResourcesLogger.checkpoint(getName(), "updateProgress_start");
         super.updateProgress();
-        EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
-        EasierResourcesLogger.checkpoint(getName(),"iteration_end");
+        EasierResourcesLogger.checkpoint(getName(), "updateProgress_end");
+        EasierResourcesLogger.checkpoint(getName(), "iteration_end");
 
         populationToCSV();
         System.out.println(this.getName());
         ProgressBar.showBar((evaluations / getMaxPopulationSize()), (maxEvaluations / getMaxPopulationSize()));
     }
 
-    /*public boolean isStagnantState() {
-
-        int countedSameObjectives = 0;
-        for (int i = 0; i < oldPopulation.size(); i++) {
-            for (int j = 0; j < population.size(); j++) {
-                if (!oldPopulation.get(i).isLocalOptmimalPoint(population.get(j))) {
-                    break;
-                }
-                countedSameObjectives++;
-            }
-        }
-
-        // update oldPopulation to the current population
-        oldPopulation = population;
-
-        // check if all solutions within the joined list have the same objective values
-        return ((double) (population.size() - countedSameObjectives / population.size())
-                / population.size()) > prematureConvergenceThreshold;
-    }*/
-
     @Override
     protected List<S> createInitialPopulation() {
-        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
+        EasierResourcesLogger.checkpoint(getName(), "createInitialPopulation_start");
         List<S> pop = super.createInitialPopulation();
-        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
+        EasierResourcesLogger.checkpoint(getName(), "createInitialPopulation_end");
         JMetalLogger.logger.info("Initial population created");
         return pop;
     }
@@ -139,41 +118,41 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
     @Override
     protected List<S> selection(List<S> pop) {
         EasierResourcesLogger.iterationCheckpointStart(getName(), "iteration_start");
-        EasierResourcesLogger.checkpoint(getName(),"selection_start");
+        EasierResourcesLogger.checkpoint(getName(), "selection_start");
         List<S> matingPopulation = super.selection(pop);
-        EasierResourcesLogger.checkpoint(getName(),"selection_end");
+        EasierResourcesLogger.checkpoint(getName(), "selection_end");
         return matingPopulation;
     }
 
     @Override
     protected List<S> reproduction(List<S> matingPool) {
-        EasierResourcesLogger.checkpoint(getName(),"reproduction_start");
+        EasierResourcesLogger.checkpoint(getName(), "reproduction_start");
         List<S> offspringPopulation = super.reproduction(matingPool);
-        EasierResourcesLogger.checkpoint(getName(),"reproduction_end");
+        EasierResourcesLogger.checkpoint(getName(), "reproduction_end");
         return offspringPopulation;
     }
 
     @Override
     protected List<S> evaluatePopulation(List<S> population) {
-        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(), "evaluatePopulation_end");
         List<S> evaluatedPop = super.evaluatePopulation(population);
-        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
+        EasierResourcesLogger.checkpoint(getName(), "evaluatePopulation_end");
         return evaluatedPop;
     }
 
     @Override
     protected List<S> replacement(List<S> population, List<S> offspringPopulation) {
-        EasierResourcesLogger.checkpoint(getName(),"replacement_start");
+        EasierResourcesLogger.checkpoint(getName(), "replacement_start");
         List<S> replacedPop = super.replacement(population, offspringPopulation);
-        EasierResourcesLogger.checkpoint(getName(),"replacement_end");
+        EasierResourcesLogger.checkpoint(getName(), "replacement_end");
         return replacedPop;
     }
 
     @Override
     public void run() {
-        EasierResourcesLogger.checkpoint(getName(),"run_start");
+        EasierResourcesLogger.checkpoint(getName(), "run_start");
         super.run();
-        EasierResourcesLogger.checkpoint(getName(),"run_end");
+        EasierResourcesLogger.checkpoint(getName(), "run_end");
 
         /*
          * prints the number of iterations until the search budget is not reached.

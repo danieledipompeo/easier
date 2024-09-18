@@ -30,10 +30,12 @@ public class WorkflowUtilsTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        Files.walk(Configurator.eINSTANCE.getOutputFolder())
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        if (Configurator.eINSTANCE.getOutputFolder().toFile().exists()) {
+            Files.walk(Configurator.eINSTANCE.getOutputFolder())
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     @ParameterizedTest

@@ -22,6 +22,9 @@
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <easier.core.version>0.6.3</easier.core.version>
+	<openrewrite.maven.plugin>5.28.0</openrewrite.maven.plugin>
+	<openrewrite.maven>8.23.3</openrewrite.maven>
+	<openrewrite.testing.framework>2.6.0</openrewrite.testing.framework>
     </properties>
 
     <build>
@@ -74,23 +77,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>Eclipse Repository</id>
-            <name>eclipse repository</name>
-            <url>https://repo.eclipse.org/content/groups/releases/</url>
-        </repository>
-        <repository>
-            <id>Sonatype Repository</id>
-            <name>sonatype repository</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <id>central</id>
-            <name>atlassianuseast1-releases</name>
-            <url>https://packages.atlassian.com/maven-3rdparty</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.eclipse.emf/org.eclipse.emf.common -->
@@ -140,4 +126,57 @@
             <version>1.72</version>
         </dependency>
     </dependencies>
+  <profiles>
+  	<profile>
+  		<id>openrewrite</id>
+  		<build>
+  		  <plugins>
+  		    <plugin>
+  		      <groupId>org.openrewrite.maven</groupId>
+  		      <artifactId>rewrite-maven-plugin</artifactId>
+  		      <version>5.28.0</version>
+  		      <configuration>
+  		        <activeRecipes>
+				<recipe>org.openrewrite.java.testing.junit5.JUnit4to5Migration</recipe>
+				<recipe>it.univaq.spencerlab.AddJfrUnitDependency</recipe>
+				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventTestAnnotation</recipe>
+				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventsVariable</recipe>
+				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJDKEventsAnnotationWrapper</recipe>
+				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrAwaitEvents</recipe>
+  		        </activeRecipes>
+  		        <failOnDryRunResults>true</failOnDryRunResults>
+			<configLocation>../rewrite.yml</configLocation> <!-- Ensure this path is correct -->
+  		      </configuration>
+		      <dependencies>
+		          <dependency>
+		            <groupId>org.openrewrite.recipe</groupId>
+		            <artifactId>rewrite-testing-frameworks</artifactId>
+		            <version>2.6.0</version>
+		          </dependency>
+			  <dependency>
+		            <groupId>org.openrewrite.recipe</groupId>
+		            <artifactId>rewrite-static-analysis</artifactId>
+		            <version>1.4.2</version>
+		          </dependency>
+			  <dependency>
+				  <groupId>org.openrewrite</groupId>
+				  <artifactId>rewrite-maven</artifactId>
+				  <version>8.23.1</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>org.openrewrite</groupId>
+				  <artifactId>rewrite-java</artifactId>
+				  <version>8.23.1</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>org.michele</groupId>
+				  <artifactId>michele-JfrUnit</artifactId>
+				  <version>0.0.1-SNAPSHOT</version>
+			  </dependency>
+    	             </dependencies>
+  		    </plugin>
+  		  </plugins>
+  		</build>
+  	</profile>
+  </profiles>
 </project>
