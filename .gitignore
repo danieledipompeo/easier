@@ -12,3 +12,4 @@ jMetal.log
 jMetal.log*
 hs_err_pid*
 *.out
+mvnw.cmd
