@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.univaq.disim.sealab</groupId>
     <artifactId>easier</artifactId>
@@ -22,13 +22,20 @@
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <easier.core.version>0.6.3</easier.core.version>
-	<openrewrite.maven.plugin>5.28.0</openrewrite.maven.plugin>
-	<openrewrite.maven>8.23.3</openrewrite.maven>
-	<openrewrite.testing.framework>2.6.0</openrewrite.testing.framework>
+        <openrewrite.maven.plugin>5.28.0</openrewrite.maven.plugin>
+        <openrewrite.maven>8.23.3</openrewrite.maven>
+        <openrewrite.testing.framework>2.6.0</openrewrite.testing.framework>
+        <maven.surefire>3.5.3</maven.surefire>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire}</version> <!-- Use the latest version available -->
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
@@ -82,7 +89,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -104,57 +111,60 @@
             <version>1.72</version>
         </dependency>
     </dependencies>
-  <profiles>
-  	<profile>
-  		<id>openrewrite</id>
-  		<build>
-  		  <plugins>
-  		    <plugin>
-  		      <groupId>org.openrewrite.maven</groupId>
-  		      <artifactId>rewrite-maven-plugin</artifactId>
-  		      <version>5.28.0</version>
-  		      <configuration>
-  		        <activeRecipes>
-				<recipe>org.openrewrite.java.testing.junit5.JUnit4to5Migration</recipe>
-				<recipe>it.univaq.spencerlab.AddJfrUnitDependency</recipe>
-				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventTestAnnotation</recipe>
-				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventsVariable</recipe>
-				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJDKEventsAnnotationWrapper</recipe>
-				<recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrAwaitEvents</recipe>
-  		        </activeRecipes>
-  		        <failOnDryRunResults>true</failOnDryRunResults>
-			<configLocation>../rewrite.yml</configLocation> <!-- Ensure this path is correct -->
-  		      </configuration>
-		      <dependencies>
-		          <dependency>
-		            <groupId>org.openrewrite.recipe</groupId>
-		            <artifactId>rewrite-testing-frameworks</artifactId>
-		            <version>2.6.0</version>
-		          </dependency>
-			  <dependency>
-		            <groupId>org.openrewrite.recipe</groupId>
-		            <artifactId>rewrite-static-analysis</artifactId>
-		            <version>1.4.2</version>
-		          </dependency>
-			  <dependency>
-				  <groupId>org.openrewrite</groupId>
-				  <artifactId>rewrite-maven</artifactId>
-				  <version>8.23.1</version>
-			  </dependency>
-			  <dependency>
-				  <groupId>org.openrewrite</groupId>
-				  <artifactId>rewrite-java</artifactId>
-				  <version>8.23.1</version>
-			  </dependency>
-			  <dependency>
-				  <groupId>org.michele</groupId>
-				  <artifactId>michele-JfrUnit</artifactId>
-				  <version>0.0.1-SNAPSHOT</version>
-			  </dependency>
-    	             </dependencies>
-  		    </plugin>
-  		  </plugins>
-  		</build>
-  	</profile>
-  </profiles>
+    <profiles>
+        <profile>
+            <id>openrewrite</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <version>5.28.0</version>
+                        <configuration>
+                            <activeRecipes>
+                                <recipe>org.openrewrite.java.testing.junit5.JUnit4to5Migration</recipe>
+                                <recipe>it.univaq.spencerlab.AddJfrUnitDependency</recipe>
+                                <recipe>
+                                    it.univaq.spencerlab.openrewrite.recipe.AddJfrEventTestAnnotation</recipe>
+                                <recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventsVariable</recipe>
+                                <recipe>
+                                    it.univaq.spencerlab.openrewrite.recipe.AddJDKEventsAnnotationWrapper</recipe>
+                                <recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrAwaitEvents</recipe>
+                            </activeRecipes>
+                            <failOnDryRunResults>true</failOnDryRunResults>
+                            <configLocation>../rewrite.yml</configLocation> <!-- Ensure this path is
+                            correct -->
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.openrewrite.recipe</groupId>
+                                <artifactId>rewrite-testing-frameworks</artifactId>
+                                <version>2.6.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.openrewrite.recipe</groupId>
+                                <artifactId>rewrite-static-analysis</artifactId>
+                                <version>1.4.2</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.openrewrite</groupId>
+                                <artifactId>rewrite-maven</artifactId>
+                                <version>8.23.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.openrewrite</groupId>
+                                <artifactId>rewrite-java</artifactId>
+                                <version>8.23.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.michele</groupId>
+                                <artifactId>michele-JfrUnit</artifactId>
+                                <version>0.0.1-SNAPSHOT</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
