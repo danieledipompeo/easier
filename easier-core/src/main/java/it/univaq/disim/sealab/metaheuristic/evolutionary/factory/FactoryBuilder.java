@@ -4,6 +4,7 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ibea.CustomIBEABuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii.CustomNSGAIIBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaiii.CustomNSGAIIIBuilder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii.CustomPESA2Builder;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.random.CustomRandomSearch;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.rnsgaii.CustomRNSGAIIBuilder;
@@ -11,6 +12,7 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.spea2.CustomSPEA2Builde
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
+import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.pesa2.PESA2Builder;
 import org.uma.jmetal.algorithm.multiobjective.rnsgaii.RNSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2Builder;
@@ -157,6 +159,13 @@ public class FactoryBuilder<S extends RSolution<?>> {
                         .setSolutionListEvaluator(solutionListEvaluator);
 
                 algorithm = ibeaBuilder.build();
+            } else if("nsgaiii".equals(algo)){
+                NSGAIIIBuilder<S> nsgaiiiBuilder = new CustomNSGAIIIBuilder<>(
+                        experimentProblem.getProblem(), crossoverOperator, mutationOperator,
+                        Configurator.eINSTANCE.getPopulationSize())
+                        .setMaxIterations(eval * Configurator.eINSTANCE.getPopulationSize())
+                        .setSolutionListEvaluator(solutionListEvaluator);
+                algorithm = nsgaiiiBuilder.build();
             }
 
             if (algorithm == null) {
