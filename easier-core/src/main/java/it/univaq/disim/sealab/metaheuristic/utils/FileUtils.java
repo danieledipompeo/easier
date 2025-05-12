@@ -17,6 +17,13 @@ import java.util.*;
 public class FileUtils {
 
     public FileUtils() {
+        if(!Files.exists(Configurator.eINSTANCE.getOutputFolder())){
+            try {
+                Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+            } catch (IOException e) {
+                EasierLogger.logger_.severe("[ERROR] Cannot create output folder \n:" + e.getMessage());
+            }
+        }
     }
 
     /**
