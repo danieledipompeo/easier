@@ -13,6 +13,8 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListE
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
+import it.univaq.easier.LQN;
+import it.univaq.easier.Scenario;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
@@ -27,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Launcher {
 
@@ -62,6 +65,14 @@ public class Launcher {
                         WorkflowUtils.applyTransformation(m);
                         WorkflowUtils.invokeSolver(m.getParent());
                     }
+
+                    List<String> scenarios = getScenarios(m.getParent().resolve("output.xml"));
+
+                    // Dynamically expand the list of scenarios by configuring the performance testing scenarios
+                    // if the objectiveList in the config file contains "pricePerScenario" and/or "energyPerScenario"
+                    // placeholders
+                    Configurator.eINSTANCE.updateObjectiveList(scenarios);
+
                     List<GenericIndicator<UMLRSolution>> qIndicators = new ArrayList<>();
                     FactoryBuilder<UMLRSolution> factory = new FactoryBuilder<>();
                     for (String qI : Configurator.eINSTANCE.getQualityIndicators()) {
@@ -185,6 +196,15 @@ public class Launcher {
 //            return new RandomSearchUMLRProblem<>(modelPath, pName);
 
         return new UMLRProblem<>(modelPath, pName);
+    }
+
+
+    public static List<String> getScenarios(Path lqxoFile) {
+
+        LQN lqn = new LQN(lqxoFile.toString());
+        Map<String, Scenario> entriesByScenario = lqn.getEntriesByScenario();
+
+        return new ArrayList<>(entriesByScenario.keySet());
     }
 
 }

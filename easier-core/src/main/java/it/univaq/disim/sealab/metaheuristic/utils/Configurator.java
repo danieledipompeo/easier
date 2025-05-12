@@ -1,5 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
+import java.io.ObjectInputFilter;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,11 +21,13 @@ public class Configurator {
 	public static final String CHANGES_LABEL = "changes";
 	public static final String SYS_RESP_T_LABEL = "sysRespT";
 	public static final String POWER_LABEL = "power";
-	public static final String ECONOMIC_COST = "economicCost";
+	public static final String ECONOMIC_COST_LABEL = "economicCost";
 
 	public static final String OPERATION_LABEL = "operation";
 	public static final String COMPONENT_LABEL = "component";
 	public static final String NODE_LABEL = "node";
+	public static final String ECONOMIC_COST_PER_SCENARIO_LABEL = "pricePerScenario";
+	public static final String ENERGY_PER_SCENARIO_LABEL = "energyPerScenario";
 
 	public static Configurator eINSTANCE = new Configurator();
 
@@ -128,7 +131,7 @@ public class Configurator {
 	private double initialChanges = 0d;
 
 	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
-	private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy");
+	private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
 
 	@Parameter(names = {"-nodeChar", "--nodeCharacteristics"}, splitter = SemiColonSplitter.class, description = "The" +
 			" node characteristics")
@@ -307,6 +310,29 @@ public class Configurator {
 
 	public List<String> getObjectivesList(){
 		return objectivesList;
+	}
+
+	/**
+	 * Update the objectives list with the scenarios.
+	 * It adds the scenario name to the objectives that are
+	 * related to the scenario.
+	 *
+	 * @param scenarios: list of scenarios in the model
+	 */
+	public void updateObjectiveList(List<String> scenarios) {
+
+		List<String> updatedList = new ArrayList<>();
+
+        for (String obj : objectivesList) {
+            if (obj.equals(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL) || obj.equals(Configurator.ENERGY_PER_SCENARIO_LABEL)) {
+                for (String scenario : scenarios) {
+                    updatedList.add(obj + "__" + scenario);
+                }
+            } else {
+                updatedList.add(obj);
+            }
+        }
+		this.objectivesList = updatedList;
 	}
 
 	// Extract the node characteristics from the configurator
