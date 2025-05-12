@@ -1,5 +1,20 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+
 import it.univaq.disim.sealab.epsilon.EasierModelElementNotFoundException;
 import it.univaq.disim.sealab.epsilon.EasierStereotypeNotPropertlyAppliedException;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
@@ -7,24 +22,22 @@ import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.*;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.Energy;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import it.univaq.easier.LQN;
+import it.univaq.easier.Profiler;
+import it.univaq.easier.Scenario;
+import it.univaq.easier.UML;
 import it.univaq.sealab.umlreliability.MissingTagException;
 import it.univaq.sealab.umlreliability.Reliability;
 import it.univaq.sealab.umlreliability.UMLReliability;
 import it.univaq.sealab.umlreliability.model.UMLModelPapyrus;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ObjectiveEstimator {
 
@@ -138,7 +151,8 @@ public class ObjectiveEstimator {
             EasierLogger.logger_.info(String.format("System RespT : %s", sysRespT));
 
             return sysRespT;
-        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException | EasierStereotypeNotPropertlyAppliedException e) {
+        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException |
+                 EasierStereotypeNotPropertlyAppliedException e) {
             EasierLogger.logger_.severe(String.format("Error while computing the System RespT on: %s for the reason: %s",
                     modelPath, e.getMessage()));
             EasierLogger.logger_.info("System response time is set to Double.MAX_VALUE");
@@ -150,12 +164,13 @@ public class ObjectiveEstimator {
     /**
      * Estimate the system energy consumption as defined in
      * <p>
-     *     Stoico, V., Cortellessa, V., Malavolta, I., Di Pompeo, D., Pomante, L., Lago, P. (2023).
-     *     An Approach Using Performance Models for Supporting Energy Analysis of Software Systems.
-     *     In: Computer Performance Engineering and Stochastic Modelling. EPEW ASMTA 2023.
-     *     Lecture Notes in Computer Science, vol 14231. Springer, Cham.
-     *     https://doi.org/10.1007/978-3-031-43185-2_17
+     * Stoico, V., Cortellessa, V., Malavolta, I., Di Pompeo, D., Pomante, L., Lago, P. (2023).
+     * An Approach Using Performance Models for Supporting Energy Analysis of Software Systems.
+     * In: Computer Performance Engineering and Stochastic Modelling. EPEW ASMTA 2023.
+     * Lecture Notes in Computer Science, vol 14231. Springer, Cham.
+     * https://doi.org/10.1007/978-3-031-43185-2_17
      * </p>
+     *
      * @param modelPath the path of the UML model
      * @return the system energy consumption
      * @throws EasierException when the system energy cannot be computed
@@ -176,12 +191,13 @@ public class ObjectiveEstimator {
     /**
      * Computes the reliability of the system. It uses the closed form model defined in:
      * <p>
-     *     Cortellessa, V., Grassi, V. (2007).
-     *     A Modeling Approach to Analyze the Impact of Error Propagation on Reliability of Component-Based Systems.
-     *     In: Component-Based Software Engineering. CBSE 2007.
-     *     Lecture Notes in Computer Science, vol 4608. Springer, Berlin, Heidelberg.
-     *     https://doi.org/10.1007/978-3-540-73551-9_10
+     * Cortellessa, V., Grassi, V. (2007).
+     * A Modeling Approach to Analyze the Impact of Error Propagation on Reliability of Component-Based Systems.
+     * In: Component-Based Software Engineering. CBSE 2007.
+     * Lecture Notes in Computer Science, vol 4608. Springer, Berlin, Heidelberg.
+     * https://doi.org/10.1007/978-3-540-73551-9_10
      * </p>
+     *
      * @param modelPath the path of the UML model
      * @return the system reliability
      * @throws MissingTagException when the reliability cannot be computed due to a not well-formed UML model
@@ -207,11 +223,27 @@ public class ObjectiveEstimator {
             // It must be minimized
             return -1 * reliability;
         } catch (MissingTagException e) {
-            EasierLogger.logger_.severe( "Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
-            throw new EasierException( "Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
+            EasierLogger.logger_.severe("Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
+            throw new EasierException("Error in computing the reliability on " + modelPath + ". The reason is: " + e.getMessage());
         }
     }
 
+    /**
+     * Compute the refactoring cost of the solution.
+     * The refactoring cost is computed as the sum of the
+     * refactoring cost of each action multiplied by the
+     * BRF of the action.
+     *
+     * <p>
+     * Cortellessa, Vittorio, Daniele Di Pompeo, Vincenzo Stoico, and Michele Tucci.
+     * "Many-objective optimization of non-functional attributes based on refactoring of software models."
+     * Information and Software Technology 157 (2023): 107159.
+     * <a href="https://doi.org/10.1016/j.infsof.2023.107159">doi</a>
+     * </p>
+     *
+     * @param solution
+     * @return
+     */
     public static double refactoringCost(RSolution<?> solution) {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "computeArchitecturalChanges_start");
 
@@ -240,7 +272,7 @@ public class ObjectiveEstimator {
      * provisioning and load dispatching for connection-intensive internet services.
      * In Proceedings of the 5th USENIX Symposium on Networked Systems Design and Implementation (NSDI'08).
      * USENIX Association, USA, 337–350.
-     * https://dl.acm.org/doi/10.5555/1387589.1387613
+     * <a hfre="https://dl.acm.org/doi/10.5555/1387589.1387613">doi</a>
      * </p>
      *
      * @param modelPath the path of the UML model
@@ -259,6 +291,22 @@ public class ObjectiveEstimator {
         return power;
     }
 
+    /**
+     * Compute the economic cost of the system.
+     * The economic cost is computed as the sum of the
+     * price of the processors multiplied by the
+     * utilization of the processors.
+     *
+     * <p>
+     * Cortellessa, Vittorio, Daniele Di Pompeo, and Michele Tucci.
+     * "Exploring sustainable alternatives for the deployment of microservices architectures in the cloud."
+     * In 2024 IEEE 21st International Conference on Software Architecture (ICSA), pp. 34-45. IEEE, 2024.
+     * <a href="https://doi.org/10.1109/ICSA59870.2024.00012">doi</a>
+     * </p>
+     *
+     * @param modelPath
+     * @return
+     */
     public static double economicCost(Path modelPath) {
         double cost;
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluateEconomicCost_start");
@@ -275,12 +323,43 @@ public class ObjectiveEstimator {
         }
     }
 
+    public static List<String> getScenarios(Path modelPath) {
+        Path lqxoFile = modelPath.getParent().resolve("output.lqxo");
+
+        LQN lqn = new LQN(lqxoFile.toString());
+        Map<String, Scenario> entriesByScenario = lqn.getEntriesByScenario();
+
+        return new ArrayList<>(entriesByScenario.keySet());
+    }
+
+    public static Map<String, Double> pricePerScenario(Path modelPath) {
+        Path lqxoFile = modelPath.getParent().resolve("output.lqxo");
+
+        LQN lqn = new LQN(lqxoFile.toString());
+        UML uml = new UML(modelPath.toString());
+
+        return Profiler.computePriceProfile(uml, lqn);
+
+    }
+
+    public static Map<String, Double> energyPerScenario(Path modelPath) {
+        Path lqxoFile = modelPath.getParent().resolve("output.lqxo");
+
+        LQN lqn = new LQN(lqxoFile.toString());
+        UML uml = new UML(modelPath.toString());
+
+        return Profiler.computeEnergyProfile(uml, lqn, Configurator.eINSTANCE.getPowerRatioIdleMax());
+    }
+
     /**
      * Compute all available objectives of the solution.
      * Then, the Problem::evaluate will select the ones to be used.
      * The objectives that should be maximized are negated by the proper method.
      *
+     * @param solution: the solution to be evaluated
      */
+
+    // TODO: why it isn't static
     public void computeObjectives(RSolution<?> solution) throws EasierException {
 
         solution.getMapOfObjectives().put(Configurator.PAS_LABEL,
@@ -291,48 +370,63 @@ public class ObjectiveEstimator {
         solution.getMapOfObjectives().put(Configurator.SYS_RESP_T_LABEL, ObjectiveEstimator.systemResponseTime(solution.getModelPath()));
         solution.getMapOfObjectives().put(Configurator.ENERGY_LABEL, ObjectiveEstimator.energyEstimation(solution.getModelPath()));
         solution.getMapOfObjectives().put(Configurator.POWER_LABEL, ObjectiveEstimator.powerEstimator(solution.getModelPath()));
-        solution.getMapOfObjectives().put(Configurator.ECONOMIC_COST, ObjectiveEstimator.economicCost(solution.getModelPath()));
+        solution.getMapOfObjectives().put(Configurator.ECONOMIC_COST_LABEL, ObjectiveEstimator.economicCost(solution.getModelPath()));
+
+
+        // Dynamically append the energy and price per scenario to the objectives
+        Map<String, Double> energyPerScenario = ObjectiveEstimator.energyPerScenario(solution.getModelPath());
+        Map<String, Double> pricePerScenario = ObjectiveEstimator.pricePerScenario(solution.getModelPath());
+
+        for (String scenario : getScenarios(solution.getModelPath())) {
+            solution.getMapOfObjectives().put(Configurator.ENERGY_PER_SCENARIO_LABEL + "__" + scenario, energyPerScenario.get(scenario));
+            solution.getMapOfObjectives().put(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL + "__" + scenario, pricePerScenario.get(scenario));
+        }
 
         EasierLogger.logger_.info(String.format("Solution id: # %d has been evaluated: %s", solution.getName(), solution.getMapOfObjectives()));
     }
 
 
+    /**
+     * Set the objectives of the solution.
+     * The objectives are set according to the order defined in the
+     * configuration file.
+     *
+     * @param solution: the solution to set the objectives
+     */
     public void setConsideredObjectives(RSolution<?> solution) {
-
         List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
+        Map<String, Double> mapOfObjectives = solution.getMapOfObjectives();
 
-        for (String obj : objectives) {
-            int index = objectives.indexOf(obj);
-            switch (obj) {
-                case Configurator.PERF_Q_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PERF_Q_LABEL));
-                    break;
-                case Configurator.SYS_RESP_T_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.SYS_RESP_T_LABEL));
-                    break;
-                case Configurator.CHANGES_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.CHANGES_LABEL));
-                    break;
-                case Configurator.RELIABILITY_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.RELIABILITY_LABEL));
-                    break;
-                case Configurator.ENERGY_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.ENERGY_LABEL));
-                    break;
-                case Configurator.PAS_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.PAS_LABEL));
-                    break;
-                case Configurator.POWER_LABEL:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.POWER_LABEL));
-                    break;
-                case Configurator.ECONOMIC_COST:
-                    solution.setObjective(index, solution.getMapOfObjectives().get(Configurator.ECONOMIC_COST));
-                    break;
-                default:
-                    EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
-                    break;
+        // Exact match labels
+        Set<String> knownExactLabels = Set.of(
+                Configurator.PERF_Q_LABEL,
+                Configurator.SYS_RESP_T_LABEL,
+                Configurator.CHANGES_LABEL,
+                Configurator.RELIABILITY_LABEL,
+                Configurator.ENERGY_LABEL,
+                Configurator.PAS_LABEL,
+                Configurator.POWER_LABEL,
+                Configurator.ECONOMIC_COST_LABEL
+        );
+
+        for (int i = 0; i < objectives.size(); i++) {
+            String obj = objectives.get(i);
+            Double value = null;
+
+            if (knownExactLabels.contains(obj)) {
+                value = mapOfObjectives.get(obj);
+            } else if (obj.startsWith(Configurator.ENERGY_PER_SCENARIO_LABEL)
+                    || obj.startsWith(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL)) {
+                value = mapOfObjectives.get(obj);
+            }
+
+            if (value != null) {
+                solution.setObjective(i, value);
+            } else {
+                EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
             }
         }
+
         EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
     }
 

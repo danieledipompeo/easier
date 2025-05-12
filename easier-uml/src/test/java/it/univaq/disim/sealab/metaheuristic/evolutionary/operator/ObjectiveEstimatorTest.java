@@ -6,10 +6,15 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToComp;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLRemoveNode;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.junit.jupiter.api.*;
+import it.univaq.disim.sealab.metaheuristic.utils.LQNException;
+import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -171,8 +176,23 @@ class ObjectiveEstimatorTest {
         assertDoesNotThrow(() -> ObjectiveEstimator.powerEstimator(modelPath));
     }
 
-//    @Test
-//    void compute_objectives_should_not_fail_when_lqxo_does_not_exist(){
-//        assertDoesNotThrow(solution::computeObjectives);
-//    }
+    // TODO: using mockito to mock solution model path (both uml and lqn)
+    @Test
+    void setObjective() throws EasierException, LQNException {
+        String mPath = "/cocome/simplified-cocome/cocome.uml";
+        modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
+
+        List<String> scenarios = List.of(
+                "ProcessSale_job_class",
+                "ShowDeliveryReports_job_class",
+                "ReceivedOrderedProducts_job_class");
+        Configurator.eINSTANCE.updateObjectiveList(scenarios);
+
+        RSolution<?> solution = new UMLRSolution(modelPath, "test");
+
+        new ObjectiveEstimator().computeObjectives(solution);
+
+        new ObjectiveEstimator().setConsideredObjectives(solution);
+    }
+
 }

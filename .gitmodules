@@ -14,3 +14,6 @@
 	path = easier-reliability
 	url = git@github.com:SEALABQualityGroup/uml-reliability.git
 	branch = easier
+[submodule "easier-user-profile"]
+	path = easier-user-profile
+	url = git@github.com:mtucci/easier-user-profile.git
