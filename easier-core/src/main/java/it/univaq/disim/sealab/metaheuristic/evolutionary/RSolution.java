@@ -152,7 +152,7 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
         if (mutated != other.mutated)
             return false;
 
-        for(int objectiveIndex = 0; objectiveIndex <= getObjectives().length; objectiveIndex++){
+        for(int objectiveIndex = 0; objectiveIndex < getObjectives().length; objectiveIndex++){
             if (getObjective(objectiveIndex) != other.getObjective(objectiveIndex)) {
                 return false;
             }
