@@ -66,7 +66,7 @@ public class Launcher {
                         WorkflowUtils.invokeSolver(m.getParent());
                     }
 
-                    List<String> scenarios = getScenarios(m.getParent().resolve("output.xml"));
+                    List<String> scenarios = getScenarios(m.getParent().resolve("output.lqxo"));
 
                     // Dynamically expand the list of scenarios by configuring the performance testing scenarios
                     // if the objectiveList in the config file contains "pricePerScenario" and/or "energyPerScenario"

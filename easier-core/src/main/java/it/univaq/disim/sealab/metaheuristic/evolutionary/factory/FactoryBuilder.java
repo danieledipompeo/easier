@@ -163,8 +163,9 @@ public class FactoryBuilder<S extends RSolution<?>> {
                 NSGAIIIBuilder<S> nsgaiiiBuilder = new CustomNSGAIIIBuilder<>(
                         experimentProblem.getProblem(), crossoverOperator, mutationOperator,
                         Configurator.eINSTANCE.getPopulationSize())
-                        .setMaxIterations(eval * Configurator.eINSTANCE.getPopulationSize())
-                        .setSolutionListEvaluator(solutionListEvaluator);
+                        .setMaxIterations(eval)
+                        .setSolutionListEvaluator(solutionListEvaluator)
+                        .setSelectionOperator(selectionOperator);
                 algorithm = nsgaiiiBuilder.build();
             }
 

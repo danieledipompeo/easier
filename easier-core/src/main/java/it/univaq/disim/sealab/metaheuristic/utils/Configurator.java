@@ -21,15 +21,16 @@ public class Configurator {
 	public static final String CHANGES_LABEL = "changes";
 	public static final String SYS_RESP_T_LABEL = "sysRespT";
 	public static final String POWER_LABEL = "power";
-	public static final String ECONOMIC_COST_LABEL = "economicCost";
+	public static final String ECONOMIC_COST_LABEL = "price";
 
 	public static final String OPERATION_LABEL = "operation";
 	public static final String COMPONENT_LABEL = "component";
 	public static final String NODE_LABEL = "node";
 	public static final String ECONOMIC_COST_PER_SCENARIO_LABEL = "pricePerScenario";
 	public static final String ENERGY_PER_SCENARIO_LABEL = "energyPerScenario";
+    public static final String RESP_T_PER_SCENARIO_LABEL = "responseTimePerScenario";
 
-	public static Configurator eINSTANCE = new Configurator();
+    public static Configurator eINSTANCE = new Configurator();
 
 	@Parameter
 	private List<String> parameters = new ArrayList<>();
@@ -131,7 +132,8 @@ public class Configurator {
 	private double initialChanges = 0d;
 
 	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
-	private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
+	//private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
+	private List<String> objectivesList = List.of("pricePerScenario", "energyPerScenario", "responseTimePerScenario");
 
 	@Parameter(names = {"-nodeChar", "--nodeCharacteristics"}, splitter = SemiColonSplitter.class, description = "The" +
 			" node characteristics")
@@ -285,7 +287,13 @@ public class Configurator {
 		return powerRatio;
 	}
 
-	public static class SemiColonSplitter implements IParameterSplitter {
+	@Parameter(names = {"--number-of-divisons", "-nod"}, description = "The numberOfDivisions specifies how finely the objective space is divided when generating these reference points.")
+	private int numberOfDivisions=2;
+	public int getNumberOfDivisions() {
+		return numberOfDivisions;
+	}
+
+    public static class SemiColonSplitter implements IParameterSplitter {
 	    public List<String> split(String value) {
 	      return Arrays.asList(value.split(";"));
 	    }
@@ -324,7 +332,9 @@ public class Configurator {
 		List<String> updatedList = new ArrayList<>();
 
         for (String obj : objectivesList) {
-            if (obj.equals(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL) || obj.equals(Configurator.ENERGY_PER_SCENARIO_LABEL)) {
+            if (Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL.equals(obj)
+					|| Configurator.ENERGY_PER_SCENARIO_LABEL.equals(obj)
+					|| Configurator.RESP_T_PER_SCENARIO_LABEL.equals(obj)) {
                 for (String scenario : scenarios) {
                     updatedList.add(obj + "__" + scenario);
                 }

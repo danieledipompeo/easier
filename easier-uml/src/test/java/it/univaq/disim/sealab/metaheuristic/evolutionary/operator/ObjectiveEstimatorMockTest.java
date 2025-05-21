@@ -32,7 +32,7 @@ public class ObjectiveEstimatorMockTest {
         // Mock the RSolution and related behavior
         UMLRSolution spiedSolution = spy(new UMLRSolution(modelPath, "test"));
         doReturn(modelPath).when(spiedSolution).getModelPath();
-        assertEquals(10, spiedSolution.getNumberOfObjectives(), "Number of objectives should be 10");
+        assertEquals(9, spiedSolution.getNumberOfObjectives(), "Number of objectives should be 9");
 
         // Mock the ObjectiveEstimator behavior
         ObjectiveEstimator estimator = spy(new ObjectiveEstimator());

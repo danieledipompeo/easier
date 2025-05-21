@@ -6,17 +6,14 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIII;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.JMetalLogger;
-import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,8 +88,9 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
 
     @Override
     protected void updateProgress() {
-        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
-                iterations / getMaxPopulationSize()));
+        EasierParetoDAO paretoDAO = new EasierParetoDAO((List<RSolution<?>>) population,
+                iterations / getMaxPopulationSize());
+        EasierExperimentDAO.eINSTANCE.addPareto(paretoDAO);
 
         EasierResourcesLogger.checkpoint(getName(), "updateProgress_start");
         super.updateProgress();
@@ -100,16 +98,18 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
         EasierResourcesLogger.checkpoint(getName(), "iteration_end");
 
         populationToCSV();
+        new FileUtils().populationToJSON(paretoDAO, paretoDAO.getIteration());
         System.out.println(this.getName());
         ProgressBar.showBar((iterations / getMaxPopulationSize()), (maxIterations / getMaxPopulationSize()));
     }
 
     @Override
     protected List<S> createInitialPopulation() {
+        EasierLogger.logger_.info("Creating initial population");
         EasierResourcesLogger.checkpoint(getName(), "createInitialPopulation_start");
         List<S> pop = super.createInitialPopulation();
         EasierResourcesLogger.checkpoint(getName(), "createInitialPopulation_end");
-        JMetalLogger.logger.info("Initial population created");
+        JMetalLogger.logger.info("Initial population created: " + pop.size() + " solutions");
         return pop;
     }
 
@@ -148,6 +148,7 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
 
     @Override
     public void run() {
+        EasierLogger.logger_.info("Running NSGAIII");
         EasierResourcesLogger.checkpoint(getName(), "run_start");
         super.run();
         EasierResourcesLogger.checkpoint(getName(), "run_end");
@@ -165,7 +166,7 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
 
     @Override
     public String getDescription() {
-        return "Nondominated Sorting Genetic Algorithm version II. Version using measures";
+        return "Nondominated Sorting Genetic Algorithm version III. Version using measures";
     }
 
     public void clear() {

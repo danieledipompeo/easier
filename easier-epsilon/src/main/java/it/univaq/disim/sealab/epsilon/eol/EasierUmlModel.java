@@ -30,9 +30,7 @@ import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -337,13 +335,25 @@ public class EasierUmlModel extends UmlModel {
 
     /**
      * Compute the system response time of the model.
-     * The system response time is the sum of the response time of each use case
+     * The system response time is the sum of each use case response time
+     * It uses the computeResponseTimePerScenario() method to compute the response time
+     *
      * @return the system response time
      * @throws EolModelElementTypeNotFoundException
      */
-    public double computeSystemResponseTime()
-            throws EolModelElementTypeNotFoundException, EasierStereotypeNotPropertlyAppliedException {
-        double sysRespT = 0d;
+    public double computeSystemResponseTime() throws EasierStereotypeNotPropertlyAppliedException, EolModelElementTypeNotFoundException {
+       return computeResponseTimePerScenario().values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+
+    /**
+     * Compute the response time of each use case.
+     * It appends "_job_class" to the name of the use case
+     *
+     * @return A map containing the name of the use case and its response time
+     * @throws EolModelElementTypeNotFoundException, EasierStereotypeNotPropertlyAppliedException
+     */
+    public Map<String, Double> computeResponseTimePerScenario () throws EasierStereotypeNotPropertlyAppliedException, EolModelElementTypeNotFoundException {
+        Map<String, Double> responseTimePerScenario = new HashMap<>();
 
         String gqamNamespace = "MARTE::MARTE_AnalysisModel::GQAM::";
 
@@ -354,15 +364,15 @@ public class EasierUmlModel extends UmlModel {
 
         // If there is at least one scenario stereotyped with GaScenario without respT tagged value, it throws an exception
         for (NamedElement scenario : scenarios){
-           Stereotype stereotype = scenario.getAppliedStereotype(gaScenarioTag);
-           if(((List<?>)scenario.getValue(stereotype, "respT")).isEmpty())
-               throw new EasierStereotypeNotPropertlyAppliedException(
-                       "The scenario " + scenario.getName() + " has not the respT tagged value");
+            Stereotype stereotype = scenario.getAppliedStereotype(gaScenarioTag);
+            if(((List<?>)scenario.getValue(stereotype, "respT")).isEmpty())
+                throw new EasierStereotypeNotPropertlyAppliedException(
+                        "The scenario " + scenario.getName() + " has not the respT tagged value");
 
-           sysRespT += Double.parseDouble(((EList<?>) scenario.getValue(stereotype, "respT")).get(0).toString());
+            responseTimePerScenario.put(scenario.getName() + "_job_class", Double.parseDouble(((EList<?>) scenario.getValue(stereotype, "respT")).get(0).toString()));
         }
 
-        return sysRespT;
+        return responseTimePerScenario;
     }
 
 

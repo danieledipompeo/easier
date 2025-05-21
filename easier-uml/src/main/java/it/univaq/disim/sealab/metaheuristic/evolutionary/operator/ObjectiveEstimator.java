@@ -1,20 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-
 import it.univaq.disim.sealab.epsilon.EasierModelElementNotFoundException;
 import it.univaq.disim.sealab.epsilon.EasierStereotypeNotPropertlyAppliedException;
 import it.univaq.disim.sealab.epsilon.EpsilonStandalone;
@@ -22,14 +7,7 @@ import it.univaq.disim.sealab.epsilon.eol.EasierUmlModel;
 import it.univaq.disim.sealab.epsilon.evl.EVLStandalone;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.Energy;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import it.univaq.disim.sealab.metaheuristic.utils.UMLMemoryOptimizer;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import it.univaq.easier.LQN;
 import it.univaq.easier.Profiler;
 import it.univaq.easier.Scenario;
@@ -38,6 +16,16 @@ import it.univaq.sealab.umlreliability.MissingTagException;
 import it.univaq.sealab.umlreliability.Reliability;
 import it.univaq.sealab.umlreliability.UMLReliability;
 import it.univaq.sealab.umlreliability.model.UMLModelPapyrus;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class ObjectiveEstimator {
 
@@ -137,20 +125,48 @@ public class ObjectiveEstimator {
 
     /**
      * It computes the system response time of the model.
-     * The system response time is the sum of the response time of all the scenarios
+     * The system response time is the sum of scenarios response time
+     * It uses the computeResponseTimePerScenario() method to compute the response time
      *
      * @param modelPath the path of the UML model
      * @return the system response time
      */
     public static double systemResponseTime(Path modelPath) throws EasierException {
         EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_start");
+        double sysRespT = responseTimePerScenario(modelPath).values().stream().mapToDouble(Double::doubleValue).sum();
+//        try (EasierUmlModel model = EpsilonStandalone.createUmlModel(modelPath.toString())) {
+//            double sysRespT = model.computeSystemResponseTime();
+//            new UMLMemoryOptimizer().cleanup();
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_end");
+        EasierLogger.logger_.info(String.format("System RespT : %s", sysRespT));
+
+        return sysRespT;
+//        } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException |
+//                 EasierStereotypeNotPropertlyAppliedException e) {
+//            EasierLogger.logger_.severe(String.format("Error while computing the System RespT on: %s for the reason: %s",
+//                    modelPath, e.getMessage()));
+//            EasierLogger.logger_.info("System response time is set to Double.MAX_VALUE");
+//            throw new EasierException(String.format("Error while computing the System RespT on: %s for the reason: %s",
+//                    modelPath, e.getMessage()));
+//        }
+    }
+
+    /**
+     * It computes the response time of each scenario.
+     * It appends "_job_class" to the name of the scenario
+     *
+     * @param modelPath the path of the UML model
+     * @return A map containing the name of the scenario and its response time
+     */
+    public static Map<String, Double> responseTimePerScenario(Path modelPath) throws EasierException {
+        EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_start");
         try (EasierUmlModel model = EpsilonStandalone.createUmlModel(modelPath.toString())) {
-            double sysRespT = model.computeSystemResponseTime();
+            Map<String, Double> respTXScenario = model.computeResponseTimePerScenario();
             new UMLMemoryOptimizer().cleanup();
             EasierResourcesLogger.checkpoint(WorkflowUtils.class.getSimpleName(), "evaluatePerformance_end");
-            EasierLogger.logger_.info(String.format("System RespT : %s", sysRespT));
+            EasierLogger.logger_.info(String.format("RespT of each use case: %s", respTXScenario));
 
-            return sysRespT;
+            return respTXScenario;
         } catch (URISyntaxException | EolModelLoadingException | EolModelElementTypeNotFoundException |
                  EasierStereotypeNotPropertlyAppliedException e) {
             EasierLogger.logger_.severe(String.format("Error while computing the System RespT on: %s for the reason: %s",
@@ -159,6 +175,8 @@ public class ObjectiveEstimator {
             throw new EasierException(String.format("Error while computing the System RespT on: %s for the reason: %s",
                     modelPath, e.getMessage()));
         }
+
+
     }
 
     /**
@@ -376,10 +394,12 @@ public class ObjectiveEstimator {
         // Dynamically append the energy and price per scenario to the objectives
         Map<String, Double> energyPerScenario = ObjectiveEstimator.energyPerScenario(solution.getModelPath());
         Map<String, Double> pricePerScenario = ObjectiveEstimator.pricePerScenario(solution.getModelPath());
+        Map<String, Double> responseTimePerScenario = ObjectiveEstimator.responseTimePerScenario(solution.getModelPath());
 
         for (String scenario : getScenarios(solution.getModelPath())) {
             solution.getMapOfObjectives().put(Configurator.ENERGY_PER_SCENARIO_LABEL + "__" + scenario, energyPerScenario.get(scenario));
             solution.getMapOfObjectives().put(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL + "__" + scenario, pricePerScenario.get(scenario));
+            solution.getMapOfObjectives().put(Configurator.RESP_T_PER_SCENARIO_LABEL + "__" + scenario, responseTimePerScenario.get(scenario));
         }
 
         EasierLogger.logger_.info(String.format("Solution id: # %d has been evaluated: %s", solution.getName(), solution.getMapOfObjectives()));
@@ -415,8 +435,9 @@ public class ObjectiveEstimator {
 
             if (knownExactLabels.contains(obj)) {
                 value = mapOfObjectives.get(obj);
-            } else if (obj.startsWith(Configurator.ENERGY_PER_SCENARIO_LABEL)
-                    || obj.startsWith(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL)) {
+            } else if (Configurator.ENERGY_PER_SCENARIO_LABEL.startsWith(obj)
+                    || Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL.startsWith(obj)
+                    || Configurator.RESP_T_PER_SCENARIO_LABEL.startsWith(obj)) {
                 value = mapOfObjectives.get(obj);
             }
 

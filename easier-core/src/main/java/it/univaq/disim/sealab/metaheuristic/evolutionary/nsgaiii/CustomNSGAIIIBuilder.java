@@ -1,8 +1,6 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaiii;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIII;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
