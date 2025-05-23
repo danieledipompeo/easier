@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 public class UMLRCrossoverTest {
 
@@ -33,6 +35,19 @@ public class UMLRCrossoverTest {
     public void setUp() throws Exception {
         xOver = new UMLRCrossover<>(xOverProb);
         modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getPath());
+
+        // Create mock of Configurator
+        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
+
+        // Mock the Configurator
+        List<String> scenarios = List.of(
+                "ProcessSale_job_class",
+                "ShowDeliveryReports_job_class",
+                "ReceivedOrderedProducts_job_class");
+        spiedConfigurator.updateObjectiveList(scenarios);
+        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
+        Configurator.setIntence(spiedConfigurator);
+
     }
 
     @AfterEach

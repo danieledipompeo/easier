@@ -5,10 +5,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
@@ -128,10 +125,13 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
                 // Evaluate the offsprings
                 for (UMLRSolution umlrSolution : offspring) {
                     new ObjectiveEstimator().computeObjectives(umlrSolution);
+                    new ObjectiveEstimator().setConsideredObjectives(umlrSolution);
                 }
-                offspring.forEach(solution -> new ObjectiveEstimator().setConsideredObjectives(solution));
+//                for (UMLRSolution solution : offspring) {
+//                    new ObjectiveEstimator().setConsideredObjectives(solution);
+//                }
             }
-        }catch (EasierException e) {
+        }catch (EasierException | EasierObjectiveNotFoundException e) {
             EasierLogger.logger_.info("Error in the crossover operation. The offspring have been replaced because: " + e.getMessage());
 
             // Replace the offspring with parents copies in case of any error within the computation of the computeObjectives function
