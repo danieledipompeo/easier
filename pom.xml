@@ -1,6 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.univaq.disim.sealab</groupId>
     <artifactId>easier</artifactId>
@@ -125,10 +125,12 @@
                                 <recipe>org.openrewrite.java.testing.junit5.JUnit4to5Migration</recipe>
                                 <recipe>it.univaq.spencerlab.AddJfrUnitDependency</recipe>
                                 <recipe>
-                                    it.univaq.spencerlab.openrewrite.recipe.AddJfrEventTestAnnotation</recipe>
+                                    it.univaq.spencerlab.openrewrite.recipe.AddJfrEventTestAnnotation
+                                </recipe>
                                 <recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrEventsVariable</recipe>
                                 <recipe>
-                                    it.univaq.spencerlab.openrewrite.recipe.AddJDKEventsAnnotationWrapper</recipe>
+                                    it.univaq.spencerlab.openrewrite.recipe.AddJDKEventsAnnotationWrapper
+                                </recipe>
                                 <recipe>it.univaq.spencerlab.openrewrite.recipe.AddJfrAwaitEvents</recipe>
                             </activeRecipes>
                             <failOnDryRunResults>true</failOnDryRunResults>
