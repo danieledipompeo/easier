@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,7 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
                 "simplied-cocome__test");
         sol = problem.createSolution();
 
-        solutionListEvaluator = new SequentialSolutionListEvaluator<S>();
+        solutionListEvaluator = new RSolutionListEvaluator<>();
 
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }

@@ -13,14 +13,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.nio.file.Paths;
-import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 public class CustomAlgorithmTest<S extends UMLRSolution> {
 
@@ -47,6 +49,18 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
     }
 
     public void setUp() {
+        // Create mock of Configurator
+        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
+
+        // Mock the Configurator
+        List<String> scenarios = List.of(
+                "ProcessSale_job_class",
+                "ShowDeliveryReports_job_class",
+                "ReceivedOrderedProducts_job_class");
+        spiedConfigurator.updateObjectiveList(scenarios);
+        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
+        Configurator.setIntence(spiedConfigurator);
+
         String modelpath = getClass().getResource("/easier-uml2lqnCaseStudy/cocome/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
         solutions = new ArrayList<>();
@@ -67,6 +81,6 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
             assertEquals(header, line); //The first must be the header
         }
         // print the latest solution id
-        System.out.println("Last solution id: " + (RSolution.getCounter()-1));
+        System.out.println("Last solution id: " + (RSolution.getCounter() - 1));
     }
 }
