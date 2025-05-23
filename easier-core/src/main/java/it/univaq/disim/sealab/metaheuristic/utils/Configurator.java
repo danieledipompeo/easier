@@ -359,6 +359,11 @@ public class Configurator {
 		}
 		return listNodeTypes;
 	}
+
+	// TODO: use the factory in the future
+	public static void setIntence(Configurator configurator) {
+		eINSTANCE = configurator;
+	}
 }
 
 

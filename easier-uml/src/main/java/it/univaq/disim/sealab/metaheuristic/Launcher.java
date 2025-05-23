@@ -2,7 +2,10 @@ package it.univaq.disim.sealab.metaheuristic;
 
 import com.beust.jcommander.JCommander;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.*;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RProblem;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExecuteAlgorithms;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperiment;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentBuilder;
@@ -23,7 +26,6 @@ import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
