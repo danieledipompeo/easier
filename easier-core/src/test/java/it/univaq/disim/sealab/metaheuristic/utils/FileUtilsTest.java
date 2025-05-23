@@ -1,8 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,24 +11,31 @@ import java.io.LineNumberReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileUtilsTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() throws IOException {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws IOException {
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("refactoring_composition.csv"));
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder().resolve("performance_antipatter_dump.csv"));
+        // clean up the tmp folder using walker
+        Path tmpFolder = Configurator.eINSTANCE.getTmpFolder();
+        if (Files.exists(tmpFolder)) {
+            Files.walk(tmpFolder)
+                    .sorted((a, b) -> b.compareTo(a)) // sort in reverse order to delete files before directories
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        }
 
-        Files.deleteIfExists(Configurator.eINSTANCE.getOutputFolder());
 
     }
 
@@ -45,7 +52,7 @@ public class FileUtilsTest {
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("solution_dump.csv").toString()));
         lnr.lines().count();
-        assertTrue(lnr.getLineNumber() == 2);
+        assertEquals(2, lnr.getLineNumber(), "");
 
     }
 
@@ -57,7 +64,7 @@ public class FileUtilsTest {
         //Check the correct header
         String header = "algorithm,problem_tag,search_budget,iteration,max_iteration";
         assertEquals(header, extractLineFromFile(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv")));
-        assertEquals(5, header.split(",").length);
+        assertEquals(5, header.split(",").length, "");
 
         LineNumberReader lnr = new LineNumberReader(
                 new FileReader(Configurator.eINSTANCE.getOutputFolder().resolve("search_budget_stats.csv").toString()));

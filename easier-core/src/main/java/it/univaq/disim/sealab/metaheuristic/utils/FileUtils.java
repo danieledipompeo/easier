@@ -3,16 +3,12 @@ package it.univaq.disim.sealab.metaheuristic.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierPopulationDAO;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import org.apache.commons.text.StringSubstitutor;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
 
 public class FileUtils {
 
@@ -24,70 +20,6 @@ public class FileUtils {
                 EasierLogger.logger_.severe("[ERROR] Cannot create output folder \n:" + e.getMessage());
             }
         }
-    }
-
-    /**
-     * Recursively walk through sub-directories listing Aemilia files.
-     *
-     * @param folder starting folder
-     * @return array of aemilia file paths
-     */
-    public static Set<File> listFilesRecursively(final File folder) {
-        Set<File> files = new HashSet<File>();
-        if (folder == null || folder.listFiles() == null) {
-            return files;
-        }
-        for (File entry : folder.listFiles()) {
-            if (entry.isFile() && entry.getName().endsWith(".tsv")) {
-                files.add(entry);
-            } else if (entry.isDirectory()) {
-                files.addAll(listFilesRecursively(entry));
-            }
-        }
-        return files;
-    }
-
-    /**
-     * Recursively walk through sub-directories listing Aemilia files.
-     *
-     * @param folder starting folder
-     * @return array of aemilia file paths
-     */
-    public static Set<File> listFilesRecursively(final Path folder, String extension) {
-        Set<File> files = new HashSet<File>();
-        if (folder == null || folder.toFile().listFiles() == null) {
-            return files;
-        }
-        for (File entry : folder.toFile().listFiles()) {
-            if (entry.isFile() && entry.getName().endsWith(extension)) {
-                files.add(entry);
-            } else if (entry.isDirectory()) {
-                files.addAll(listFilesRecursively(entry));
-            }
-        }
-        return files;
-    }
-
-    /**
-     * Recursively walk through subdirectories listing Aemilia files.
-     *
-     * @param folder starting folder
-     * @return array of aemilia file paths
-     */
-    @Deprecated
-    public static Set<File> listFilesRecursively(final File folder, String extension) {
-        Set<File> files = new HashSet<File>();
-        if (folder == null || folder.listFiles() == null) {
-            return files;
-        }
-        for (File entry : folder.listFiles()) {
-            if (entry.isFile() && entry.getName().endsWith(extension)) {
-                files.add(entry);
-            } else if (entry.isDirectory()) {
-                files.addAll(listFilesRecursively(entry));
-            }
-        }
-        return files;
     }
 
     public static synchronized void moveTmpFile(final Path sourceFolder, final Path destFolder) {
@@ -106,106 +38,6 @@ public class FileUtils {
             e.printStackTrace();
         }
 
-    }
-
-    public static List<String> getParetoSolIDs(final List<Path> paretoReferenceFront) {
-        List<String> solIDs = new ArrayList<>();
-        for (Path path : paretoReferenceFront) {
-            try (BufferedReader br = new BufferedReader(new FileReader(path.toFile()))) {
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null) {
-                    solIDs.add(sCurrentLine.split(" ")[0]);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-        return solIDs;
-    }
-
-    public static void fillTemplateKeywords(final Path sourceFile, final Path destination,
-                                            final Map<String, String> keywords) {
-        try {
-            String templateString = fileToString(sourceFile, Charset.defaultCharset());
-            StringSubstitutor sub = new StringSubstitutor(keywords);
-            String resolvedString = sub.replace(templateString);
-
-            File f = destination.toFile();
-            f.getParentFile().mkdirs();
-            f.createNewFile();
-
-            PrintWriter out = new PrintWriter(destination.toFile());
-            out.print(resolvedString);
-            out.close();
-
-        } catch (IOException e) {
-            System.err.println("Error in filling the threshold and EVL pas checker file!");
-            e.printStackTrace();
-        }
-    }
-
-    public static String fileToString(Path path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(path);
-        return new String(encoded, encoding);
-    }
-
-    @Deprecated
-    public static String fileToString(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-    }
-
-    public static List<Path> extractModelPaths(Path csvWithSolutions, int worseSolutions) {
-        Path repository = csvWithSolutions.getParent().resolve("tmp");
-        BufferedReader csvReader;
-        List<Path> modelPaths = new ArrayList<>();
-        try {
-            csvReader = new BufferedReader(new FileReader(csvWithSolutions.toFile()));
-            csvReader.close();
-
-            List<String> lines = Files.readAllLines(csvWithSolutions);
-
-            List<Solution> sols = new ArrayList<>();
-
-            // remove the header
-            lines.remove(0);
-            for (String line : lines) {
-                sols.add(new Solution(line));
-            }
-            Collections.sort(sols);
-
-            Path defualtRew = Paths.get(
-                    "/home/peo/git/sealab/easier/easier-aemilia/src/main/resources/models/FTA/workload_5/model.rew");
-
-            for (int i = 0; i < worseSolutions; i++) {
-                int id = sols.get(i).id;
-
-                Path targetFolder = repository.resolve(String.valueOf(id / 100)).resolve(String.valueOf(id));
-                modelPaths.add(targetFolder);
-
-                // copy the aem file
-                Files.copy(targetFolder.resolve(String.valueOf(id + ".aem")), targetFolder.resolve("model.aem"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                // copy the rew file
-                Files.copy(defualtRew, targetFolder.resolve("model.rew"), StandardCopyOption.REPLACE_EXISTING);
-                // copy the val file
-                Files.copy(targetFolder.resolve(String.valueOf(id + ".aem.val")), targetFolder.resolve("model.val"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                // copy the rewmapping file
-                Files.copy(targetFolder.resolve(String.valueOf(id + ".rewmapping")),
-                        targetFolder.resolve("model.rewmapping"), StandardCopyOption.REPLACE_EXISTING);
-                // copy the mmaemilia file
-                Files.copy(targetFolder.resolve(String.valueOf(id + ".mmaemilia")),
-                        targetFolder.resolve("model.mmaemilia"), StandardCopyOption.REPLACE_EXISTING);
-            }
-
-        } catch (IOException e) {
-            System.err.println("Error while extracting info from the pareto file");
-            e.printStackTrace();
-        }
-
-        return modelPaths;
     }
 
     /**
@@ -262,33 +94,6 @@ public class FileUtils {
         dumpToFile(fileName, header, line);
     }
 
-    /**
-     * Prints the line into the refactoring_stats_dump.csv file. The header of the
-     * file is "operation,target,to,where,exec_time(nanoSec)"
-     *
-     * @param line is the CSV of the applied refactoring action
-     */
-    public void refactoringStatsDumpToCSV(String line) {
-        String fileName = "refactoring_stats.csv";
-        String header = "operation,target,to,where,exec_time(nanoSec)";
-
-        dumpToFile(fileName, header, line);
-
-    }
-
-    /**
-     * Prints the line into the refactoring_stats_dump.csv file. The header of the
-     * file is "algorithm,problem,step,exec_time(milliSec)"
-     *
-     * @param line is the CSV of the applied step
-     */
-    public void processStepStatsDumpToCSV(String line) {
-        String fileName = "process_step_stats.csv";
-        String header = "algorithm,problem,solID,step,exec_time(milliSec)";
-
-        dumpToFile(fileName, header, line);
-
-    }
 
     /**
      * Prints the line into the performance_antipatter_dump.csv file. The header of
@@ -320,27 +125,9 @@ public class FileUtils {
 
     }
 
-    public void etlErrorLogToCSv(String line) {
-        String fileName = "etlErrorLog.csv";
-        String header = "solID;message;actions";
-        dumpToFile(fileName, header, line);
-    }
-
-    public void reliabilityErrorLogToCSV(String line) {
-        String fileName = "relErrorLog.csv";
-        String header = "solID;message;actions";
-        dumpToFile(fileName, header, line);
-    }
-
     public void failedSolutionLogToCSV(String line) {
         String fileName = "reportFailedSolution.csv";
         String header = "solID;lqn_solver_message;actions";
-        dumpToFile(fileName, header, line);
-    }
-
-    public void xoverStatistics(String line) {
-        String fileName = "xover_statistics.csv";
-        String header = "total,total_xover,failed_xover";
         dumpToFile(fileName, header, line);
     }
 
@@ -373,34 +160,20 @@ public class FileUtils {
 
     public void experimentToJSON(EasierExperimentDAO experimentDAO) {
         Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("experiment.json");
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            mapper.writeValue(jsonFile.toFile(),experimentDAO);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        toJson(experimentDAO, jsonFile);
     }
 
-    public void experimentToJSON(EasierExperimentDAO experimentDAO, int runID) {
-        Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("experiment" + runID + ".json");
+    public void populationToJSON(EasierPopulationDAO populationDAO, int suffix) {
+        Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("population__" + suffix + ".json");
+        toJson(populationDAO, jsonFile);
+    }
+
+    private static void toJson(Object obj, Path jsonFile) {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
             mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(),
-                    experimentDAO);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void populationToJSON(EasierPopulationDAO populationDAO, int prefix) {
-        Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("population" + prefix + ".json");
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(),
-                    populationDAO);
+                    obj);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
