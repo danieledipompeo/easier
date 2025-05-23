@@ -8,10 +8,7 @@ import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLRemoveNode;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.LQNException;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -178,7 +175,7 @@ class ObjectiveEstimatorTest {
 
     // TODO: using mockito to mock solution model path (both uml and lqn)
     @Test
-    void setObjective() throws EasierException, LQNException {
+    void setObjective() throws EasierException, LQNException, EasierObjectiveNotFoundException {
         String mPath = "/cocome/simplified-cocome/cocome.uml";
         modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
 

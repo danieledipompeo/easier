@@ -413,7 +413,7 @@ public class ObjectiveEstimator {
      *
      * @param solution: the solution to set the objectives
      */
-    public void setConsideredObjectives(RSolution<?> solution) {
+    public void setConsideredObjectives(RSolution<?> solution) throws EasierObjectiveNotFoundException {
         List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
         Map<String, Double> mapOfObjectives = solution.getMapOfObjectives();
 
@@ -435,9 +435,9 @@ public class ObjectiveEstimator {
 
             if (knownExactLabels.contains(obj)) {
                 value = mapOfObjectives.get(obj);
-            } else if (Configurator.ENERGY_PER_SCENARIO_LABEL.startsWith(obj)
-                    || Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL.startsWith(obj)
-                    || Configurator.RESP_T_PER_SCENARIO_LABEL.startsWith(obj)) {
+            } else if (obj.startsWith(Configurator.ENERGY_PER_SCENARIO_LABEL)
+                    || obj.startsWith(Configurator.ECONOMIC_COST_PER_SCENARIO_LABEL)
+                    || obj.startsWith(Configurator.RESP_T_PER_SCENARIO_LABEL)) {
                 value = mapOfObjectives.get(obj);
             }
 
@@ -445,6 +445,7 @@ public class ObjectiveEstimator {
                 solution.setObjective(i, value);
             } else {
                 EasierLogger.logger_.severe(String.format("Objective '%s' not recognized.", obj));
+                throw new EasierObjectiveNotFoundException(String.format("Objective %s not recognized for solution: %s", obj, solution.getName()));
             }
         }
 

@@ -5,6 +5,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import it.univaq.disim.sealab.metaheuristic.utils.EasierObjectiveNotFoundException;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -18,7 +20,7 @@ import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 public class ObjectiveEstimatorMockTest {
 
     @Test
-    void setObjective() throws EasierException {
+    void setObjective() throws EasierException, EasierObjectiveNotFoundException {
         // Mock the model path
         String mPath = "/cocome/simplified-cocome/cocome.uml";
         Path modelPath = Path.of(getClass().getResource("/easier-uml2lqnCaseStudy" + mPath).getPath());
