@@ -3,13 +3,21 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary;
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
-import it.univaq.disim.sealab.metaheuristic.actions.uml.*;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLCloneNode;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvComponentToNN;
+import it.univaq.disim.sealab.metaheuristic.actions.uml.UMLMvOperationToNCToNN;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierModel;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +25,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 public class UMLRSolutionTest {
 
@@ -26,9 +36,20 @@ public class UMLRSolutionTest {
     @BeforeAll
     public static void beforeClass() throws IOException {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
+        // Create mock of Configurator
+        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
+
+        // Mock the Configurator
+        List<String> scenarios = List.of(
+                "ProcessSale_job_class",
+                "ShowDeliveryReports_job_class",
+                "ReceivedOrderedProducts_job_class");
+        spiedConfigurator.updateObjectiveList(scenarios);
+        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
+        Configurator.setIntence(spiedConfigurator);
     }
 
-//    @AfterAll
+    //    @AfterAll
     public static void tearDownClass() throws IOException {
         Files.walk(Configurator.eINSTANCE.getOutputFolder()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
@@ -109,17 +130,6 @@ public class UMLRSolutionTest {
 
     }
 
-//    @ParameterizedTest
-//    @CsvSource({"true,1", "true,2", "true,3", "false,0", "false,2", "false,3"})
-//    void testConstructorForXover(boolean left, int point) {
-//
-//        UMLRSolution solution1 = (UMLRSolution) p.createSolution();
-//
-//        List<UMLRSolution> children = solution.createChildren(solution1, point);
-//        children.forEach(c -> assertTrue(c.isFeasible(), "It is expected a feasible child solution"));
-//
-//    }
-
     @Test
     public void createRandomRefactoring() {
         solution.createRandomRefactoring();
@@ -166,37 +176,6 @@ public class UMLRSolutionTest {
         assertEquals(solution.getVariable(0), cloneSolution.getVariable(0));
     }
 
-
-//    @ParameterizedTest
-//    @ValueSource(ints = {1, 2, 3, 0, 4})
-//    public void createChild(int point) {
-//        UMLRSolution solution2 = (UMLRSolution) p.createSolution();
-//        UMLRSolution childSolution = solution.createChild(solution2, point);
-//
-//        childSolution.setVariable(0, new Refactoring()); // clear the old refactoring
-//        // clear created element and target element maps
-//        childSolution.createdRefactoringElement.clear();
-//        childSolution.targetRefactoringElement.clear();
-//        childSolution.createChild(solution, solution2, point);
-//
-//        assertFalse(childSolution.isFeasible());
-//
-//        for (int i = 0; i < point; i++) {
-//            assertEquals(childSolution.getActionAt(i), solution.getActionAt(i));
-//        }
-//        for (int i = point; i < solution.refactoringLength; i++) {
-//            assertEquals(childSolution.getActionAt(i), solution2.getActionAt(i));
-//        }
-//    }
-
-//    @RepeatedTest(5)
-//    void alter(TestInfo testInfo) {
-//        int alterPoint = 2;
-//        solution.alter(alterPoint);
-//
-//        assertTrue(solution.isFeasible(), "Expected a feasible solution after the alter operation.");
-//    }
-
     @Test
     public void testIsIndependent() throws EasierException {
         EasierModel eModel = solution.getVariable(0).getEasierModel();
@@ -217,30 +196,15 @@ public class UMLRSolutionTest {
         assertTrue(solution.isIndependent(List.of(a1, a2, a3, a4)), "Expected that 4 MvOpNCNN are independent");
     }
 
+    @Test
+    void testCopyConstructor() {
 
+        UMLRSolution copy = new UMLRSolution(solution);
 
+        assertEquals(copy.getObjectives().length, solution.getObjectives().length, "The copy should have the same number of objectives");
 
-    //    @ParameterizedTest
-//    @ValueSource(ints = {0, 1, 2, 3})
-//    public void doAlter(int point) {
-//        RefactoringAction candidate = ((point == 0) ? solution.getActionAt(point + 1) : solution.getActionAt(point - 1));
-//        assertFalse(solution.doAlter(point, candidate), String.format("Expected unfeasible solution %s%n", solution.toString()));
-//
-//        assertTrue(solution.isFeasible());
-//    }
-
-//    // the test should verify that the objectives are computed correctly.
-//    // This means that some of them should be maximized and some minimized.
-//    @Test
-//    public void testComputeObjectives() throws EasierException {
-//        solution.computeObjectives();
-//        Map<String, Double> objectives = solution.mapOfObjectives;
-//        assertTrue(objectives.get(Configurator.SYS_RESP_T_LABEL) >= 0, "Expected a positive value for SysRespT");
-//        assertTrue(objectives.get(Configurator.CHANGES_LABEL) >= 0, "Expected a positive value for Changes");
-//        assertTrue(objectives.get(Configurator.ECONOMIC_COST) >= 0, "Expected a positive value for Cost");
-//        assertTrue(objectives.get(Configurator.PAS_LABEL) >= 0, "Expected a positive value for Pas");
-//        assertTrue(objectives.get(Configurator.RELIABILITY_LABEL) <= 0, "Expected a negative value for Reliability");
-//        assertTrue(objectives.get(Configurator.PERF_Q_LABEL) <= 0, "Expected a negative value for PerfQ");
-//    }
+        assertEquals(solution, copy);
+        assertNotSame(solution, copy);
+    }
 
 }
