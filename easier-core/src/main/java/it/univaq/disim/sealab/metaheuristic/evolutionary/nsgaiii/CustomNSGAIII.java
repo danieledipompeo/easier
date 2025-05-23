@@ -89,7 +89,7 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
     @Override
     protected void updateProgress() {
         EasierParetoDAO paretoDAO = new EasierParetoDAO((List<RSolution<?>>) population,
-                iterations / getMaxPopulationSize());
+                iterations);
         EasierExperimentDAO.eINSTANCE.addPareto(paretoDAO);
 
         EasierResourcesLogger.checkpoint(getName(), "updateProgress_start");
@@ -97,10 +97,10 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
         EasierResourcesLogger.checkpoint(getName(), "updateProgress_end");
         EasierResourcesLogger.checkpoint(getName(), "iteration_end");
 
-        populationToCSV();
+//        populationToCSV();
         new FileUtils().populationToJSON(paretoDAO, paretoDAO.getIteration());
         System.out.println(this.getName());
-        ProgressBar.showBar((iterations / getMaxPopulationSize()), (maxIterations / getMaxPopulationSize()));
+        ProgressBar.showBar(iterations, maxIterations);
     }
 
     @Override

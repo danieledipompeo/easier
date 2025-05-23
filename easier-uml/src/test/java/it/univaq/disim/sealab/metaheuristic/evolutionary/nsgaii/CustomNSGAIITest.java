@@ -5,6 +5,7 @@ import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierObjectiveNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
@@ -31,7 +32,7 @@ public class CustomNSGAIITest<S extends UMLRSolution> extends CustomGeneticAlgor
     }
 
     @Test
-    public void updateProgressTest() throws IOException, EasierException {
+    public void updateProgressTest() throws IOException, EasierException, EasierObjectiveNotFoundException {
         super.updateProgressTest();
 
         ((CustomNSGAII<S>) algorithm).updateProgress();
