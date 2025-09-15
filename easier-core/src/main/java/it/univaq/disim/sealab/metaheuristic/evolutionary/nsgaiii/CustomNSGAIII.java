@@ -98,7 +98,9 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
         EasierResourcesLogger.checkpoint(getName(), "iteration_end");
 
 //        populationToCSV();
-        new FileUtils().populationToJSON(paretoDAO, paretoDAO.getIteration());
+//        FIX: the following method has been moved to EasierParetoDAO constructor
+//        new FileUtils().populationToJSON(paretoDAO, paretoDAO.getIteration());
+
         System.out.println(this.getName());
         ProgressBar.showBar(iterations, maxIterations);
     }
@@ -162,11 +164,6 @@ public class CustomNSGAIII<S extends RSolution<?>> extends NSGAIII<S> implements
         new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(),
                 this.getProblem().getName(), Configurator.eINSTANCE.getSearchBudgetType(),
                 iterations / getMaxPopulationSize() - 1, maxIterations / getMaxPopulationSize()));
-    }
-
-    @Override
-    public String getDescription() {
-        return "Nondominated Sorting Genetic Algorithm version III. Version using measures";
     }
 
     public void clear() {

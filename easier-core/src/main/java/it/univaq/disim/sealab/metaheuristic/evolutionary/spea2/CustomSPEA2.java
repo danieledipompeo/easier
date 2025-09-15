@@ -89,7 +89,8 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
         EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
         EasierResourcesLogger.checkpoint(getName(),"iteration_end");
 
-        populationToCSV();
+//        The population is dumped to JSON file for each iteration. Look at the EasierParetoDAO class
+//        populationToCSV();
         System.out.println(this.getName());
         ProgressBar.showBar(iterations, maxIterations);
     }

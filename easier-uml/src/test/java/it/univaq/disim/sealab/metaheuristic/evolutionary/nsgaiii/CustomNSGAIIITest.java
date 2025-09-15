@@ -8,6 +8,8 @@ import it.univaq.disim.sealab.metaheuristic.utils.EasierObjectiveNotFoundExcepti
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
+import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +30,8 @@ public class CustomNSGAIIITest<S extends UMLRSolution> extends CustomGeneticAlgo
         NSGAIIIBuilder<S> customNSGAIIIBuilder = new CustomNSGAIIIBuilder<>(p, crossoverOperator, mutationOperator, Configurator.eINSTANCE.getPopulationSize())
                 .setMaxIterations(4)
                 .setSolutionListEvaluator(solutionListEvaluator)
-                .setNumberOfDivisions(Configurator.eINSTANCE.getNumberOfDivisions());
+                .setNumberOfDivisions(Configurator.eINSTANCE.getNumberOfDivisions())
+                .setSelectionOperator(new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>()));
 
         algorithm = customNSGAIIIBuilder.build();
     }
@@ -108,5 +112,20 @@ public class CustomNSGAIIITest<S extends UMLRSolution> extends CustomGeneticAlgo
             assertNotNull(dataLine, "Should have data line");
             assertTrue(dataLine.startsWith(customNsgaiii.getName()), "Data line should contain algorithm name");
         }
+    }
+
+    @Test
+    void replacementTest() {
+        CustomNSGAIII<S> algo = (CustomNSGAIII<S>) algorithm;
+        List<S> population = algo.createInitialPopulation();
+        List<S> matingPopulation = algo.selection(population);
+        List<S> offspringPopulation = algo.reproduction(matingPopulation);
+        offspringPopulation = algo.evaluatePopulation(offspringPopulation);
+        population = algo.replacement(population, offspringPopulation);
+    }
+
+    @Test
+    void numberOfObjectiveTest(){
+        assertEquals(Configurator.eINSTANCE.getObjectivesList().size(), ((CustomNSGAIII<S>)algorithm).getProblem().getNumberOfObjectives(), "Number of objectives should match the configuration");
     }
 }

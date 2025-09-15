@@ -6,7 +6,6 @@ import it.univaq.disim.sealab.metaheuristic.actions.UMLRefactoring;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
 import it.univaq.disim.sealab.metaheuristic.utils.*;
-import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 import java.io.FileWriter;
@@ -93,7 +92,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
                 // Check if a crossover point exists. If the crossover point is -1, it will return the offspring with parent1, and parent2
                 if (crossoverPoint == -1) {
-                    JMetalLogger.logger.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
+                    EasierLogger.logger_.warning(String.format("Impossible to find a feasible crossover point for solution : %s \t %S", parent1.getName(), parent2.getName()));
                     return (List<S>) offspring;
                 }
 
@@ -103,7 +102,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
 
                 // Safety check
                 if (child1Refactoring == null || child2Refactoring == null) {
-                    JMetalLogger.logger.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
+                    EasierLogger.logger_.warning(String.format("At least one child of solutions (%s, %s) is unfeasible.", parent1.getName(), parent2.getName()));
                     return (List<S>) offspring;
                 }
 
@@ -153,9 +152,9 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
     /**
      * Check if a crossover point exist. It tries every combination among possible crossover points.
      *
-     * @param refactoringLength
-     * @param parent1IndependentSequence
-     * @param parent2IndependentSequence
+     * @param refactoringLength is the length of the sequence of refactoring actions
+     * @param parent1IndependentSequence    is the independent sequence of refactoring actions of parent1
+     * @param parent2IndependentSequence    is the independent sequence of refactoring actions of parent2
      * @return either the feasible crossopoint or -1
      */
     private int extractCrossoverPoint(int refactoringLength, Map<Integer, List<List<RefactoringAction>>> parent1IndependentSequence,
@@ -309,7 +308,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
      * Writes the crossover report on the 'CrossoverReport.txt' file.
      */
     public void writeCrossoverReport(final String baseDirectory) {
-        JMetalLogger.logger.info("Writing the crossover report.");
+        EasierLogger.logger_.info("Writing the crossover report.");
         final String crossoverReportFile = baseDirectory + "/CrossoverReport.txt";
         final long valid = crossoverCandidates.stream().filter(UMLRSolution::isRefactored).count();
         final String crossoverReport = String.format("Crossover probability: %f. Valid offsprings: %d / %d.",
@@ -317,7 +316,7 @@ public class UMLRCrossover<S extends UMLRSolution> extends RCrossover<S> {
         try (final FileWriter fw = new FileWriter(crossoverReportFile)) {
             fw.write(crossoverReport);
         } catch (IOException e) {
-            JMetalLogger.logger.warning("Unable to write to " + crossoverReportFile);
+            EasierLogger.logger_.warning("Unable to write to " + crossoverReportFile);
             e.printStackTrace();
         }
     }

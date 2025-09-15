@@ -36,13 +36,27 @@ class EasierResourcesLoggerTest {
     @Test
     void toCSV() {
         IntStream.range(1,5).forEach( i -> {
-            eLogger.checkpoint("aTest","step_"+i);
+            EasierResourcesLogger.checkpoint("aTest","step_"+i);
             try {
                 Thread.sleep(i * 100);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
-        eLogger.dumpToCSV();
+        EasierResourcesLogger.dumpToCSV();
     }
+
+    @Test
+    void toJSON() {
+        IntStream.range(1,5).forEach( i -> {
+            EasierResourcesLogger.checkpoint("aTest","step_"+i);
+            try {
+                Thread.sleep(i * 100L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        EasierResourcesLogger.dumpToJSON();
+    }
+
 }

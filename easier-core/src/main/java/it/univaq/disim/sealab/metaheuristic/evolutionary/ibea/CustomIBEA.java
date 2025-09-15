@@ -33,6 +33,8 @@ public class CustomIBEA<S extends RSolution<?>> extends IBEA<S> implements Easie
         this.solutionListEvaluator = solEval;
     }
 
+    // TODO: check if the constructor of EasierParetoDAO is dumping the pareto to JSON correctly.
+    //  It might overwrite the one at line 57
     public void run() {
 
         List<S> evaluatedOffspring = new ArrayList<>();

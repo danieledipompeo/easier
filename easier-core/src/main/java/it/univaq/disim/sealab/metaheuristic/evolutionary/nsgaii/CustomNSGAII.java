@@ -101,7 +101,8 @@ public class CustomNSGAII<S extends RSolution<?>> extends NSGAII<S> implements E
         EasierResourcesLogger.checkpoint(getName(), "updateProgress_end");
         EasierResourcesLogger.checkpoint(getName(), "iteration_end");
 
-        populationToCSV();
+//        Population is now dumped to JSON file. When the EasierParedoDAO is created, it dumps the population to JSON.
+//        populationToCSV();
         System.out.println(this.getName());
         ProgressBar.showBar((evaluations / getMaxPopulationSize()), (maxEvaluations / getMaxPopulationSize()));
     }

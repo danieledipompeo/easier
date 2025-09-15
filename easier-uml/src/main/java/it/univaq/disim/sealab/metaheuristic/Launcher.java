@@ -27,6 +27,7 @@ import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class Launcher {
         jc.addObject(Configurator.eINSTANCE);
         jc.parse(args);
 
-        UMLRCrossover crossoverOperator = new UMLRCrossover(Configurator.eINSTANCE.getXoverProbabiliy());
+        UMLRCrossover<UMLRSolution> crossoverOperator = new UMLRCrossover<>(Configurator.eINSTANCE.getXoverProbabiliy());
 
         List<Path> referenceFront = new ArrayList<>();
         double qThreshold = 0.1;
@@ -90,11 +91,12 @@ public class Launcher {
             }
         }
         EasierResourcesLogger.dumpToCSV();
+        EasierResourcesLogger.dumpToJSON();
     }
 
     public static List<Path> runExperiment(final List<RProblem<UMLRSolution>> rProblems,
                                            final List<GenericIndicator<UMLRSolution>> qualityIndicators,
-                                           UMLRCrossover crossoverOperator, int eval) {
+                                           UMLRCrossover<UMLRSolution> crossoverOperator, int eval) {
         final int INDEPENDENT_RUNS = Configurator.eINSTANCE.getIndependetRuns(); // should be 31 or 51
         final int CORES = 1;
 
@@ -133,43 +135,27 @@ public class Launcher {
         RExperiment<UMLRSolution, List<UMLRSolution>> experiment =
                 ((RExperimentBuilder<UMLRSolution, List<UMLRSolution>>) experimentBuilder)
                         .setReferenceFrontFileNames(tags).build();
-        try {
             new RExecuteAlgorithms<>(experiment).run();
 
             // Print experiment results to JSON file
+            EasierLogger.logger_.info("Writing experiment results to JSON file");
             new FileUtils().experimentToJSON(EasierExperimentDAO.eINSTANCE);
 
-            if (Configurator.eINSTANCE.generateRF())
-                new RGenerateReferenceParetoFront(experiment).run();
-
-            RComputeQualityIndicators<UMLRSolution, List<UMLRSolution>> qualityIndicator =
-                    new RComputeQualityIndicators<>(
-                            experiment);
-            try {
-                qualityIndicator.run();
-            } catch (JMetalException e) {
-                JMetalLogger.logger.warning(e.getMessage());
-            }
-
             crossoverOperator.writeCrossoverReport(experiment.getExperimentBaseDirectory());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         return refFront;
 
     }
 
     public static List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> configureAlgorithmList(
-            List<ExperimentProblem<UMLRSolution>> problemList, UMLRCrossover crossoverOperator, int eval) {
+            List<ExperimentProblem<UMLRSolution>> problemList, UMLRCrossover<UMLRSolution> crossoverOperator, int eval) {
 
         List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> algorithms = new ArrayList<>();
         FactoryBuilder<UMLRSolution> fBuilder = new FactoryBuilder<>();
-//        final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new UMLRSolutionListEvaluator<>();
 
         final SolutionListEvaluator<UMLRSolution> solutionListEvaluator = new RSolutionListEvaluator<>();
 
-        final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
+        final MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation<>(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
 
         String algo = Configurator.eINSTANCE.getAlgorithm();
 
@@ -185,14 +171,15 @@ public class Launcher {
 
     public static RProblem<UMLRSolution> createProblems(Path modelPath, int eval) {
 
-        double probPas = Configurator.eINSTANCE.getProbPas();
+//        double probPas = Configurator.eINSTANCE.getProbPas();
 
-        String brf = Configurator.eINSTANCE.getBrfList().toString().replace(":", "_").replace(",", "__")
-                .replace(" ", "").replace("[", "").replace("]", "");
-        String pName = String.format("%s__BRF_%s__MaxEval_%d__ProbPAs_%.2f__sb_%s_sbth_%s__Algo_%s",
-                modelPath.getName(modelPath.getNameCount() - 2), brf, eval, probPas,
-                Configurator.eINSTANCE.getSearchBudget(), Configurator.eINSTANCE.getSearchBudgetThreshold(),
-                Configurator.eINSTANCE.getAlgorithm());
+//        String brf = Configurator.eINSTANCE.getBrfList().toString().replace(":", "_").replace(",", "__")
+//                .replace(" ", "").replace("[", "").replace("]", "");
+//        String pName = String.format("%s__BRF_%s__MaxEval_%d__ProbPAs_%.2f__sb_%s_sbth_%s__Algo_%s",
+//                modelPath.getName(modelPath.getNameCount() - 2), brf, eval, probPas,
+//                Configurator.eINSTANCE.getSearchBudget(), Configurator.eINSTANCE.getSearchBudgetThreshold(),
+//                Configurator.eINSTANCE.getAlgorithm());
+        String pName = modelPath.getName(modelPath.getNameCount() - 2) + "__Algo_" + Configurator.eINSTANCE.getAlgorithm();
 
 //        if ("rs".equals(Configurator.eINSTANCE.getAlgorithm()))
 //            return new RandomSearchUMLRProblem<>(modelPath, pName);

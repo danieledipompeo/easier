@@ -1,5 +1,9 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +80,32 @@ public class EasierResourcesLogger {
         }
     }
 
+     /**
+     * Dump resource usages and execution times in a JSON format.
+     */
+    public static void dumpToJSON() {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode recordsArray = mapper.createArrayNode();
+
+        for (int i = 0; i < execTimeMillisi.size(); i++) {
+            ObjectNode record = mapper.createObjectNode();
+            record.put("iterationId", iterationIDs.get(i));
+            record.put("label", labels.get(i));
+            record.put("step", steps.get(i));
+            record.put("executionTimeMillis", execTimeMillisi.get(i));
+
+            ObjectNode memory = mapper.createObjectNode();
+            memory.put("totalBefore", memoryOccupation.get(i)[1]);
+            memory.put("freeBefore", memoryOccupation.get(i)[0]);
+            memory.put("totalAfter", memoryOccupation.get(i)[3]);
+            memory.put("freeAfter", memoryOccupation.get(i)[2]);
+
+            record.set("memory", memory);
+            recordsArray.add(record);
+        }
+
+        FileUtils fUtil = new FileUtils();
+        fUtil.performanceMetricsToJSON(recordsArray);
+    }
 
 }

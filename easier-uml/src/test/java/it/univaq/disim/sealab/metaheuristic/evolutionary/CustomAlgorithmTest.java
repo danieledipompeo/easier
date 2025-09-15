@@ -59,6 +59,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
                 "ReceivedOrderedProducts_job_class");
         spiedConfigurator.updateObjectiveList(scenarios);
         doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
+        doReturn(2).when(spiedConfigurator).getNumberOfDivisions();
         Configurator.setIntence(spiedConfigurator);
 
         String modelpath = getClass().getResource("/easier-uml2lqnCaseStudy/cocome/simplified-cocome/cocome.uml").getFile();

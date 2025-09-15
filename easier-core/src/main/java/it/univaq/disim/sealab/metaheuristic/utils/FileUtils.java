@@ -13,7 +13,7 @@ import java.nio.file.Path;
 public class FileUtils {
 
     public FileUtils() {
-        if(!Files.exists(Configurator.eINSTANCE.getOutputFolder())){
+        if (!Files.exists(Configurator.eINSTANCE.getOutputFolder())) {
             try {
                 Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
             } catch (IOException e) {
@@ -38,6 +38,17 @@ public class FileUtils {
             e.printStackTrace();
         }
 
+    }
+
+    private static void toJson(Object obj, Path jsonFile) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(),
+                    obj);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -93,7 +104,6 @@ public class FileUtils {
 
         dumpToFile(fileName, header, line);
     }
-
 
     /**
      * Prints the line into the performance_antipatter_dump.csv file. The header of
@@ -158,25 +168,22 @@ public class FileUtils {
         }
     }
 
+    public void performanceMetricsToJSON(Object performanceMetrics) {
+        Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("algo_perf_stats.json");
+        toJson(performanceMetrics, jsonFile);
+        EasierLogger.logger_.info("Performance Metrics data written to: " + jsonFile);
+    }
+
     public void experimentToJSON(EasierExperimentDAO experimentDAO) {
         Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("experiment.json");
         toJson(experimentDAO, jsonFile);
+        EasierLogger.logger_.info("Experiment data written to: " + jsonFile);
     }
 
     public void populationToJSON(EasierPopulationDAO populationDAO, int suffix) {
         Path jsonFile = Configurator.eINSTANCE.getOutputFolder().resolve("population__" + suffix + ".json");
         toJson(populationDAO, jsonFile);
-    }
-
-    private static void toJson(Object obj, Path jsonFile) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(),
-                    obj);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        EasierLogger.logger_.info("Population data written to: " + jsonFile);
     }
 
     // aimed at sorting solutions within csv file
