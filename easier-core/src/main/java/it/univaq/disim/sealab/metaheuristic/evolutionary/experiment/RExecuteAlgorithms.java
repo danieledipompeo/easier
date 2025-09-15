@@ -1,14 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.experiment;
 
-import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.JMetalLogger;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +8,16 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
+import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.JMetalLogger;
+
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 
 public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> {
 
@@ -41,7 +42,7 @@ public class RExecuteAlgorithms<S extends RSolution<?>, Result extends List<S>> 
             List<RSolution<?>> population = (List<RSolution<?>>) algo.getAlgorithm().getResult();
 
             EasierExperimentDAO.eINSTANCE.addSuperPareto(new EasierParetoDAO(population,
-                    Configurator.eINSTANCE.getMaxEvaluation().get(0), algo.getRunId()));
+                    Configurator.eINSTANCE.getMaxEvaluation(), algo.getRunId()));
         }
 
         FileUtils.moveTmpFile(Configurator.eINSTANCE.getTmpFolder(),

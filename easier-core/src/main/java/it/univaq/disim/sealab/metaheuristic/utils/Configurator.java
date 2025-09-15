@@ -1,10 +1,11 @@
 package it.univaq.disim.sealab.metaheuristic.utils;
 
-import java.io.ObjectInputFilter;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IParameterSplitter;
@@ -38,140 +39,27 @@ public class Configurator {
 	@Parameter(names = { "-h", "--help" }, help = true)
 	private boolean help;
 
-	@Parameter(names = { "-m", "--models" }, required = true, description = "List of models")
-	private List<String> modelsPath = new ArrayList<>();
-
-	@Parameter(names = { "--solver" }, description = "Set the solver {TTKernel, LQN} path")
-	private String solver = "/usr/local/bin/lqns";
-
 	@Parameter(names = { "-p", "--pareto" }, description = "Give the Reference pareto front file path")
 	private String paretoFront;
-
-	@Parameter(names = { "-r", "--independent_runs" }, description = "Set the number of independent runs")
-	private int independetRuns = 31;
 
 	@Parameter(names = { "--cleaningTmp" }, description = "Set to true for removing all temporary files")
 	private boolean cleaningTmp = false;
 
-	@Parameter(names = { "-outF", "--outputFolder" }, required = true, description = "Set the output root folder")
-	private String outputFolder="/tmp/easier-output-test";
-
-	@Parameter(names = { "-maxEval", "--maxEvaluation" }, required = true, description = "Set the maximum evaluations")
-	private List<Integer> maxEval = List.of(72);
-
-	@Parameter(names = { "-popSize", "--populationSize" }, required = true, description = "Set the population size")
-	private int popSize = 2;
-
-	@Parameter(names = { "-xover", "--xoverProb" }, description = "Set the crossover probability")
-	private double xover = 0.8;
-
-	@Parameter(names = { "-mutation", "--mutationProb" }, description = "Set the mutation probability")
-	private double mutation = 0.2;
-
 	@Parameter(names = { "-dIndex",
 			"--distributionIndex" }, description = "Set the distribution index for the mutation operator")
 	private double distributionIndex = 20;
-
-	@Parameter(names = { "-l", "--sequenceLength" }, description = "The length of a sequence")
-	private int length = 4;
-
-	@Parameter(names = { "-af", "--allowedFaiulures" }, description = "Set the maximunm number of failures")
-	private int aw = 100;
-
-	@Parameter(names = { "-tmpF", "--tempFolder" }, required = true, description = "It is the temporary file folder")
-	private String tmpF = "/tmp/easier-test";
-
-	@Parameter(names = { "-algo", "--algorithm" }, required = true, description = "List of algorithms")
-	private String algorithm = "nsgaii";
-
-	@Parameter(names = { "-qI", "--quality_indicator" }, required = true, description = "List of quality indicators")
-	private List<String> qI = List.of("SPREAD","IGD+","EPSILON","HYPER_VOLUME","GENERALIZED_SPREAD");
-
-	@Parameter(names = { "-rf", "--refereceFront" }, description = "The absolut path to the reference front file (.rf)")
-	private List<String> referenceFront;
-
-	@Parameter(names = { "-genRF", "--generate_reference_front" }, description = "It allows the generation of reference front by FUN files")
-	private boolean generateRF = false;
-	
-	/*@Parameter(names = {"--objectives", "--objs"}, description = "Number of objectives" )
-	private int objectives = 4;*/
-	
-	@Parameter(names = {"--ref_points"}, description = "List of reference points for R-NSGA algorithm")
-	private List<Double> referencePoints = new ArrayList<>();
-	
-	@Parameter(names = {"--epsilon"},  description = "The epsilon value for the R-NSGA algorithm")
-	private double epsilon = 0.3d;
-	
-	@Parameter(names = {"-SB" , "--search-budget"}, description = "It enables the search budget. It supports: byTime, byPrematureConvergence, byBoth" )
-	private String searchBudget = "none";
-	
-	@Parameter(names = {"-sbTimeTh","--searchBudgetTimeThreshold"}, description = "The search budget stopping criterion by time.")
-	private long searchBudgetTimeThreshold = 3_600_000;
-	
-	@Parameter(names = {"-sbPCTh","--searchBudgetPrematureConvergenceThreshold"}, description = "The search budget stopping criterion by premature convergence.")
-	private float searchBudgetPrematureConvergenceThreshold = 0.50f;
-	
-	//It is a positional List where: 0=ePas,1=eRel,2=ePerfQ,3=eChanges
-	@Parameter(names = {"-sbPCEpsilon", "--searchBudgetPrematureConvergenceEpsilon"}, description = "The epsilon neighborhood for Premature Convergence.")
-	private List<Double> optimalPointEpsilon = List.of(1d,1.15d,1.15d,1.3d);
-
-	// For testing purposes it does not contain the tactics
-	@Parameter(names = {"-brf","--baselineRefactoringFactor"},  splitter = SemiColonSplitter.class, description = "The ordered list of baseline refactoring factors of Refactoring actions")
-	private List<String> brfs_list = List.of("clone:1.23","moc:1.23","mcnn:1.23","moncnn:1.23");
-
-	@Parameter(names = {"-probPAS","--probToBePerfAntipattern"}, description = "The probability to be a performance antipattern")
-	private double probPas = 0.95f;
-
-	@Parameter(names= {"-initialModelPath", "--initModelPath"}, description = "The file path of the initial model " +
-			"used by the perfQ evaluator.")
-	private String initialModelPath = "cocome/simplified-cocome/cocome.uml";
-
-
-	@Parameter(names= {"--initialChanges", "-iChanges"}, description = "The architectural changes computed in the " +
-			"previous iteration step. Default: 0.")
-	private double initialChanges = 0d;
-
-	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
-	//private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
-	private List<String> objectivesList = List.of("pricePerScenario", "energyPerScenario", "responseTimePerScenario");
 
 	@Parameter(names = {"-nodeChar", "--nodeCharacteristics"}, splitter = SemiColonSplitter.class, description = "The" +
 			" node characteristics")
 	private String nodeTypes = "[{\"label\":\"small\",\"performance\":1.0,\"energy\":1.5,\"cost\":1000.0}, " +
 			"{\"label\":\"medium\",\"performance\":2.5,\"energy\":3.5,\"cost\":2500.0}]";
 
-	@Parameter(names = {"--power-ratio", "-pwr"}, description = "k is the ratio of power idle to power max.")
-	private double powerRatio = 0.66;
-
-	public long getStoppingCriterionTimeThreshold() {
-		return searchBudgetTimeThreshold;
-	}
-	
-	public float getStoppingCriterionPrematureConvergenceThreshold() {
-		return searchBudgetPrematureConvergenceThreshold;
-	}
-	
-	public String getSearchBudgetType() {
-		return searchBudget;
-	}
-	
-	public boolean isSearchBudgetByTime() {
-		return searchBudget.equals("byTime");
-	}
-	
-	public boolean isSearchBudgetByPrematureConvergence() {
-		return searchBudget.equals("byPrematureConvergence");
-	}
-	
-	public boolean isSearchBudgetByPrematureConvergenceAndTime() {
-		return searchBudget.equals("byBoth");
-	}
-	
-	
+	// For testing purposes it does not contain the tactics
+	@Parameter(names = {"-brf","--baselineRefactoringFactor"},  splitter = SemiColonSplitter.class, description = "The ordered list of baseline refactoring factors of Refactoring actions")
+	private List<String> brfs_list = List.of("clone:1.23","moc:1.23","mcnn:1.23","moncnn:1.23");
 	public List<String> getBrfList(){
 		return brfs_list;
 	}
-	
 	public double getBRF(String key) {
 		for (String s : brfs_list)
 			if(s.split(":")[0].contains(key))			
@@ -179,10 +67,11 @@ public class Configurator {
 		return 1.23d;
 	}
 	
+	@Parameter(names = {"-SB" , "--search-budget"}, description = "It enables the search budget. It supports: byTime, byPrematureConvergence, byBoth" )
+	private String searchBudget = "none";
 	public String getSearchBudget() {
 		return searchBudget;
 	}
-	
 	public String getSearchBudgetThreshold() {
 		if("searchBudgetPrematureConvergenceThreshold".equals(searchBudget))
 			return String.valueOf(searchBudgetPrematureConvergenceThreshold);
@@ -190,16 +79,44 @@ public class Configurator {
 			return String.valueOf(searchBudgetTimeThreshold) + "-" +  String.valueOf(searchBudgetPrematureConvergenceThreshold);
 		return String.valueOf(searchBudgetTimeThreshold);		
 	}
+	public String getSearchBudgetType() {
+		return searchBudget;
+	}
+	public boolean isSearchBudgetByTime() {
+		return searchBudget.equals("byTime");
+	}
+	public boolean isSearchBudgetByPrematureConvergence() {
+		return searchBudget.equals("byPrematureConvergence");
+	}
+	public boolean isSearchBudgetByPrematureConvergenceAndTime() {
+		return searchBudget.equals("byBoth");
+	}
+	@Parameter(names = {"-sbTimeTh","--searchBudgetTimeThreshold"}, description = "The search budget stopping criterion by time.")
+	private long searchBudgetTimeThreshold = 3_600_000;
+	public long getStoppingCriterionTimeThreshold() {
+		return searchBudgetTimeThreshold;
+	}
 	
+	@Parameter(names = {"-sbPCTh","--searchBudgetPrematureConvergenceThreshold"}, description = "The search budget stopping criterion by premature convergence.")
+	private float searchBudgetPrematureConvergenceThreshold = 0.50f;
+	public float getStoppingCriterionPrematureConvergenceThreshold() {
+		return searchBudgetPrematureConvergenceThreshold;
+	}
 	
+	@Parameter(names = {"--epsilon"},  description = "The epsilon value for the R-NSGA algorithm")
+	private double epsilon = 0.3d;
 	public double getEpsilon() {
 		return epsilon;
 	}
 	
+	@Parameter(names = {"--ref_points"}, description = "List of reference points for R-NSGA algorithm")
+	private List<Double> referencePoints = new ArrayList<>();
 	public List<Double> getReferencePoints(){
 		return referencePoints;
 	}
 	
+	@Parameter(names = { "-rf", "--refereceFront" }, description = "The absolut path to the reference front file (.rf)")
+	private List<String> referenceFront;
 	public List<Path> getReferenceFront() {
 		List<Path> paths = new ArrayList<>();
 		if (referenceFront == null)
@@ -209,63 +126,86 @@ public class Configurator {
 		return paths;
 	}
 
+	@Parameter(names = { "-genRF", "--generate_reference_front" }, description = "It allows the generation of reference front by FUN files")
+	private boolean generateRF = false;
 	public boolean generateRF() {
 		return generateRF;
 	}
 
+	@Parameter(names = { "-qI", "--quality_indicator" }, required = true, description = "List of quality indicators")
+	private List<String> qI = List.of("SPREAD","IGD+","EPSILON","HYPER_VOLUME","GENERALIZED_SPREAD");
 	public List<String> getQualityIndicators() {
 		return qI;
 	}
 
+	@Parameter(names = { "-algo", "--algorithm" }, required = true, description = "List of algorithms")
+	private String algorithm = "nsgaii";
 	public String getAlgorithm() {
 		return algorithm;
 	}
 
+	@Parameter(names = { "-tmpF", "--tempFolder" }, required = true, description = "It is the temporary file folder")
+	private String tmpF = "/tmp/easier-test";
 	public Path getTmpFolder() {
 		return Paths.get(tmpF);
 	}
 
+	@Parameter(names = { "-af", "--allowedFailures" }, description = "Set the maximum number of failures")
+	private int aw = 100;
 	public int getAllowedFailures() {
 		return aw;
 	}
 
+	@Parameter(names = { "-l", "--sequenceLength" }, description = "The length of a sequence")
+	private int length = 4;
 	public int getLength() {
 		return length;
 	}
 
+	@Parameter(names = { "-xover", "--xoverProb" }, description = "Set the crossover probability")
+	private double xover = 0.8;
 	public double getXoverProbabiliy() {
 		return xover;
 	}
 
+	@Parameter(names = { "-mutation", "--mutationProb" }, description = "Set the mutation probability")
+	private double mutation = 0.2;
 	public double getMutationProbability() {
 		return mutation;
 	}
 
+	@Parameter(names = { "-popSize", "--populationSize" }, required = true, description = "Set the population size")
+	private int popSize = 2;
 	public int getPopulationSize() {
 		return popSize;
 	}
 
-	public List<Integer> getMaxEvaluation() {
+	@Parameter(names = { "-maxEval", "--maxEvaluation" }, required = true, description = "Set the maximum evaluations")
+	private int maxEval = 72;
+	public int getMaxEvaluation() {
 		return maxEval;
 	}
 
+	@Parameter(names = { "-outF", "--outputFolder" }, required = true, description = "Set the output root folder")
+	private String outputFolder="/tmp/easier-output-test";
 	public Path getOutputFolder() {
 		return Paths.get(outputFolder);
 	}
 
-	public int getIndependetRuns() {
-		return independetRuns;
+	@Parameter(names = { "-r", "--independent_runs" }, description = "Set the number of independent runs")
+	private int independentRuns = 1;
+	public int getIndependentRuns() {
+		return independentRuns;
 	}
 
-	public List<Path> getModelsPath() {
-		List<Path> paths = new ArrayList<>();
-		
-		modelsPath.forEach(m -> paths.add(Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier-uml2lqnCaseStudy", m)));
-		
-//		modelsPath.forEach(m -> paths.add(Paths.get(m)));
-		return paths;
+	@Parameter(names = { "-m", "--model" }, required = true, description = "Path to the model file")
+	private String modelPath;
+	public Path getModelPath() {
+		return Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier-uml2lqnCaseStudy", modelPath);
 	}
 
+	@Parameter(names = { "--solver" }, description = "Set the solver LQN} path")
+	private String solver = "/usr/local/bin/lqns";
 	public Path getSolver() {
 //		String solver = String.format("docker run --rm -v %s:%s lqns lqns", mountPoint, mountPoint);
 		return Path.of(solver);
@@ -283,6 +223,8 @@ public class Configurator {
 		return listOfActions;
 	}
 
+	@Parameter(names = {"--power-ratio", "-pwr"}, description = "k is the ratio of power idle to power max.")
+	private double powerRatio = 0.66;
 	public double getPowerRatioIdleMax() {
 		return powerRatio;
 	}
@@ -299,23 +241,37 @@ public class Configurator {
 	    }
 	}
 
+	@Parameter(names = {"-probPAS","--probToBePerfAntipattern"}, description = "The probability to be a performance antipattern")
+	private double probPas = 0.95f;
 	public Double getProbPas() {
 		return probPas;
 	}
 
+	//It is a positional List where: 0=ePas,1=eRel,2=ePerfQ,3=eChanges
+	@Parameter(names = {"-sbPCEpsilon", "--searchBudgetPrematureConvergenceEpsilon"}, description = "The epsilon neighborhood for Premature Convergence.")
+	private List<Double> optimalPointEpsilon = List.of(1d,1.15d,1.15d,1.3d);
 	public double[] getLocalOptimalPointEpsilon() {
 		return optimalPointEpsilon.stream().mapToDouble(Number::doubleValue).toArray();
 	}
 
+	@Parameter(names= {"-initialModelPath", "--initModelPath"}, description = "The file path of the initial model " +
+			"used by the perfQ evaluator.")
+	private String initialModelPath = "cocome/simplified-cocome/cocome.uml";
 	public Path getInitialModelPath() {
 		return Paths.get(FileSystems.getDefault().getPath("").toAbsolutePath().toString(), "..", "easier" +
 				"-uml2lqnCaseStudy", initialModelPath);
 	}
 
+	@Parameter(names= {"--initialChanges", "-iChanges"}, description = "The architectural changes computed in the " +
+			"previous iteration step. Default: 0.")
+	private double initialChanges = 0d;
 	public double getInitialChanges(){
 		return initialChanges;
 	}
 
+	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
+	//private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
+	private List<String> objectivesList = List.of("pricePerScenario", "energyPerScenario", "responseTimePerScenario");
 	public List<String> getObjectivesList(){
 		return objectivesList;
 	}

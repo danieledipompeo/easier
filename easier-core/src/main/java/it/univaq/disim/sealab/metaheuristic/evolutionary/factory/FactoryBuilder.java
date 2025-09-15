@@ -1,15 +1,8 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.factory;
 
-import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentAlgorithm;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.ibea.CustomIBEABuilder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii.CustomNSGAIIBuilder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaiii.CustomNSGAIIIBuilder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii.CustomPESA2Builder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.random.CustomRandomSearch;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.rnsgaii.CustomRNSGAIIBuilder;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.spea2.CustomSPEA2Builder;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import java.util.HashMap;
+import java.util.List;
+
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
@@ -22,14 +15,26 @@ import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
-import org.uma.jmetal.qualityindicator.impl.*;
+import org.uma.jmetal.qualityindicator.impl.Epsilon;
+import org.uma.jmetal.qualityindicator.impl.GeneralizedSpread;
+import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
+import org.uma.jmetal.qualityindicator.impl.InvertedGenerationalDistance;
+import org.uma.jmetal.qualityindicator.impl.InvertedGenerationalDistancePlus;
+import org.uma.jmetal.qualityindicator.impl.Spread;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.experiment.RExperimentAlgorithm;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.ibea.CustomIBEABuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaii.CustomNSGAIIBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.nsgaiii.CustomNSGAIIIBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.pesaii.CustomPESA2Builder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.random.CustomRandomSearch;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.rnsgaii.CustomRNSGAIIBuilder;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.spea2.CustomSPEA2Builder;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 
 public class FactoryBuilder<S extends RSolution<?>> {
 
@@ -84,102 +89,99 @@ public class FactoryBuilder<S extends RSolution<?>> {
      * @param algo
      * @return List of ExperimentAlgorithm of length Configuration.eINSTANCE.getIndependetRuns()
      */
-    public List<ExperimentAlgorithm<S, List<S>>> configureAlgorithmList(
-            ExperimentProblem<S> experimentProblem, int eval,
-            CrossoverOperator<S> crossoverOperator, SolutionListEvaluator<S> solutionListEvaluator, MutationOperator<S> mutationOperator,
+    public ExperimentAlgorithm<S, List<S>> configureAlgorithm(
+            ExperimentProblem<S> experimentProblem, 
+            int eval,
+            CrossoverOperator<S> crossoverOperator, 
+            SolutionListEvaluator<S> solutionListEvaluator, 
+            MutationOperator<S> mutationOperator,
             String algo) {
 
-        List<ExperimentAlgorithm<S, List<S>>> algorithms = new ArrayList<>();
-        final SelectionOperator<List<S>, S> selectionOperator = new BinaryTournamentSelection<S>(
-                new RankingAndCrowdingDistanceComparator<S>());
+        final SelectionOperator<List<S>, S> selectionOperator = new BinaryTournamentSelection<>(
+                new RankingAndCrowdingDistanceComparator<>());
         Algorithm<List<S>> algorithm = null;
-        for (int runId = 0; runId < Configurator.eINSTANCE.getIndependetRuns(); runId++) {
 
+        if ("nsgaii".equals(algo)) {
 
-            if ("nsgaii".equals(algo)) {
+            NSGAIIBuilder<S> customNSGABuilder = new CustomNSGAIIBuilder<S>(
+                    experimentProblem.getProblem(), crossoverOperator, mutationOperator,
+                    Configurator.eINSTANCE.getPopulationSize())
+                    .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
+                    .setSolutionListEvaluator(solutionListEvaluator);
 
-                NSGAIIBuilder<S> customNSGABuilder = new CustomNSGAIIBuilder<S>(
+            algorithm = customNSGABuilder.build();
+
+        } else if ("spea2".equals(algo)) {
+
+            SPEA2Builder<S> spea2Builder = new CustomSPEA2Builder<S>(
+                    experimentProblem.getProblem(), crossoverOperator, mutationOperator)
+                    .setSelectionOperator(selectionOperator)
+                    .setSolutionListEvaluator(solutionListEvaluator).setMaxIterations(eval)
+                    .setPopulationSize(Configurator.eINSTANCE.getPopulationSize());
+
+            algorithm = spea2Builder.build();
+
+        } else if ("rnsga".equals(algo)) {
+
+            if (Configurator.eINSTANCE.getReferencePoints().size() % Configurator.eINSTANCE.getObjectivesList().size() == 0) {
+
+                RNSGAIIBuilder<S> rnsgaBuilder = new CustomRNSGAIIBuilder<>(
                         experimentProblem.getProblem(), crossoverOperator, mutationOperator,
-                        Configurator.eINSTANCE.getPopulationSize())
-                        .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
-                        .setSolutionListEvaluator(solutionListEvaluator);
-
-                algorithm = customNSGABuilder.build();
-
-            } else if ("spea2".equals(algo)) {
-
-                SPEA2Builder<S> spea2Builder = new CustomSPEA2Builder<S>(
-                        experimentProblem.getProblem(), crossoverOperator, mutationOperator)
-                        .setSelectionOperator(selectionOperator)
-                        .setSolutionListEvaluator(solutionListEvaluator).setMaxIterations(eval)
-                        .setPopulationSize(Configurator.eINSTANCE.getPopulationSize());
-
-                algorithm = spea2Builder.build();
-
-            } else if ("rnsga".equals(algo)) {
-
-                if (Configurator.eINSTANCE.getReferencePoints().size() % Configurator.eINSTANCE.getObjectivesList().size() == 0) {
-
-                    RNSGAIIBuilder<S> rnsgaBuilder = new CustomRNSGAIIBuilder<S>(
-                            experimentProblem.getProblem(), crossoverOperator, mutationOperator,
-                            Configurator.eINSTANCE.getReferencePoints(), Configurator.eINSTANCE.getEpsilon())
-                            .setPopulationSize(Configurator.eINSTANCE.getPopulationSize())
-                            .setMatingPoolSize(Configurator.eINSTANCE.getPopulationSize())
-                            .setOffspringPopulationSize(Configurator.eINSTANCE.getPopulationSize())
-                            .setSolutionListEvaluator(solutionListEvaluator)
-                            .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize());
-
-                    algorithm = rnsgaBuilder.build();
-
-                } else {
-                    throw new RuntimeException("Reference points must be multiple of the number of objectives!!!");
-
-                }
-
-            } else if ("pesa2".equals(algo)) {
-                // as reported at
-                // https://github.com/jMetal/jMetal/blob/master/jmetal-algorithm/src/main/java/org/uma/jmetal/algorithm/multiobjective/pesa2/PESA2Builder.java
-                // we set biSection to 5, and populationSize = archiveSize
-                int biSections = 5;
-                PESA2Builder<S> pesaBuilder = new CustomPESA2Builder<S>(
-                        experimentProblem.getProblem(), crossoverOperator, mutationOperator)
+                        Configurator.eINSTANCE.getReferencePoints(), Configurator.eINSTANCE.getEpsilon())
                         .setPopulationSize(Configurator.eINSTANCE.getPopulationSize())
-                        .setArchiveSize(Configurator.eINSTANCE.getPopulationSize())
-                        .setBisections(biSections)
-                        .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
-                        .setSolutionListEvaluator(solutionListEvaluator);
-                algorithm = pesaBuilder.build();
-            } else if ("rs".equals(algo)) {
-                algorithm = new CustomRandomSearch<S>(experimentProblem.getProblem(), eval);
-            } else if ("ibea".equals(algo)) {
-                CustomIBEABuilder<S> ibeaBuilder = new CustomIBEABuilder<>(
-                        experimentProblem.getProblem(), crossoverOperator, mutationOperator,
-                        Configurator.eINSTANCE.getPopulationSize())
-                        .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
-                        .setSolutionListEvaluator(solutionListEvaluator);
-
-                algorithm = ibeaBuilder.build();
-            } else if("nsgaiii".equals(algo)){
-                NSGAIIIBuilder<S> nsgaiiiBuilder = new CustomNSGAIIIBuilder<>(
-                        experimentProblem.getProblem(), crossoverOperator, mutationOperator,
-                        Configurator.eINSTANCE.getPopulationSize())
-                        // The iteration starts from 1, so we need to add 1 to eval
-                        .setMaxIterations(eval+1)
+                        .setMatingPoolSize(Configurator.eINSTANCE.getPopulationSize())
+                        .setOffspringPopulationSize(Configurator.eINSTANCE.getPopulationSize())
                         .setSolutionListEvaluator(solutionListEvaluator)
-                        .setSelectionOperator(selectionOperator)
-                        .setNumberOfDivisions(Configurator.eINSTANCE.getNumberOfDivisions());
-                algorithm = nsgaiiiBuilder.build();
+                        .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize());
+
+                algorithm = rnsgaBuilder.build();
+
+            } else {
+                throw new RuntimeException("Reference points must be multiple of the number of objectives!!!");
             }
 
-            if (algorithm == null) {
-                throw new NullPointerException("Algorithm must be not null.");
-            }
+        } else if ("pesa2".equals(algo)) {
+            // as reported at
+            // https://github.com/jMetal/jMetal/blob/master/jmetal-algorithm/src/main/java/org/uma/jmetal/algorithm/multiobjective/pesa2/PESA2Builder.java
+            // we set biSection to 5, and populationSize = archiveSize
+            int biSections = 5;
+            PESA2Builder<S> pesaBuilder = new CustomPESA2Builder<>(
+                    experimentProblem.getProblem(), crossoverOperator, mutationOperator)
+                    .setPopulationSize(Configurator.eINSTANCE.getPopulationSize())
+                    .setArchiveSize(Configurator.eINSTANCE.getPopulationSize())
+                    .setBisections(biSections)
+                    .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
+                    .setSolutionListEvaluator(solutionListEvaluator);
+            algorithm = pesaBuilder.build();
+        } else if ("rs".equals(algo)) {
+            algorithm = new CustomRandomSearch<>(experimentProblem.getProblem(), eval);
+        } else if ("ibea".equals(algo)) {
+            CustomIBEABuilder<S> ibeaBuilder = new CustomIBEABuilder<>(
+                    experimentProblem.getProblem(), crossoverOperator, mutationOperator,
+                    Configurator.eINSTANCE.getPopulationSize())
+                    .setMaxEvaluations(eval * Configurator.eINSTANCE.getPopulationSize())
+                    .setSolutionListEvaluator(solutionListEvaluator);
 
-            ExperimentAlgorithm<S, List<S>> exp = new RExperimentAlgorithm<>(
-                    algorithm, algorithm.getName(), experimentProblem, runId);
-            algorithms.add(exp);
-
+            algorithm = ibeaBuilder.build();
+        } else if("nsgaiii".equals(algo)){
+            NSGAIIIBuilder<S> nsgaiiiBuilder = new CustomNSGAIIIBuilder<>(
+                    experimentProblem.getProblem(), crossoverOperator, mutationOperator,
+                    Configurator.eINSTANCE.getPopulationSize())
+                    // The iteration starts from 1, so we need to add 1 to eval
+                    .setMaxIterations(eval+1)
+                    .setSolutionListEvaluator(solutionListEvaluator)
+                    .setSelectionOperator(selectionOperator)
+                    .setNumberOfDivisions(Configurator.eINSTANCE.getNumberOfDivisions());
+            algorithm = nsgaiiiBuilder.build();
         }
-        return algorithms;
+
+        if (algorithm == null) {
+            throw new NullPointerException("Algorithm must be not null.");
+        }
+
+        ExperimentAlgorithm<S, List<S>> exp = new RExperimentAlgorithm<>(
+                algorithm, algorithm.getName(), experimentProblem, 1);
+        return exp;
+
     }
 }

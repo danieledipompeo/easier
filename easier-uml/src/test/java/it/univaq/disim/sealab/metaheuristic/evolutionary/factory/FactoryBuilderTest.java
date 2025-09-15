@@ -1,12 +1,14 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.factory;
 
-import it.univaq.disim.sealab.metaheuristic.Launcher;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListEvaluator;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
@@ -16,12 +18,12 @@ import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import it.univaq.disim.sealab.metaheuristic.Launcher;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.RSolutionListEvaluator;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRCrossover;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.operator.UMLRMutation;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 
 
 public class FactoryBuilderTest {
@@ -50,7 +52,7 @@ public class FactoryBuilderTest {
         int eval = 12;
         List<ExperimentProblem<UMLRSolution>> problemList = new ArrayList<>();
 
-        problemList.add(new ExperimentProblem<UMLRSolution>(Launcher.createProblems(modelPath, eval)));
+        problemList.add(new ExperimentProblem<UMLRSolution>(Launcher.createProblem(modelPath, eval)));
 
         ExperimentProblem<UMLRSolution> experimentProblem = problemList.get(0);
         CrossoverOperator<UMLRSolution> crossoverOperator = new UMLRCrossover(Configurator.eINSTANCE.getXoverProbabiliy());
@@ -58,9 +60,9 @@ public class FactoryBuilderTest {
         MutationOperator<UMLRSolution> mutationOperator = new UMLRMutation(Configurator.eINSTANCE.getMutationProbability(), Configurator.eINSTANCE.getDistributionIndex());
         String algo = "nsgaii";
 
-        List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> experimentAlgorithms = new FactoryBuilder<UMLRSolution>().configureAlgorithmList(
+        List<ExperimentAlgorithm<UMLRSolution, List<UMLRSolution>>> experimentAlgorithms = List.of(new FactoryBuilder<UMLRSolution>().configureAlgorithm(
                 experimentProblem, eval, crossoverOperator, solutionListEvaluator, mutationOperator, algo
-        );
+        ));
 
         assertFalse("Expected a not empty experiment algorithm list", experimentAlgorithms.isEmpty());
 

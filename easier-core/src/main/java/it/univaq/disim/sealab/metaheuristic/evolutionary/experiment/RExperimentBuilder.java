@@ -15,8 +15,9 @@ public class RExperimentBuilder<S extends RSolution<?>, Result extends List<S>> 
 		super(experimentName);
 	}
 	
+	@Override
 	public RExperiment<S, Result> build() {
-		return new RExperiment<S, Result>(this);
+		return new RExperiment<>(this);
 	}
 	
 	public RExperimentBuilder<S, Result> setReferenceFrontFileNames(List<String> tags){
