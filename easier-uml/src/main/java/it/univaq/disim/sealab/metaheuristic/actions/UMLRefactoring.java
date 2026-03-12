@@ -51,7 +51,8 @@ public class UMLRefactoring extends Refactoring {
         }
 
         EasierResourcesLogger.checkpoint("UMLRefactoring", "execute_end");
-        EasierLogger.logger_.info("Refactoring executed on solID: " + this.solutionID);
+        EasierLogger.logger_.info("Refactoring executed on solID: " + this.solutionID +
+                (failed ? " with failures." : " successfully."));
         return !failed;
     }
 

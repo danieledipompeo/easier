@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 public class WorkflowUtils {
 
+    // TODO: Make the flow static and more modular to be reused in other contexts
     public void executeFlow(RSolution<?> solution) throws EasierException {
 
         try {

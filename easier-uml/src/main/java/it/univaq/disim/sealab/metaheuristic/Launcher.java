@@ -49,6 +49,7 @@ public class Launcher {
         Path modelPath = Configurator.eINSTANCE.getModelPath();
 
         EasierLogger.logger_.info(String.format("Processing model : %s", modelPath.getFileName().toString()));
+        EasierLogger.logger_.info(String.format("Surrogate enabled: %s", Configurator.eINSTANCE.isSurrogate()));
         RProblem<UMLRSolution> rProblem = createProblem(modelPath, Configurator.eINSTANCE.getMaxEvaluation());
 
         if (!modelPath.getParent().resolve("output.xml").toFile().exists()) {
