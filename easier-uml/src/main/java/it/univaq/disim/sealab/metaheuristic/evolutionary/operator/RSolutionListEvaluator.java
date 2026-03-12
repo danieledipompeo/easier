@@ -4,27 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import it.univaq.disim.sealab.metaheuristic.utils.*;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierObjectiveNotFoundException;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 
 public class RSolutionListEvaluator<S extends RSolution<?>> implements SolutionListEvaluator<S> {
 
+    static int ITERATION_COUNTER = 0;
     /**
      * This method evaluates a list of solutions.
      *
      * @param solutionList The list of solutions to be evaluated
      * @param problem      The problem to be solved
-     * @return The list of solutions with their objectives and constraints values set
-     * @throws JMetalException
+     * @return The list of solutions with their objective values
+     * @throws JMetalException if any error occurs
      */
     @Override
     public List<S> evaluate(List<S> solutionList, Problem<S> problem) throws JMetalException {
@@ -35,14 +31,19 @@ public class RSolutionListEvaluator<S extends RSolution<?>> implements SolutionL
         List<S> evaluatedPopulation = new ArrayList<>();
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_start");
+
         while(!toEvaluate.isEmpty()){
             S s = toEvaluate.pop();
             try {
                 new WorkflowUtils().executeFlow(s);
-                new ObjectiveEstimator().computeObjectives(s);
-                new ObjectiveEstimator().setConsideredObjectives(s);
+                if(!Configurator.eINSTANCE.isSurrogate() || !s.isMarkedForSurrogate()) {
+                    EasierLogger.logger_.info(String.format("Solution id: # %s has been evaluated by EASIER.", s.getName()));
+                    ObjectiveEstimator.computeObjectives(s);
+                    ObjectiveEstimator.setConsideredObjectives(s);
+                }
                 evaluatedPopulation.add(s);
-            } catch (EasierException | EasierObjectiveNotFoundException e) {
+            }
+            catch(EasierException | EasierObjectiveNotFoundException e){
                 String line = s.getName() + "," + e.getMessage() + "," + s.getVariable(0).toString();
                 new FileUtils().failedSolutionLogToCSV(line);
                 S newSolution = problem.createSolution();
@@ -52,9 +53,14 @@ public class RSolutionListEvaluator<S extends RSolution<?>> implements SolutionL
             }
         }
 
-        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_end");
-//        evaluatedPopulation.forEach(problem::evaluate);
+        if(Configurator.eINSTANCE.isSurrogate()) {
+            EasierLogger.logger_.info("Invoking surrogate evaluation for iteration: " + ITERATION_COUNTER);
+            String caseStudyName = Configurator.eINSTANCE.getInitialModelPath().getFileName().toString().replace(".uml", "").replace("-","");
+            ObjectiveEstimator.surrogateEvaluation((List<RSolution<?>>) evaluatedPopulation, ITERATION_COUNTER, caseStudyName);
+        }
 
+        EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_end");
+        ITERATION_COUNTER++;
         return evaluatedPopulation;
     }
 

@@ -1,16 +1,18 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
+import org.uma.jmetal.solution.AbstractSolution;
+
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import org.uma.jmetal.solution.AbstractSolution;
-
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public abstract class RSolution<T extends Refactoring> extends AbstractSolution<T> {
 
@@ -37,6 +39,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
     protected int refactoringLength;
     protected String problemName;
 
+    protected boolean markedForSurrogate = false;
+
     protected Map<String, Double> mapOfObjectives;
 
     protected RSolution(Path srcModelPath, String pName) {
@@ -45,6 +49,9 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
         refactoringLength = Configurator.eINSTANCE.getLength();
         sourceModelPath = srcModelPath;
         problemName = pName;
+
+        // Mark solution for surrogate with configured probability
+        markedForSurrogate = Math.random() < Configurator.eINSTANCE.getSurrogateProbability();
     }
 
     protected static void incrementXOverCounter(){
@@ -94,6 +101,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
         this.mutated = isMutated;
         incrementMutationCounter();
     }
+
+    public boolean isMarkedForSurrogate() { return markedForSurrogate; }
 
     public boolean isCrossover() {
         return isCrossover;
@@ -197,4 +206,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
     public abstract void executeFlow() throws EasierException;
 
     public abstract void computeObjectives() throws EasierException;
+
+    public void setMarkedForSurrogate(boolean isMarkedForSurrogate) {
+        this.markedForSurrogate = isMarkedForSurrogate;
+    }
 }

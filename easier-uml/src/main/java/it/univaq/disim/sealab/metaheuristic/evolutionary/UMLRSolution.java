@@ -33,6 +33,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
     public UMLRSolution(Path sourceModelPath, String problemName) {
         super(sourceModelPath, problemName);
         init();
+        EasierLogger.logger_.info("Solution id: #" + getName() + " marked for surrogate: " + markedForSurrogate);
     }
 
     public UMLRSolution(UMLRSolution s) {
@@ -139,7 +140,7 @@ public class UMLRSolution extends RSolution<Refactoring> {
     }
 
     public void computeObjectives() throws EasierException {
-        new ObjectiveEstimator().computeObjectives(this);
+        ObjectiveEstimator.computeObjectives(this);
     }
 
     public void executeFlow() throws EasierException {
