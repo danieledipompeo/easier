@@ -9,7 +9,7 @@ wget -O config.ini $1
 CASE_STUDY=$(get_config_param m | cut -d'/' -f2)
 ALGORITHM=$(get_config_param algo)
 OUT_DIR=$(get_config_param outF)
-
+NOTIFY_EMAIL="daniele.dipompeo@univaq.it"
 CASE_STUDY_FOLDER=/opt/easier/easier-uml2lqnCaseStudy/
 
 mkdir -p ${CASE_STUDY_FOLDER}`dirname $(get_config_param m)`
@@ -28,3 +28,33 @@ cp config.ini $OUT_DIR
 JVM_PARAMS="-Xmx12g --add-exports java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${OUT_DIR}/easier-oom -XX:StartFlightRecording=filename=${OUT_DIR}/easier.jfr,path-to-gc-roots=true,settings=profile"
 
 java -jar ${JVM_PARAMS} easier.jar @./config.ini 2>&1 | tee "${OUT_DIR}/easier__${CASE_STUDY}__${ALGORITHM}.log"
+
+EXIT_CODE=${PIPESTATUS[0]}
+
+# Set NOTIFY_EMAIL in the environment before running this script, e.g.:
+#   export NOTIFY_EMAIL="you@example.com"
+#   ./easier.sh <config-url> <case-study-subdir>
+#
+# Requires the 'mail' (or mailx) command to be installed and configured.
+
+if [[ -n "${NOTIFY_EMAIL}" ]] && command -v mail >/dev/null 2>&1; then
+  SUBJECT="[EASIER] Run finished for ${CASE_STUDY} (${ALGORITHM}) - exit code ${EXIT_CODE}"
+  BODY=$(
+    cat <<EOF
+EASIER run finished.
+
+Case study : ${CASE_STUDY}
+Algorithm  : ${ALGORITHM}
+Output dir : ${OUT_DIR}
+Log file   : ${OUT_DIR}/easier__${CASE_STUDY}__${ALGORITHM}.log
+Exit code  : ${EXIT_CODE}
+
+Host       : $(hostname)
+End time   : $(date)
+
+EOF
+  )
+  echo "${BODY}" | mail -s "${SUBJECT}" "${NOTIFY_EMAIL}"
+fi
+
+exit "${EXIT_CODE}"
