@@ -8,6 +8,7 @@ import java.util.List;
 public class EasierPopulationDAO {
 
     protected List<EasierSolutionDAO> solutions;
+    protected int iteration;
 
     public EasierPopulationDAO(){
         solutions = new ArrayList<>();
@@ -22,6 +23,17 @@ public class EasierPopulationDAO {
             }
         }
     }
+
+    public EasierPopulationDAO(final List<RSolution<?>> sols, int iteration){
+        this(sols);
+        this.iteration = iteration;
+    }
+
+    public int getIteration() {
+        return iteration;
+    }
+
+    public void setIteration(int iteration) {}
 
     public List<EasierSolutionDAO> getSolutions() {
         return solutions;

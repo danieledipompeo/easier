@@ -23,6 +23,8 @@ public class EasierSolutionDAO {
     int solID;
     List<EasierRefactoringActionDAO> refactoring;
 
+    boolean markedForSurrogate = false;
+
     public EasierSolutionDAO(RSolution<?> sol) {
         refactoring = new ArrayList<>();
         objectives = new HashMap<>();
@@ -59,6 +61,7 @@ public class EasierSolutionDAO {
         setConsideredObjectives(sol.getMapOfObjectives());
         objectives.putAll(sol.getMapOfObjectives());
         setRefactoring(sol.getVariable(0));
+        markedForSurrogate = sol.isMarkedForSurrogate();
     }
 
     public void setConsideredObjectives(Map<String, Double> mapOfObjs) {
@@ -79,4 +82,6 @@ public class EasierSolutionDAO {
     public Map<String, Double> getConsideredObjectives() {
         return consideredObjectives;
     }
+
+    public boolean isMarkedForSurrogate() { return markedForSurrogate; }
 }
