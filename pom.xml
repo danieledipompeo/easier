@@ -19,7 +19,12 @@
     </modules>
     <properties>
         <emf.version>2.15.0</emf.version>
-        <jdk.version>11</jdk.version>
+        <emf.ecore.version>2.15.0</emf.ecore.version>
+        <emf.ecore.xmi.version>2.15.0</emf.ecore.xmi.version>
+        <emf.mapping.ecore2xml.version>2.11.0</emf.mapping.ecore2xml.version>
+        <jdk.version>17</jdk.version>
+        <maven.compiler.source>${jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <easier.core.version>0.6.3</easier.core.version>
         <openrewrite.maven.plugin>5.28.0</openrewrite.maven.plugin>
@@ -62,6 +67,30 @@
         </plugins>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Core EMF -->
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore</artifactId>
+                <version>${emf.ecore.version}</version>
+            </dependency>
+
+            <!-- EMF XMI (this is the critical one for you) -->
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+                <version>${emf.ecore.xmi.version}</version>
+            </dependency>
+
+            <!-- EMF mapping (if you use it) -->
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.mapping.ecore2xml</artifactId>
+                <version>${emf.mapping.ecore2xml.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.eclipse.emf/org.eclipse.emf.common -->
@@ -70,21 +99,8 @@
             <artifactId>org.eclipse.emf.common</artifactId>
             <version>${emf.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.eclipse.emf/org.eclipse.emf.ecore -->
-        <dependency>
-            <groupId>org.eclipse.emf</groupId>
-            <artifactId>org.eclipse.emf.ecore</artifactId>
-            <version>${emf.version}</version>
-        </dependency>
 
         <!-- JUNIT -->
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
-        <!-- <dependency>
-             <groupId>junit</groupId>
-             <artifactId>junit</artifactId>
-             <version>4.13</version>
-             <scope>test</scope>
-         </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

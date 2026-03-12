@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -9,10 +9,6 @@
         <version>0.6.3</version>
     </parent>
     <artifactId>easier-uml</artifactId>
-
-    <properties>
-        <powermock.version></powermock.version>
-    </properties>
 
     <build>
         <plugins>
@@ -56,90 +52,90 @@
         </plugins>
     </build>
 
-  <dependencies>
-    <!-- Dependency to EMF -->
-    <!-- <dependency> -->
-    <!-- <groupId>it.univaq.disim.sealab.emf</groupId> -->
-    <!-- <artifactId>org.eclipse.emf.ecore</artifactId> -->
-    <!-- <version>2.17.0.v20190116-0940</version> -->
-    <!-- </dependency> -->
+    <dependencies>
+        <!-- Dependency to EMF -->
+        <!-- <dependency> -->
+        <!-- <groupId>it.univaq.disim.sealab.emf</groupId> -->
+        <!-- <artifactId>org.eclipse.emf.ecore</artifactId> -->
+        <!-- <version>2.17.0.v20190116-0940</version> -->
+        <!-- </dependency> -->
 
-    <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
-    <!--<dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <!--<dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>4.4.0</version>
             <scope>test</scope>
         </dependency>-->
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>4.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.moditect.jfrunit</groupId>
-      <artifactId>jfrunit-core</artifactId>
-      <version>1.0.0.Alpha2</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.moditect.jfrunit</groupId>
+            <artifactId>jfrunit-core</artifactId>
+            <version>1.0.0.Alpha2</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.emf</groupId>
-      <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
-      <version>2.15.0</version>
-    </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+<!--            <version>2.15.0</version>-->
+        </dependency>
 
-    <!-- <dependency> -->
-    <!-- <groupId>it.univaq.disim.sealab.emf</groupId> -->
-    <!-- <artifactId>org.eclipse.emf.common</artifactId> -->
-    <!-- <version>2.15.0.v20181220-0846</version> -->
-    <!-- </dependency> -->
+        <!-- <dependency> -->
+        <!-- <groupId>it.univaq.disim.sealab.emf</groupId> -->
+        <!-- <artifactId>org.eclipse.emf.common</artifactId> -->
+        <!-- <version>2.15.0.v20181220-0846</version> -->
+        <!-- </dependency> -->
 
-    <dependency>
-      <groupId>org.eclipse.emf</groupId>
-      <artifactId>org.eclipse.emf.mapping.ecore2xml</artifactId>
-      <version>2.11.0</version>
-    </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.mapping.ecore2xml</artifactId>
+<!--            <version>2.11.0</version>-->
+        </dependency>
 
-    <!-- Dependency to UML -->
-    <dependency>
-      <groupId>it.univaq.disim.sealab.uml</groupId>
-      <artifactId>org.eclipse.uml2.common</artifactId>
-      <version>2.5.0.v20181203-1331</version>
-    </dependency>
+        <!-- Dependency to UML -->
+        <dependency>
+            <groupId>it.univaq.disim.sealab.uml</groupId>
+            <artifactId>org.eclipse.uml2.common</artifactId>
+            <version>2.5.0.v20181203-1331</version>
+        </dependency>
 
-    <dependency>
-      <groupId>it.univaq.disim.sealab.uml</groupId>
-      <artifactId>org.eclipse.uml2.types</artifactId>
-      <version>2.5.0.v20181203-1331</version>
-    </dependency>
+        <dependency>
+            <groupId>it.univaq.disim.sealab.uml</groupId>
+            <artifactId>org.eclipse.uml2.types</artifactId>
+            <version>2.5.0.v20181203-1331</version>
+        </dependency>
 
-    <dependency>
-      <groupId>it.univaq.disim.sealab.uml</groupId>
-      <artifactId>org.eclipse.uml2.uml</artifactId>
-      <version>5.5.0.v20181203-1331</version>
-    </dependency>
+        <dependency>
+            <groupId>it.univaq.disim.sealab.uml</groupId>
+            <artifactId>org.eclipse.uml2.uml</artifactId>
+            <version>5.5.0.v20181203-1331</version>
+        </dependency>
 
-    <dependency>
-      <groupId>it.univaq.disim.sealab.uml.profiles</groupId>
-      <artifactId>org.eclipse.uml2.uml.profile.standard</artifactId>
-      <version>1.5.0.v20181203-1331</version>
-    </dependency>
+        <dependency>
+            <groupId>it.univaq.disim.sealab.uml.profiles</groupId>
+            <artifactId>org.eclipse.uml2.uml.profile.standard</artifactId>
+            <version>1.5.0.v20181203-1331</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.equinox.registry</artifactId>
-      <version>3.8.300</version>
-    </dependency>
-    <!-- <dependency>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.equinox.registry</artifactId>
+            <version>3.8.300</version>
+        </dependency>
+        <!-- <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>5.10.2</version>
@@ -158,11 +154,14 @@
             <version>1.2.3.202303241341</version>
         </dependency>
 
-        <!--dependency> <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.standard</artifactId>
+        <!--dependency>
+        <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.standard</artifactId>
             <version>1.0.0.v20150202-0947</version> </dependency -->
-        <!--dependency> <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.l3</artifactId>
+        <!--dependency>
+        <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.l3</artifactId>
             <version>1.1.0-v20130902-0826</version> </dependency -->
-        <!--dependency> <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.l2</artifactId>
+        <!--dependency>
+        <groupId>it.univaq.disim.sealab.profiles</groupId> <artifactId>uml.l2</artifactId>
             <version>1.1.0-v20130902-0826</version> </dependency -->
 
         <!-- Dependency to ECLIPSE -->
@@ -188,10 +187,10 @@
             <artifactId>easier-epsilon</artifactId>
             <version>0.6.3</version>
         </dependency>
-	<dependency>
-		<groupId>it.univaq.easier</groupId>
-		 <artifactId>easier-user-profile</artifactId>
-		 <version>1.0-SNAPSHOT</version>
-	 </dependency>
+        <dependency>
+            <groupId>it.univaq.easier</groupId>
+            <artifactId>easier-user-profile</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
