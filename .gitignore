@@ -14,3 +14,7 @@ hs_err_pid*
 *.out
 mvnw.cmd
 .vscode
+easier-epsilon/.classpath
+easier-uml/.classpath
+build.log
+effective-pom.xml
