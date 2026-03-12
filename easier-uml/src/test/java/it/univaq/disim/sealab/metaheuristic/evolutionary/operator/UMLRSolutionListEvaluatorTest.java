@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +32,7 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
     @BeforeEach
     void setUp() throws IOException {
 
-        problem = new UMLRProblem<>(Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getFile()),
+        problem = new UMLRProblem<>(Paths.get(getClass().getResource("/easier-uml2lqnCaseStudy/train-ticket/train-ticket.uml").getFile()),
                 "simplied-cocome__test");
         sol = problem.createSolution();
 
@@ -49,10 +51,15 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
     @Test
     void evaluate() {
+        sol.setMarkedForSurrogate(true);
+        List<S> solutions = new ArrayList<>();
+        IntStream.range(0, 10).forEach(i -> solutions.add(sol));
 
-        solutionListEvaluator.evaluate(new ArrayList<>() {{
-            add(sol);
-        }}, problem);
+        solutionListEvaluator.evaluate(solutions, problem);
+
+//        solutionListEvaluator.evaluate(new ArrayList<>() {{
+//            add(sol);
+//        }}, problem);
 
         assertTrue(Arrays.stream(sol.getObjectives()).allMatch(o -> o != 0));
 //        assertNotEquals(0, sol.getPAs(), "Expected PAs != 0");
