@@ -1,13 +1,5 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary;
 
-import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
-import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.uma.jmetal.algorithm.Algorithm;
-import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -21,8 +13,16 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
+
+import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
+import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
+import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 
 public class CustomAlgorithmTest<S extends UMLRSolution> {
 
@@ -60,7 +60,7 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
         spiedConfigurator.updateObjectiveList(scenarios);
         doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
         doReturn(2).when(spiedConfigurator).getNumberOfDivisions();
-        Configurator.setIntence(spiedConfigurator);
+        Configurator.setInstance(spiedConfigurator);
 
         String modelpath = getClass().getResource("/easier-uml2lqnCaseStudy/cocome/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");
