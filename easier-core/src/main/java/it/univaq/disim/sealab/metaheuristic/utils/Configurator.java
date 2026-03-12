@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Configurator {
 
-	public static final String PERF_Q_LABEL = "perfq";
-	public static final String PAS_LABEL = "pas";
-	public static final String ENERGY_LABEL = "energy";
-	public static final String RELIABILITY_LABEL = "reliability";
-	public static final String CHANGES_LABEL = "changes";
-	public static final String SYS_RESP_T_LABEL = "sysRespT";
-	public static final String POWER_LABEL = "power";
+	public static final String PERF_Q_LABEL        = "perfq";
+	public static final String PAS_LABEL           = "pas";
+	public static final String ENERGY_LABEL        = "energy";
+	public static final String RELIABILITY_LABEL   = "reliability";
+	public static final String CHANGES_LABEL       = "changes";
+	public static final String SYS_RESP_T_LABEL    = "sysRespT";
+	public static final String POWER_LABEL         = "power";
 	public static final String ECONOMIC_COST_LABEL = "price";
 
 	public static final String OPERATION_LABEL = "operation";
@@ -181,7 +181,7 @@ public class Configurator {
 	}
 
 	@Parameter(names = { "-maxEval", "--maxEvaluation" }, required = true, description = "Set the maximum evaluations")
-	private int maxEval = 72;
+	private int maxEval = 2;
 	public int getMaxEvaluation() {
 		return maxEval;
 	}
@@ -270,8 +270,9 @@ public class Configurator {
 	}
 
 	@Parameter(names = {"-objs", "--objectives"}, description = "The objectives")
-	//private List<String> objectivesList = List.of("sysRespT", "changes", "reliability", "energy", "pricePerScenario", "energyPerScenario");
-	private List<String> objectivesList = List.of("pricePerScenario", "energyPerScenario", "responseTimePerScenario");
+	private List<String> objectivesList = List.of(PERF_Q_LABEL, PAS_LABEL, ENERGY_LABEL, RELIABILITY_LABEL, CHANGES_LABEL, POWER_LABEL);
+//	private List<String> objectivesList = List.of("power", "changes", "reliability", "energy", "perfq", "energyPerScenario");
+//	ECONOMIC_COST_LABELprivate List<String> objectivesList = List.of("pricePerScenario", "energyPerScenario", "responseTimePerScenario");
 	public List<String> getObjectivesList(){
 		return objectivesList;
 	}
@@ -304,20 +305,38 @@ public class Configurator {
 	// Extract the node characteristics from the configurator
 	public List<NodeType> getNodeCharacteristics() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		List<NodeType> listNodeTypes = null;
+		List<NodeType> listNodeTypes;
 		try {
 			listNodeTypes = objectMapper.readValue(nodeTypes, new TypeReference<>() {});
 		} catch (JsonProcessingException e) {
 			EasierLogger.logger_.severe("Error when parsing the node characteristics: " + e.getMessage());
 			EasierLogger.logger_.severe("The default node characteristics will be used.");
-			e.printStackTrace();
+			EasierLogger.logger_.severe("Stack trace: " + Arrays.toString(e.getStackTrace()));
 			listNodeTypes = List.of(new NodeType("small", 1, 1.5, 1000));
 		}
 		return listNodeTypes;
 	}
 
+	@Parameter(names = {"--surrogate-probability", "-sp"}, description = "The probability of solutions evaluated with the surrogate model.")
+	private double surrogateProbability = 0.5d;
+	public double getSurrogateProbability() {
+		return surrogateProbability;
+	}
+
+	@Parameter(names = {"--surrogate-endpoint", "-se"}, description = "The endpoint of the surrogate model REST API.")
+	private String surrogateEndpoint = "http://localhost:5000/surrogate";
+	public String getSurrogateEndpoint() {
+		return surrogateEndpoint;
+	}
+
+	@Parameter(names = {"--surrogate", "-s"}, description = "Enable the surrogate model evaluation.")
+	 boolean surrogate = false;
+	public boolean isSurrogate() {
+		return surrogate;
+	}
+
 	// TODO: use the factory in the future
-	public static void setIntence(Configurator configurator) {
+	public static void setInstance(Configurator configurator) {
 		eINSTANCE = configurator;
 	}
 }
