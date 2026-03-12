@@ -1,15 +1,23 @@
 #!/bin/bash
 
+if [[ "$#" -ne 2 ]]; then
+  echo "Usage: $0 <config-url> <notify-email>" >&2
+  exit 1
+fi
+
 get_config_param() {
   grep -v '^#' config.ini | grep -Pzo "\-${1}\n\K[^\n]+"
 }
 
-wget -O config.ini $1
+CONFIG_URL=$1
+BRANCH=$2
+NOTIFY_EMAIL=$3
+
+wget -O config.ini $CONFIG_URL
 
 CASE_STUDY=$(get_config_param m | cut -d'/' -f2)
 ALGORITHM=$(get_config_param algo)
 OUT_DIR=$(get_config_param outF)
-NOTIFY_EMAIL="daniele.dipompeo@univaq.it"
 CASE_STUDY_FOLDER=/opt/easier/easier-uml2lqnCaseStudy/
 
 mkdir -p ${CASE_STUDY_FOLDER}`dirname $(get_config_param m)`
@@ -33,7 +41,7 @@ EXIT_CODE=${PIPESTATUS[0]}
 
 # Set NOTIFY_EMAIL in the environment before running this script, e.g.:
 #   export NOTIFY_EMAIL="you@example.com"
-#   ./easier.sh <config-url> <case-study-subdir>
+#   ./easier.sh <config-url> <notify-email>
 #
 # Requires the 'mail' (or mailx) command to be installed and configured.
 
