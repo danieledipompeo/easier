@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ "$#" -ne 2 ]]; then
-  echo "Usage: $0 <config-url> <notify-email>" >&2
+if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
+  echo "Usage: $0 <config-url-or-local-path> <case-study-subdir> [notify-email]" >&2
   exit 1
 fi
 
@@ -11,9 +11,17 @@ get_config_param() {
 
 CONFIG_URL=$1
 BRANCH=$2
-NOTIFY_EMAIL=$3
+NOTIFY_EMAIL=${3:-}
 
-wget -O config.ini $CONFIG_URL
+if [[ "$CONFIG_URL" =~ ^https?:// ]]; then
+  wget -O config.ini "$CONFIG_URL"
+else
+  if [[ ! -f "$CONFIG_URL" ]]; then
+    echo "Config file not found: $CONFIG_URL" >&2
+    exit 1
+  fi
+  cp "$CONFIG_URL" config.ini
+fi
 
 CASE_STUDY=$(get_config_param m | cut -d'/' -f2)
 ALGORITHM=$(get_config_param algo)
@@ -26,10 +34,10 @@ mkdir -p ${CASE_STUDY_FOLDER}`dirname $(get_config_param initialModelPath)`
 #download the model to be optmizated
 
 #wget -O /opt/easier/easier-uml2lqnCaseStudy/$(get_config_param m) https://raw.githubusercontent.com/SEALABQualityGroup/uml2lqn-casestudies/support-workload/$(get_config_param m)
-wget -O /opt/easier/easier-uml2lqnCaseStudy/$(get_config_param m) https://raw.githubusercontent.com/SEALABQualityGroup/uml2lqn-casestudies/${2}/$(get_config_param m)
+wget -O /opt/easier/easier-uml2lqnCaseStudy/$(get_config_param m) https://raw.githubusercontent.com/SEALABQualityGroup/uml2lqn-casestudies/${BRANCH}/$(get_config_param m)
 
 # download the intial model path to compute the perfq
-wget -O /opt/easier/easier-uml2lqnCaseStudy/$(get_config_param initialModelPath) https://raw.githubusercontent.com/SEALABQualityGroup/uml2lqn-casestudies/${2}/$(get_config_param initialModelPath)
+wget -O /opt/easier/easier-uml2lqnCaseStudy/$(get_config_param initialModelPath) https://raw.githubusercontent.com/SEALABQualityGroup/uml2lqn-casestudies/${BRANCH}/$(get_config_param initialModelPath)
 
 mkdir -p $OUT_DIR
 cp config.ini $OUT_DIR
@@ -41,7 +49,7 @@ EXIT_CODE=${PIPESTATUS[0]}
 
 # Set NOTIFY_EMAIL in the environment before running this script, e.g.:
 #   export NOTIFY_EMAIL="you@example.com"
-#   ./easier.sh <config-url> <notify-email>
+#   ./easier.sh <config-url> <case-study-subdir> [notify-email]
 #
 # Requires the 'mail' (or mailx) command to be installed and configured.
 

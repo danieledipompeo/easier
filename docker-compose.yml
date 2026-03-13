@@ -1,0 +1,35 @@
+services:
+  easier-surrogate:
+    build:
+      context: ./easier-surrogate
+      dockerfile: Dockerfile
+    container_name: easier-surrogate
+    expose:
+      - "5000"
+    healthcheck:
+      # Surrogate endpoint is POST-only; check TCP port readiness instead.
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost', 5000)); s.close()\""]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  easier-uml-job:
+    build:
+      context: .
+      dockerfile: ./easier-docker/Dockerfile
+    image: easier-uml-job:local
+    profiles: ["jobs"]
+    depends_on:
+      easier-surrogate:
+        condition: service_healthy
+    tmpfs:
+      - /tmp
+    volumes:
+      - ${RUN_OUTPUT_DIR:-/tmp/easier-output}:/mnt/easier-output/
+    logging:
+      driver: journald
+    command:
+      - ${CONFIG_URL-}
+      - ${CASE_STUDY_SUBDIR-}
+      - ${NOTIFY_EMAIL-}
