@@ -3,7 +3,6 @@ services:
     build:
       context: ./easier-surrogate
       dockerfile: Dockerfile
-    container_name: easier-surrogate
     expose:
       - "5000"
     healthcheck:

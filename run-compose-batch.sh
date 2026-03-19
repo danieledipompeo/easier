@@ -10,6 +10,7 @@ Usage:
     --output-root=<host-output-root> \
     [--notify-email=<email>] \
     [--runs=31] \
+    [--project-prefix=easier-batch] \
     [--compose-file=docker-compose.yml]
 
 Example:
@@ -27,9 +28,20 @@ CASE_STUDY_SUBDIR=""
 OUTPUT_ROOT=""
 NOTIFY_EMAIL=""
 RUNS="31"
+PROJECT_PREFIX="easier-batch"
 COMPOSE_FILE="docker-compose.yml"
 CONFIG_INPUT=""
-COMPOSE_RUN_EXTRA_ARGS=()
+COMPOSE_FILES=()
+TMP_DIR=""
+CONFIG_OVERRIDE_FILE=""
+
+cleanup() {
+  if [[ -n "$TMP_DIR" && -d "$TMP_DIR" ]]; then
+    rm -rf "$TMP_DIR"
+  fi
+}
+
+trap cleanup EXIT
 
 for arg in "$@"; do
   case "$arg" in
@@ -47,6 +59,9 @@ for arg in "$@"; do
       ;;
     --runs=*)
       RUNS="${arg#*=}"
+      ;;
+    --project-prefix=*)
+      PROJECT_PREFIX="${arg#*=}"
       ;;
     --compose-file=*)
       COMPOSE_FILE="${arg#*=}"
@@ -69,6 +84,11 @@ if [[ -z "$CONFIG_URL" || -z "$CASE_STUDY_SUBDIR" || -z "$OUTPUT_ROOT" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$COMPOSE_FILE" ]]; then
+  echo "Compose file not found: $COMPOSE_FILE" >&2
+  exit 1
+fi
+
 if [[ "$CONFIG_URL" =~ ^https?:// ]]; then
   CONFIG_INPUT="$CONFIG_URL"
 else
@@ -78,7 +98,14 @@ else
   fi
   host_config="$(realpath "$CONFIG_URL")"
   CONFIG_INPUT="/tmp/easier-input-config.ini"
-  COMPOSE_RUN_EXTRA_ARGS=(-v "${host_config}:${CONFIG_INPUT}:ro")
+  TMP_DIR="$(mktemp -d)"
+  CONFIG_OVERRIDE_FILE="${TMP_DIR}/config-mount.override.yml"
+  cat > "$CONFIG_OVERRIDE_FILE" <<EOF
+services:
+  easier-uml-job:
+    volumes:
+      - ${host_config}:${CONFIG_INPUT}:ro
+EOF
 fi
 
 if ! [[ "$RUNS" =~ ^[0-9]+$ ]] || [[ "$RUNS" -lt 1 ]]; then
@@ -86,23 +113,43 @@ if ! [[ "$RUNS" =~ ^[0-9]+$ ]] || [[ "$RUNS" -lt 1 ]]; then
   exit 1
 fi
 
-echo "Starting surrogate service..."
-docker compose -f "$COMPOSE_FILE" up -d easier-surrogate
+PROJECT_PREFIX="$(printf '%s' "$PROJECT_PREFIX" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9_-]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g')"
 
-echo "Submitting $RUNS easier-uml jobs..."
+if [[ -z "$PROJECT_PREFIX" ]]; then
+  echo "--project-prefix must contain at least one letter or digit." >&2
+  exit 1
+fi
+
+COMPOSE_FILES=(-f "$COMPOSE_FILE")
+if [[ -n "$CONFIG_OVERRIDE_FILE" ]]; then
+  COMPOSE_FILES+=(-f "$CONFIG_OVERRIDE_FILE")
+fi
+
+mkdir -p "$OUTPUT_ROOT"
+PROJECTS_FILE="${OUTPUT_ROOT}/batch-projects.txt"
+: > "$PROJECTS_FILE"
+
+echo "Submitting $RUNS isolated easier-uml + easier-surrogate pairs..."
+
 for i in $(seq 1 "$RUNS"); do
   run_dir="${OUTPUT_ROOT}/run${i}"
+  project_name="${PROJECT_PREFIX}-run${i}"
   mkdir -p "$run_dir"
 
-  cid=$(RUN_OUTPUT_DIR="$run_dir" \
+  RUN_OUTPUT_DIR="$run_dir" \
     CONFIG_URL="$CONFIG_INPUT" \
     CASE_STUDY_SUBDIR="$CASE_STUDY_SUBDIR" \
     NOTIFY_EMAIL="$NOTIFY_EMAIL" \
-    docker compose -f "$COMPOSE_FILE" --profile jobs run -d --rm "${COMPOSE_RUN_EXTRA_ARGS[@]}" easier-uml-job)
+    docker compose "${COMPOSE_FILES[@]}" -p "$project_name" --profile jobs up -d easier-surrogate easier-uml-job
 
-  echo "run${i}: ${cid} -> ${run_dir}"
+  uml_cid=$(docker compose "${COMPOSE_FILES[@]}" -p "$project_name" ps -q easier-uml-job)
+
+  printf '%s %s\n' "$project_name" "$run_dir" >> "$PROJECTS_FILE"
+  echo "run${i}: project=${project_name} uml=${uml_cid} -> ${run_dir}"
 done
 
 echo "All jobs submitted."
-echo "Check surrogate logs with: docker compose -f ${COMPOSE_FILE} logs -f easier-surrogate"
-echo "Check running containers with: docker ps"
+echo "Per-run project list saved to: ${PROJECTS_FILE}"
+echo "Inspect one run with: docker compose -f ${COMPOSE_FILE} -p ${PROJECT_PREFIX}-run1 ps"
+echo "Tail surrogate logs for one run with: docker compose -f ${COMPOSE_FILE} -p ${PROJECT_PREFIX}-run1 logs -f easier-surrogate"
+echo "Stop all run pairs with: while read -r project _; do docker compose -f ${COMPOSE_FILE} -p \"\$project\" down; done < ${PROJECTS_FILE}"
