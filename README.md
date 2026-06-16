@@ -185,7 +185,7 @@ For controlled replication, archive:
 
 ## License
 
-This repository is licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
+This repository is licensed under the **MIT License**.
 
 - Main license file: `LICENSE` (repository root).
 - Documentation/theme assets under `docs` retain their existing CC0 notice in `docs/LICENSE`.
