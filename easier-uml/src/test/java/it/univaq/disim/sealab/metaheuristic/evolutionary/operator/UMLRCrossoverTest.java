@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.UMLRProblem;
@@ -32,18 +30,11 @@ public class UMLRCrossoverTest {
         xOver = new UMLRCrossover<>(xOverProb);
         modelPath = Paths.get(getClass().getResource("/models/simplified-cocome/cocome.uml").getPath());
 
-        // Create mock of Configurator
-        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
-
-        // Mock the Configurator
         List<String> scenarios = List.of(
                 "ProcessSale_job_class",
                 "ShowDeliveryReports_job_class",
                 "ReceivedOrderedProducts_job_class");
-        spiedConfigurator.updateObjectiveList(scenarios);
-        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
-        Configurator.setInstance(spiedConfigurator);
-
+        Configurator.eINSTANCE.updateObjectiveList(scenarios);
     }
 
     @AfterEach

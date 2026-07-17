@@ -13,6 +13,15 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Epsilon/EMF reflectively access internal Xerces DOM classes while loading UML/LQN
+                         models; JPMS blocks this by default on JDK 9+, which makes every solution
+                         evaluation throw and get silently replaced by RSolutionListEvaluator's retry loop. -->
+                    <argLine>--add-opens java.xml/com.sun.org.apache.xerces.internal.dom=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED --add-opens java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
@@ -60,20 +69,6 @@
         <!-- <version>2.17.0.v20190116-0940</version> -->
         <!-- </dependency> -->
 
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
-        <!--<dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.4.0</version>
-            <scope>test</scope>
-        </dependency>-->
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>4.11.0</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.moditect.jfrunit</groupId>
             <artifactId>jfrunit-core</artifactId>

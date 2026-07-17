@@ -14,8 +14,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 
@@ -49,18 +47,11 @@ public class CustomAlgorithmTest<S extends UMLRSolution> {
     }
 
     public void setUp() {
-        // Create mock of Configurator
-        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
-
-        // Mock the Configurator
         List<String> scenarios = List.of(
                 "ProcessSale_job_class",
                 "ShowDeliveryReports_job_class",
                 "ReceivedOrderedProducts_job_class");
-        spiedConfigurator.updateObjectiveList(scenarios);
-        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
-        doReturn(2).when(spiedConfigurator).getNumberOfDivisions();
-        Configurator.setInstance(spiedConfigurator);
+        Configurator.eINSTANCE.updateObjectiveList(scenarios);
 
         String modelpath = getClass().getResource("/easier-uml2lqnCaseStudy/cocome/simplified-cocome/cocome.uml").getFile();
         p = new UMLRProblem<>(Paths.get(modelpath), "problem_for_testing");

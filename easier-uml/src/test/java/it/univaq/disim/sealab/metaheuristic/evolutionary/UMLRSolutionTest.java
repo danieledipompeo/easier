@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
 import it.univaq.disim.sealab.metaheuristic.actions.Refactoring;
 import it.univaq.disim.sealab.metaheuristic.actions.RefactoringAction;
@@ -46,17 +44,11 @@ public class UMLRSolutionTest {
     @BeforeAll
     public static void beforeClass() throws IOException {
         Files.createDirectories(Configurator.eINSTANCE.getOutputFolder());
-        // Create mock of Configurator
-        Configurator spiedConfigurator = spy(Configurator.eINSTANCE);
-
-        // Mock the Configurator
         List<String> scenarios = List.of(
                 "ProcessSale_job_class",
                 "ShowDeliveryReports_job_class",
                 "ReceivedOrderedProducts_job_class");
-        spiedConfigurator.updateObjectiveList(scenarios);
-        doReturn(Paths.get("/tmp/easier-output-test")).when(spiedConfigurator).getOutputFolder();
-        Configurator.setInstance(spiedConfigurator);
+        Configurator.eINSTANCE.updateObjectiveList(scenarios);
     }
 
     //    @AfterAll
