@@ -4,10 +4,11 @@ import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
 import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.PopulationCsvSupport;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.SearchBudgetPolicy;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierLogger;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.algorithm.multiobjective.ibea.IBEA;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -20,16 +21,14 @@ import java.util.List;
 
 public class CustomIBEA<S extends RSolution<?>> extends IBEA<S> implements EasierAlgorithm {
 
-    private final long durationThreshold;
+    private final SearchBudgetPolicy searchBudget = new SearchBudgetPolicy();
     private int evaluations = 0;
-    private long iterationStartingTime;
     private final SolutionListEvaluator<S> solutionListEvaluator;
 
     public CustomIBEA(Problem<S> problem, int populationSize, int archiveSize, int maxEvaluations,
                       SelectionOperator<List<S>, S> selectionOperator, CrossoverOperator<S> crossoverOperator,
                       MutationOperator<S> mutationOperator, SolutionListEvaluator<S> solEval) {
         super(problem, populationSize, archiveSize, maxEvaluations, selectionOperator, crossoverOperator, mutationOperator);
-        durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
         this.solutionListEvaluator = solEval;
     }
 
@@ -38,7 +37,7 @@ public class CustomIBEA<S extends RSolution<?>> extends IBEA<S> implements Easie
     public void run() {
 
         List<S> evaluatedOffspring = new ArrayList<>();
-        iterationStartingTime = System.currentTimeMillis();
+        searchBudget.start();
         List<S> solutionSet = new ArrayList<>(this.populationSize);
         this.archive = new ArrayList<>(this.archiveSize);
 //        int evaluations = 0;
@@ -123,20 +122,15 @@ public class CustomIBEA<S extends RSolution<?>> extends IBEA<S> implements Easie
 
     @Override
     public void populationToCSV() {
-        this.archive.forEach(s -> {
-            s.refactoringToCSV();
-            String line = this.getName() + ',' + this.problem.getName() + ',' + s.objectiveToCSV();
-            new FileUtils().solutionDumpToCSV(line);
-        });
+        PopulationCsvSupport.dumpPopulation(getName(), problem.getName(), this.archive, true);
     }
 
     @Override
     public boolean isStoppingConditionReached() {
         EasierLogger.logger_.info(String.format("IBEA evaluations / max evaluation: %s / %s", evaluations, this.maxEvaluations));
-        long currentComputingTime = System.currentTimeMillis() - iterationStartingTime;
 
         if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
-            return evaluations < this.maxEvaluations || currentComputingTime > durationThreshold;
+            return evaluations < this.maxEvaluations || searchBudget.isTimeExceeded();
 //        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
 //            return super.isStoppingConditionReached() || isStagnantState();
 //         computeStagnantState

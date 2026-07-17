@@ -17,17 +17,27 @@ import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.PopulationCsvSupport;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.SearchBudgetPolicy;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 
 public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements EasierAlgorithm {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private long durationThreshold, iterationStartingTime;
+
+	// NOTE: this class is intentionally NOT fully migrated to the shared instrumentation/checkpoint
+	// collaborators used by CustomNSGAII/CustomSPEA2/CustomNSGAIII/CustomPESA2. It has zero test
+	// coverage anywhere in the repo, fully reimplements the algorithm loop by hand in _run() instead
+	// of relying on jMetal's inherited run() template, and its iteration counter (jMetal's
+	// RNSGAII#evaluations is a CountingMeasure, not an int) is not compatible with the int-based
+	// counters the other collaborators assume. Only the byte-identical, provably-safe pieces
+	// (the search-budget stopping condition and clear()) are extracted here; _run(), its inline
+	// memory/timing capture, and populationToCSV() are left untouched.
+	private final SearchBudgetPolicy searchBudget = new SearchBudgetPolicy();
 	private float prematureConvergenceThreshold;
 
 	// It will be exploited to identify stagnant situation
@@ -41,7 +51,6 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 		super(problem, maxEvaluations, populationSize, matingPoolSize, offspringPopulationSize, crossoverOperator,
 				mutationOperator, selectionOperator, evaluator, interestPoint, epsilon);
 
-		durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
 		prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
 		oldPopulation = new ArrayList<S>();
 	}
@@ -60,11 +69,11 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 	@Override
 	protected void initProgress() {
 		super.initProgress();
-		iterationStartingTime = System.currentTimeMillis();
+		searchBudget.start();
 		oldPopulation = (List<S>) this.getPopulation(); // store the initial population
 		this.getPopulation().forEach(s -> s.refactoringToCSV());
 	}
-	
+
 	/**
 	 * Support multiple stopping criteria. byTime the default computing threshold is
 	 * set to 1 h byPrematureConvergence the default premature convergence is set to
@@ -74,10 +83,8 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 	@Override
 	public boolean isStoppingConditionReached() {
 
-		long currentComputingTime = System.currentTimeMillis() - iterationStartingTime;
-
 		if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
-			return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
+			return super.isStoppingConditionReached() || searchBudget.isTimeExceeded();
 //		if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) // byPrematureConvergence
 //			return super.isStoppingConditionReached() || isStagnantState();
 		// computeStagnantState
@@ -162,10 +169,7 @@ public class CustomRNSGAII<S extends RSolution<?>> extends RNSGAII<S> implements
 
 	@Override
 	public void clear() {
-		for (S sol : this.getPopulation()) {
-			sol.setParents(null, null);
-		}
-		this.getPopulation().clear();
+		PopulationCsvSupport.clear(this.getPopulation());
 	}
 
 }

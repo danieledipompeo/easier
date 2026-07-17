@@ -1,13 +1,12 @@
 package it.univaq.disim.sealab.metaheuristic.evolutionary.spea2;
 
-import it.univaq.disim.sealab.metaheuristic.domain.EasierExperimentDAO;
-import it.univaq.disim.sealab.metaheuristic.domain.EasierParetoDAO;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.EasierAlgorithm;
-import it.univaq.disim.sealab.metaheuristic.evolutionary.ProgressBar;
 import it.univaq.disim.sealab.metaheuristic.evolutionary.RSolution;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.CheckpointPhases;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.PopulationCsvSupport;
+import it.univaq.disim.sealab.metaheuristic.evolutionary.support.SearchBudgetPolicy;
 import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierResourcesLogger;
-import it.univaq.disim.sealab.metaheuristic.utils.FileUtils;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -26,7 +25,7 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
      */
     private static final long serialVersionUID = 1L;
     List<S> oldPopulation;
-    private long durationThreshold, iterationStartingTime;
+    private final SearchBudgetPolicy searchBudget = new SearchBudgetPolicy();
     private float prematureConvergenceThreshold;
 
     /**
@@ -41,7 +40,6 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
         // k = sqrt(population.size()), but a value of k = 1 is recommended.
         super(problem, maxIterations, populationSize, crossoverOperator, mutationOperator, selectionOperator, evaluator, 1);
 
-        durationThreshold = Configurator.eINSTANCE.getStoppingCriterionTimeThreshold();
         prematureConvergenceThreshold = Configurator.eINSTANCE.getStoppingCriterionPrematureConvergenceThreshold();
         oldPopulation = new ArrayList<S>();
     }
@@ -58,10 +56,8 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
      */
     @Override
     public boolean isStoppingConditionReached() {
-        long currentComputingTime = System.currentTimeMillis() - iterationStartingTime;
-
         if (Configurator.eINSTANCE.isSearchBudgetByTime()) // byTime
-            return super.isStoppingConditionReached() || currentComputingTime > durationThreshold;
+            return super.isStoppingConditionReached() || searchBudget.isTimeExceeded();
 //        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergence()) //byPrematureConvergence
 //            return super.isStoppingConditionReached() || isStagnantState();
 //        if (Configurator.eINSTANCE.isSearchBudgetByPrematureConvergenceAndTime()) // byBoth
@@ -71,28 +67,22 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
 
     @Override
     protected void initProgress() {
-        EasierResourcesLogger.checkpoint(getName(),"initProgress_start");
-        super.initProgress();
-        EasierResourcesLogger.checkpoint(getName(),"initProgress_end");
+        CheckpointPhases.phase(getName(), "initProgress", super::initProgress);
 
         this.getPopulation().forEach(s -> s.refactoringToCSV());
-        iterationStartingTime = System.currentTimeMillis();
+        searchBudget.start();
         oldPopulation = (List<S>) this.getPopulation(); // store the initial population
     }
 
     @Override
     public void updateProgress() {
-        EasierExperimentDAO.eINSTANCE.addPareto(new EasierParetoDAO((List<RSolution<?>>) population,
-                iterations ));
-        EasierResourcesLogger.checkpoint(getName(),"updateProgress_start");
-        super.updateProgress();
-        EasierResourcesLogger.checkpoint(getName(),"updateProgress_end");
+        CheckpointPhases.recordParetoFront(population, iterations);
+        CheckpointPhases.phase(getName(), "updateProgress", (Runnable) super::updateProgress);
         EasierResourcesLogger.checkpoint(getName(),"iteration_end");
 
 //        The population is dumped to JSON file for each iteration. Look at the EasierParetoDAO class
 //        populationToCSV();
-        System.out.println(this.getName());
-        ProgressBar.showBar(iterations, maxIterations);
+        CheckpointPhases.printProgress(getName(), iterations, maxIterations);
     }
 
     /*public boolean isStagnantState() {
@@ -121,58 +111,38 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
      *
      */
     public void populationToCSV() {
-        for (RSolution<?> sol : population) {
-            String line = this.getName() + ',' + this.getProblem().getName() + ',' + sol.objectiveToCSV();
-            new FileUtils().solutionDumpToCSV(line);
-        }
+        PopulationCsvSupport.dumpPopulation(getName(), getProblem().getName(), population, false);
     }
 
     @Override
     protected List<S> createInitialPopulation() {
-        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_start");
-        List<S> pop = super.createInitialPopulation();
-        EasierResourcesLogger.checkpoint(getName(),"createInitialPopulation_end");
-        return pop;
+        return CheckpointPhases.phase(getName(), "createInitialPopulation", super::createInitialPopulation);
     }
 
     @Override
     protected List<S> selection(List<S> pop) {
         EasierResourcesLogger.iterationCheckpointStart(getName(),"iteration_start");
-        EasierResourcesLogger.checkpoint(getName(),"selection_start");
-        List<S> matingPopulation = super.selection(pop);
-        EasierResourcesLogger.checkpoint(getName(),"selection_end");
-        return matingPopulation;
+        return CheckpointPhases.phase(getName(), "selection", () -> super.selection(pop));
     }
 
     @Override
     protected List<S> reproduction(List<S> matingPool) {
-        EasierResourcesLogger.checkpoint(getName(),"reproduction_start");
-        List<S> offspringPopulation = super.reproduction(matingPool);
-        EasierResourcesLogger.checkpoint(getName(),"reproduction_end");
-        return offspringPopulation;
+        return CheckpointPhases.phase(getName(), "reproduction", () -> super.reproduction(matingPool));
     }
 
     @Override
     protected List<S> replacement(List<S> population, List<S> offspringPopulation) {
-        EasierResourcesLogger.checkpoint(getName(),"replacement_start");
-        List<S> replacedPop = super.replacement(population, offspringPopulation);
-        EasierResourcesLogger.checkpoint(getName(),"replacement_end");
-        return replacedPop;
+        return CheckpointPhases.phase(getName(), "replacement", () -> super.replacement(population, offspringPopulation));
     }
 
     @Override
     protected List<S> evaluatePopulation(List<S> population) {
-        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
-        List<S> evaluatedPop = super.evaluatePopulation(population);
-        EasierResourcesLogger.checkpoint(getName(),"evaluatePopulation_end");
-        return evaluatedPop;
+        return CheckpointPhases.phase(getName(), "evaluatePopulation", () -> super.evaluatePopulation(population));
     }
 
     @Override
     public void run() {
-        EasierResourcesLogger.checkpoint(getName(),"run_start");
-        super.run();
-        EasierResourcesLogger.checkpoint(getName(),"run_end");
+        CheckpointPhases.phase(getName(), "run", (Runnable) super::run);
 
         /* prints the number of iterations until the search budget is not reached.
          * !!!Attn!!!
@@ -180,22 +150,13 @@ public class CustomSPEA2<S extends RSolution<?>> extends SPEA2<S> implements Eas
          * is required because iterations has been updated just before checking the stopping criteria
          * !!!Attn!!!
          */
-        new FileUtils().searchBudgetDumpToCSV(String.format("%s,%s,%s,%s,%s", this.getName(), this.getProblem().getName(),
-                Configurator.eINSTANCE.getSearchBudgetType(), iterations - 1, maxIterations));
+        PopulationCsvSupport.dumpSearchBudget(getName(), getProblem().getName(),
+                Configurator.eINSTANCE.getSearchBudgetType(), iterations - 1, maxIterations);
     }
 
     public void clear() {
-
-        for (S sol : this.getPopulation()) {
-            sol.setParents(null, null);
-        }
-
-        for (S sol : this.archive) {
-            sol.setParents(null, null);
-        }
-
-        this.getPopulation().clear();
-        this.archive.clear();
+        PopulationCsvSupport.clear(this.getPopulation());
+        PopulationCsvSupport.clear(this.archive);
     }
 
 }
