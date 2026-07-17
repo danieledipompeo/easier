@@ -10,6 +10,8 @@ import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +53,7 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
     @Test
     void evaluate() {
-        sol.setMarkedForSurrogate(true);
+        markForSurrogate(sol, true);
         List<S> solutions = new ArrayList<>();
         IntStream.range(0, 10).forEach(i -> solutions.add(sol));
 
@@ -71,5 +73,33 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
     @Test
     void testEvaluate() {
+    }
+
+    private static void markForSurrogate(Object solution, boolean value) {
+        try {
+            // Newer core versions expose an explicit setter.
+            Method setter = solution.getClass().getMethod("setMarkedForSurrogate", boolean.class);
+            setter.invoke(solution, value);
+            return;
+        } catch (Exception ignored) {
+            // Fallback for classpaths where only the backing field is available.
+        }
+
+        try {
+            Class<?> current = solution.getClass();
+            while (current != null) {
+                try {
+                    Field f = current.getDeclaredField("markedForSurrogate");
+                    f.setAccessible(true);
+                    f.setBoolean(solution, value);
+                    return;
+                } catch (NoSuchFieldException e) {
+                    current = current.getSuperclass();
+                }
+            }
+            throw new RuntimeException("Could not set surrogate flag on solution");
+        } catch (Exception e) {
+            throw new RuntimeException("Could not set surrogate flag on solution", e);
+        }
     }
 }

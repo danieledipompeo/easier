@@ -330,9 +330,16 @@ public class Configurator {
 	}
 
 	@Parameter(names = {"--surrogate", "-s"}, description = "Enable the surrogate model evaluation.")
-	 boolean surrogate = false;
+	boolean surrogate = false;
 	public boolean isSurrogate() {
 		return surrogate;
+	}
+
+	// Use -1 to disable surrogate retraining, any positive integer to set the retraining interval in iterations
+	@Parameter(names = {"--surrogate-retrain-interval", "-sri"}, description = "The number of iterations after which the surrogate model is retrained.")
+	private int surrogateRetrainInterval = -1;
+	public int getSurrogateRetrainInterval() {
+		return surrogateRetrainInterval;
 	}
 
 	// TODO: use the factory in the future

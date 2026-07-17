@@ -136,11 +136,26 @@ for i in $(seq 1 "$RUNS"); do
   project_name="${PROJECT_PREFIX}-run${i}"
   mkdir -p "$run_dir"
 
+    # 1. Start the surrogate first
   RUN_OUTPUT_DIR="$run_dir" \
     CONFIG_URL="$CONFIG_INPUT" \
     CASE_STUDY_SUBDIR="$CASE_STUDY_SUBDIR" \
     NOTIFY_EMAIL="$NOTIFY_EMAIL" \
-    docker compose "${COMPOSE_FILES[@]}" -p "$project_name" --profile jobs up -d easier-surrogate easier-uml-job
+    docker compose "${COMPOSE_FILES[@]}" -p "$project_name" up -d easier-surrogate
+
+  # 2. Then start the job (depends_on will enforce the health check before connecting)
+  RUN_OUTPUT_DIR="$run_dir" \
+    CONFIG_URL="$CONFIG_INPUT" \
+    CASE_STUDY_SUBDIR="$CASE_STUDY_SUBDIR" \
+    NOTIFY_EMAIL="$NOTIFY_EMAIL" \
+    docker compose "${COMPOSE_FILES[@]}" -p "$project_name" --profile jobs up -d easier-uml-job
+
+
+  #RUN_OUTPUT_DIR="$run_dir" \
+  #  CONFIG_URL="$CONFIG_INPUT" \
+  #  CASE_STUDY_SUBDIR="$CASE_STUDY_SUBDIR" \
+  #  NOTIFY_EMAIL="$NOTIFY_EMAIL" \
+  #  docker compose "${COMPOSE_FILES[@]}" -p "$project_name" --profile jobs up -d easier-surrogate easier-uml-job
 
   uml_cid=$(docker compose "${COMPOSE_FILES[@]}" -p "$project_name" ps -q easier-uml-job)
 

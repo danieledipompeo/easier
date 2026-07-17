@@ -462,12 +462,17 @@ public class ObjectiveEstimator {
      */
     public static void setConsideredObjectives(RSolution<?> solution) throws EasierObjectiveNotFoundException {
         List<String> objectives = Configurator.eINSTANCE.getObjectivesList();
+        EasierLogger.logger_.info(String.format("Setting the objectives of Solution # %s according to the configuration: %s",
+                solution.getName(), objectives));
+
         Map<String, Double> mapOfObjectives = solution.getMapOfObjectives();
 
         // Exact match labels
         Set<String> knownExactLabels = Set.of(Configurator.PERF_Q_LABEL, Configurator.SYS_RESP_T_LABEL,
                 Configurator.CHANGES_LABEL, Configurator.RELIABILITY_LABEL, Configurator.ENERGY_LABEL,
                 Configurator.PAS_LABEL, Configurator.POWER_LABEL, Configurator.ECONOMIC_COST_LABEL);
+        
+        EasierLogger.logger_.info(String.format("Known exact labels: %s", knownExactLabels));
 
         for (int i = 0; i < objectives.size(); i++) {
             String obj = objectives.get(i);
@@ -494,48 +499,71 @@ public class ObjectiveEstimator {
         EasierLogger.logger_.info(String.format("Objectives of Solution # %s have been set.", solution.getName()));
     }
 
-    public static void surrogateEvaluation(List<RSolution<?>> solutionList, int iteration, String caseStudyName) {
+    public static void surrogateEvaluation(List<RSolution<?>> solutionList,
+                                            int iteration,
+                                            String caseStudyName,
+                                            int surrogateRetrainInterval) {
 
         EasierResourcesLogger.checkpoint(ObjectiveEstimator.class.getSimpleName(), "surrogateEvaluation_start");
 
-        // Setup for HTTP client
+        if (solutionList == null || solutionList.isEmpty()) {
+            EasierLogger.logger_.info("Surrogate evaluation skipped: no solutions to evaluate");
+            EasierResourcesLogger.checkpoint(ObjectiveEstimator.class.getSimpleName(), "surrogateEvaluation_end");
+            return;
+        }
+
         HttpClient httpClient = HttpClient.newHttpClient();
         ObjectMapper objectMapper = new ObjectMapper();
 
-
         try {
-            String jsonSolutions = objectMapper.writeValueAsString(new EasierPopulationDAO(solutionList, iteration));
-            jsonSolutions = String.format("{\"caseStudy\":\"%s\",\"population\":%s}", caseStudyName,
-                    jsonSolutions);
+            // Build a flat JSON body matching the surrogate server API:
+            // { "caseStudy": "...", "solutions": [...], "iteration": N, "k": N }
+            EasierPopulationDAO populationDAO = new EasierPopulationDAO(solutionList);
+            com.fasterxml.jackson.databind.node.ObjectNode payload = objectMapper.createObjectNode();
+            payload.put("caseStudy", caseStudyName);
+            payload.set("solutions", objectMapper.valueToTree(populationDAO.getSolutions()));
+            payload.put("iteration", iteration);
+            payload.put("k", Math.max(surrogateRetrainInterval, 0));
+            String jsonPayload = objectMapper.writeValueAsString(payload);
 
             EasierResourcesLogger.checkpoint(ObjectiveEstimator.class.getSimpleName(), "surrogateServerRequest_start");
-            // Create HTTP request
+
+            URI endPointURI = URI.create(Configurator.eINSTANCE.getSurrogateEndpoint());
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(Configurator.eINSTANCE.getSurrogateEndpoint()))
+                    .uri(endPointURI)
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonSolutions))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
-            // Send request and get response
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             EasierResourcesLogger.checkpoint(ObjectiveEstimator.class.getSimpleName(), "surrogateServerRequest_end");
 
-            // Check if request was successful
             if (response.statusCode() == 200) {
+                JsonNode rootNode = objectMapper.readTree(response.body());
+
+                // Guard: server may return a 200 with an error body on internal issues
+                if (rootNode.has("status") && "error".equals(rootNode.get("status").asText())) {
+                    EasierLogger.logger_.severe("Surrogate server returned an error: "
+                            + rootNode.path("message").asText(response.body()));
+                    return;
+                }
+
                 EasierLogger.logger_.info("Surrogate evaluation completed successfully");
 
-                // Parse response and update solution objectives
-                JsonNode rootNode = objectMapper.readTree(response.body());
-                JsonNode populationNode = rootNode.get("population");
-                JsonNode solutionsNode = populationNode.get("solutions");
+                // Solutions are now at the root level of the response (flat API)
+                JsonNode solutionsNode = rootNode.get("solutions");
+                if (solutionsNode == null || !solutionsNode.isArray()) {
+                    EasierLogger.logger_.severe("Surrogate response missing 'solutions' array");
+                    return;
+                }
+
                 for (JsonNode solutionNode : solutionsNode) {
-                    if (solutionNode.get("markedForSurrogate").booleanValue()) {
+                    if (solutionNode.path("markedForSurrogate").asBoolean(false)) {
                         int solutionId = solutionNode.get("solID").asInt();
 
-                        // Find matching solution in the list
                         for (RSolution<?> solution : solutionList) {
                             if (solution.getName() == solutionId) {
-                                // Update solution objectives from surrogate model
                                 JsonNode objectivesNode = solutionNode.get("objectives");
                                 Iterator<String> fieldNames = objectivesNode.fieldNames();
                                 while (fieldNames.hasNext()) {
@@ -549,16 +577,25 @@ public class ObjectiveEstimator {
                     }
                 }
             } else {
-                EasierLogger.logger_.severe("Surrogate evaluation failed with status code: " + response.statusCode());
-                EasierLogger.logger_.severe("Response body: " + response.body());
+                // Extract the server's error message when available (400 / 500 responses
+                // now carry { "status": "error", "message": "..." })
+                String detail;
+                try {
+                    JsonNode errNode = objectMapper.readTree(response.body());
+                    detail = errNode.path("message").asText(response.body());
+                } catch (Exception ignored) {
+                    detail = response.body();
+                }
+                EasierLogger.logger_.severe(String.format(
+                        "Surrogate evaluation failed (HTTP %d): %s", response.statusCode(), detail));
             }
+
             EasierResourcesLogger.checkpoint(ObjectiveEstimator.class.getSimpleName(), "surrogateEvaluation_end");
         } catch (IOException | InterruptedException e) {
             EasierLogger.logger_.severe("Error during surrogate evaluation: " + e.getMessage());
         } catch (EasierObjectiveNotFoundException e) {
             EasierLogger.logger_.severe("Error during setting considered objective from surrogate solution: " + e.getMessage());
         }
-
     }
 
 }

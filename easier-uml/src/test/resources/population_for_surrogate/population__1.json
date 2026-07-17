@@ -1,0 +1,753 @@
+{
+  "solutions" : [ {
+    "objectives" : {
+      "pas" : 11.998815536499023,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.3350830078125,
+      "energyPerScenario__ProcessSale_job_class" : 105.44961547851562,
+      "reliability" : -0.030507773160934448,
+      "changes" : 9.500469207763672,
+      "perfq" : -0.28888586163520813,
+      "price" : 3.4395077228546143,
+      "pricePerScenario__ProcessSale_job_class" : 1.3542166948318481,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8911970853805542,
+      "power" : 263.35931396484375,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.52879333496094,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5371986627578735
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.28888586163520813,
+      "pas" : 11.998815536499023,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.3350830078125,
+      "energyPerScenario__ProcessSale_job_class" : 105.44961547851562,
+      "price" : 3.4395077228546143,
+      "pricePerScenario__ProcessSale_job_class" : 1.3542166948318481,
+      "changes" : 9.500469207763672,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8911970853805542,
+      "power" : 263.35931396484375,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.52879333496094,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5371986627578735
+    },
+    "solID" : 10,
+    "refactoring" : [ {
+      "name" : "clone",
+      "target" : "LightDisplay_m6i.xlarge",
+      "to" : "LightDisplay_m6i.xlarge_akazbstavw",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "enterOrderID",
+      "to" : "Inventory",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "Printer_d2.2xlarge",
+      "to" : "Printer_d2.2xlarge_riocagbjmm",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_m5ad.xlarge_gqyjnjmmtx",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 4.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 76.65042260050997,
+      "energyPerScenario__ProcessSale_job_class" : 159.78622006707982,
+      "reliability" : -0.5739517633926923,
+      "changes" : 11.29,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 34.5202,
+      "responseTimePerScenario__ProcessSale_job_class" : 2457.27713,
+      "perfq" : -0.22288014436226636,
+      "price" : 4.669999999999999,
+      "pricePerScenario__ProcessSale_job_class" : 1.889352382125664,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 2.31412,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8389785537943235,
+      "power" : 291.73698522749,
+      "sysRespT" : 2494.11145,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 55.300415417495046,
+      "energy" : 7217.466614175744,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5520700698415868
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.22288014436226636,
+      "pas" : 4.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 76.65042260050997,
+      "energyPerScenario__ProcessSale_job_class" : 159.78622006707982,
+      "price" : 4.669999999999999,
+      "pricePerScenario__ProcessSale_job_class" : 1.889352382125664,
+      "changes" : 11.29,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8389785537943235,
+      "power" : 291.73698522749,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 55.300415417495046,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5520700698415868
+    },
+    "solID" : 9,
+    "refactoring" : [ {
+      "name" : "clone",
+      "target" : "EnterpriseClient_d2.2xlarge",
+      "to" : "EnterpriseClient_d2.2xlarge_gansdlgzjt",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "StoreServer_d2.2xlarge",
+      "to" : "StoreServer_d2.2xlarge_osisxsbqzf",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "EnterpriseServer_d2.2xlarge",
+      "to" : "EnterpriseServer_d2.2xlarge_cgafmimlvg",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moncnn",
+      "target" : "queryOrderById",
+      "to" : "New-Component_oirxlkqgkx",
+      "where" : "New-Node_d2.2xlarge_ycfivbkapr",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : false
+  }, {
+    "objectives" : {
+      "pas" : 6.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 91.82555700847693,
+      "energyPerScenario__ProcessSale_job_class" : 148.46030184522618,
+      "reliability" : -0.8276353589037648,
+      "changes" : 14.19,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 20.253,
+      "responseTimePerScenario__ProcessSale_job_class" : 2807.351265,
+      "perfq" : -0.282116231812203,
+      "price" : 3.7436,
+      "pricePerScenario__ProcessSale_job_class" : 2.3993950974084512,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 37.5424,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.7574224574185753,
+      "power" : 247.7497800805,
+      "sysRespT" : 2865.1466649999998,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 7.463753403920262,
+      "energy" : 10406.278660839174,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.12357985453442404
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.282116231812203,
+      "pas" : 6.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 91.82555700847693,
+      "energyPerScenario__ProcessSale_job_class" : 148.46030184522618,
+      "price" : 3.7436,
+      "pricePerScenario__ProcessSale_job_class" : 2.3993950974084512,
+      "changes" : 14.19,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.7574224574185753,
+      "power" : 247.7497800805,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 7.463753403920262,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.12357985453442404
+    },
+    "solID" : 8,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "getMeanTimeToDelivery",
+      "to" : "GUIStore",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "EnterpriseServer_d2.2xlarge",
+      "to" : "EnterpriseServer_d2.2xlarge_fugrbrlbmi",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "printRunningTotal",
+      "to" : "Enterprise",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moncnn",
+      "target" : "saleStartedEvent",
+      "to" : "New-Component_cdzavukdat",
+      "where" : "New-Node_m6i.xlarge_octslxwydd",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : false
+  }, {
+    "objectives" : {
+      "pas" : 14.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45910710313933,
+      "energyPerScenario__ProcessSale_job_class" : 157.32273147376827,
+      "reliability" : -0.06745792417987773,
+      "changes" : 5.9,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 6.80581,
+      "responseTimePerScenario__ProcessSale_job_class" : 879.08766,
+      "perfq" : -0.3185927994700281,
+      "price" : 3.7755999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.8881798978130075,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.606,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8779133865012845,
+      "power" : 260.18152634508,
+      "sysRespT" : 887.49947,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 21.39966658449351,
+      "energy" : 1527.4201582426538,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.29870654978083905
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.3185927994700281,
+      "pas" : 14.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45910710313933,
+      "energyPerScenario__ProcessSale_job_class" : 157.32273147376827,
+      "price" : 3.7755999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.8881798978130075,
+      "changes" : 5.9,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8779133865012845,
+      "power" : 260.18152634508,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 21.39966658449351,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.29870654978083905
+    },
+    "solID" : 7,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "getTransaction",
+      "to" : "DataStore",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "GUIReporting",
+      "to" : "New-Node_m5ad.xlarge_hgiayixual",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashBox_m5ad.xlarge",
+      "to" : "CashBox_m5ad.xlarge_iuqaiaqymg",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "Printer_d2.2xlarge",
+      "to" : "Printer_d2.2xlarge_yntdmczena",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : false
+  }, {
+    "objectives" : {
+      "pas" : 6.297139644622803,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45932006835938,
+      "energyPerScenario__ProcessSale_job_class" : 155.99168395996094,
+      "reliability" : -0.7627196907997131,
+      "changes" : 13.569860458374023,
+      "perfq" : -0.2896290123462677,
+      "price" : 3.7471635341644287,
+      "pricePerScenario__ProcessSale_job_class" : 1.8891087770462036,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8776193857192993,
+      "power" : 284.33453369140625,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 46.08039855957031,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.534458339214325
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.2896290123462677,
+      "pas" : 6.297139644622803,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45932006835938,
+      "energyPerScenario__ProcessSale_job_class" : 155.99168395996094,
+      "price" : 3.7471635341644287,
+      "pricePerScenario__ProcessSale_job_class" : 1.8891087770462036,
+      "changes" : 13.569860458374023,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8776193857192993,
+      "power" : 284.33453369140625,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 46.08039855957031,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.534458339214325
+    },
+    "solID" : 5,
+    "refactoring" : [ {
+      "name" : "clone",
+      "target" : "EnterpriseServer_d2.2xlarge",
+      "to" : "EnterpriseServer_d2.2xlarge_ibowzqigxa",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "scanProduct",
+      "to" : "CashDeskGUI",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "CashDeskGUI",
+      "to" : "New-Node_d2.2xlarge_myehgsgokr",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moncnn",
+      "target" : "getEnterpriseByID",
+      "to" : "New-Component_ijzivlkljd",
+      "where" : "New-Node_m5ad.xlarge_rzhojffwku",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "reliability" : -0.028993348328948843,
+      "changes" : 9.5,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 6.23758,
+      "responseTimePerScenario__ProcessSale_job_class" : 1240.2869600000001,
+      "perfq" : -0.288910466165857,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.98857,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "sysRespT" : 1248.51311,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "energy" : 1255.2216302730317,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.288910466165857,
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "changes" : 9.5,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "solID" : 4,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "createReport",
+      "to" : "CashDeskApplication",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashDeskPC_d2.2xlarge",
+      "to" : "CashDeskPC_d2.2xlarge_bxznqcgxpz",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "LightDisplay_m6i.xlarge",
+      "to" : "LightDisplay_m6i.xlarge_etotmpiiod",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_t2.medium_gtsjxvlflh",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : false
+  }, {
+    "objectives" : {
+      "pas" : 9.78179931640625,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 35.270164489746094,
+      "energyPerScenario__ProcessSale_job_class" : 148.60040283203125,
+      "reliability" : -0.058741770684719086,
+      "changes" : 9.508495330810547,
+      "perfq" : -0.2835117280483246,
+      "price" : 3.743734121322632,
+      "pricePerScenario__ProcessSale_job_class" : 2.393233060836792,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.2960165739059448,
+      "power" : 268.4559326171875,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.50723266601562,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 1.1090822219848633
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.2835117280483246,
+      "pas" : 9.78179931640625,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 35.270164489746094,
+      "energyPerScenario__ProcessSale_job_class" : 148.60040283203125,
+      "price" : 3.743734121322632,
+      "pricePerScenario__ProcessSale_job_class" : 2.393233060836792,
+      "changes" : 9.508495330810547,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.2960165739059448,
+      "power" : 268.4559326171875,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.50723266601562,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 1.1090822219848633
+    },
+    "solID" : 3,
+    "refactoring" : [ {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_m6i.xlarge_sluisygdox",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "GUIReporting",
+      "to" : "New-Node_m5ad.xlarge_meemvvvfif",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "getMeanTimeToDeliveryReport",
+      "to" : "Inventory",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "getProductWithStockItem",
+      "to" : "Enterprise",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 4.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 35.26768989831177,
+      "energyPerScenario__ProcessSale_job_class" : 157.4083526489115,
+      "reliability" : -0.2693253200444651,
+      "changes" : 9.66,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 7.81763,
+      "responseTimePerScenario__ProcessSale_job_class" : 892.77049,
+      "perfq" : -0.3095733700470379,
+      "price" : 4.3336,
+      "pricePerScenario__ProcessSale_job_class" : 1.8884821003485437,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.2254,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.29481202436938786,
+      "power" : 269.09186212991,
+      "sysRespT" : 901.81352,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 76.41585286134469,
+      "energy" : 1703.0430241669646,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 1.2239069964862854
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.3095733700470379,
+      "pas" : 4.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 35.26768989831177,
+      "energyPerScenario__ProcessSale_job_class" : 157.4083526489115,
+      "price" : 4.3336,
+      "pricePerScenario__ProcessSale_job_class" : 1.8884821003485437,
+      "changes" : 9.66,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.29481202436938786,
+      "power" : 269.09186212991,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 76.41585286134469,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 1.2239069964862854
+    },
+    "solID" : 0,
+    "refactoring" : [ {
+      "name" : "mcnn",
+      "target" : "DataStore",
+      "to" : "New-Node_m6i.xlarge_yfqurfuizg",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "Enterprise",
+      "to" : "New-Node_d2.2xlarge_ltvkvkduev",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashDeskPC_d2.2xlarge",
+      "to" : "CashDeskPC_d2.2xlarge_thflfytfqi",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "Printer_d2.2xlarge",
+      "to" : "Printer_d2.2xlarge_gqkxbnbkqx",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : false
+  }, {
+    "objectives" : {
+      "pas" : 14.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45910710313933,
+      "energyPerScenario__ProcessSale_job_class" : 157.32273147376827,
+      "reliability" : -0.06745792417987773,
+      "changes" : 5.9,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 6.80581,
+      "responseTimePerScenario__ProcessSale_job_class" : 879.08766,
+      "perfq" : -0.3185927994700281,
+      "price" : 3.7755999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.8881798978130075,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.606,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8779133865012845,
+      "power" : 260.18152634508,
+      "sysRespT" : 887.49947,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 21.39966658449351,
+      "energy" : 1527.4201582426538,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.29870654978083905
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.3185927994700281,
+      "pas" : 14.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 81.45910710313933,
+      "energyPerScenario__ProcessSale_job_class" : 157.32273147376827,
+      "price" : 3.7755999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.8881798978130075,
+      "changes" : 5.9,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8779133865012845,
+      "power" : 260.18152634508,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 21.39966658449351,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.29870654978083905
+    },
+    "solID" : 32,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "getTransaction",
+      "to" : "DataStore",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "GUIReporting",
+      "to" : "New-Node_m5ad.xlarge_hgiayixual",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashBox_m5ad.xlarge",
+      "to" : "CashBox_m5ad.xlarge_iuqaiaqymg",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "Printer_d2.2xlarge",
+      "to" : "Printer_d2.2xlarge_yntdmczena",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "reliability" : -0.028993348328948843,
+      "changes" : 9.5,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 6.23758,
+      "responseTimePerScenario__ProcessSale_job_class" : 1240.2869600000001,
+      "perfq" : -0.288910466165857,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.98857,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "sysRespT" : 1248.51311,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "energy" : 1255.2216302730317,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.288910466165857,
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "changes" : 9.5,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "solID" : 31,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "createReport",
+      "to" : "CashDeskApplication",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashDeskPC_d2.2xlarge",
+      "to" : "CashDeskPC_d2.2xlarge_bxznqcgxpz",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "LightDisplay_m6i.xlarge",
+      "to" : "LightDisplay_m6i.xlarge_etotmpiiod",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_t2.medium_gtsjxvlflh",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "reliability" : -0.028993348328948843,
+      "changes" : 9.5,
+      "responseTimePerScenario__ReceivedOrderedProducts_job_class" : 6.23758,
+      "responseTimePerScenario__ProcessSale_job_class" : 1240.2869600000001,
+      "perfq" : -0.288910466165857,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "responseTimePerScenario__ShowDeliveryReports_job_class" : 1.98857,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "sysRespT" : 1248.51311,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "energy" : 1255.2216302730317,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.288910466165857,
+      "pas" : 12.0,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.33518541179946,
+      "energyPerScenario__ProcessSale_job_class" : 105.44847853066487,
+      "price" : 3.4388999999999994,
+      "pricePerScenario__ProcessSale_job_class" : 1.3530097473944749,
+      "changes" : 9.5,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.892266790474503,
+      "power" : 234.36149991236,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 43.57781863938946,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.47682373262083155
+    },
+    "solID" : 28,
+    "refactoring" : [ {
+      "name" : "moc",
+      "target" : "createReport",
+      "to" : "CashDeskApplication",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "CashDeskPC_d2.2xlarge",
+      "to" : "CashDeskPC_d2.2xlarge_bxznqcgxpz",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "LightDisplay_m6i.xlarge",
+      "to" : "LightDisplay_m6i.xlarge_etotmpiiod",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_t2.medium_gtsjxvlflh",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  }, {
+    "objectives" : {
+      "pas" : 11.998815536499023,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.3350830078125,
+      "energyPerScenario__ProcessSale_job_class" : 105.44961547851562,
+      "reliability" : -0.030507773160934448,
+      "changes" : 9.500469207763672,
+      "perfq" : -0.28888586163520813,
+      "price" : 3.4395077228546143,
+      "pricePerScenario__ProcessSale_job_class" : 1.3542166948318481,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8911970853805542,
+      "power" : 263.35931396484375,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.52879333496094,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5371986627578735
+    },
+    "consideredObjectives" : {
+      "perfq" : -0.28888586163520813,
+      "pas" : 11.998815536499023,
+      "energyPerScenario__ReceivedOrderedProducts_job_class" : 85.3350830078125,
+      "energyPerScenario__ProcessSale_job_class" : 105.44961547851562,
+      "price" : 3.4395077228546143,
+      "pricePerScenario__ProcessSale_job_class" : 1.3542166948318481,
+      "changes" : 9.500469207763672,
+      "pricePerScenario__ReceivedOrderedProducts_job_class" : 0.8911970853805542,
+      "power" : 263.35931396484375,
+      "energyPerScenario__ShowDeliveryReports_job_class" : 70.52879333496094,
+      "pricePerScenario__ShowDeliveryReports_job_class" : 0.5371986627578735
+    },
+    "solID" : 27,
+    "refactoring" : [ {
+      "name" : "clone",
+      "target" : "LightDisplay_m6i.xlarge",
+      "to" : "LightDisplay_m6i.xlarge_akazbstavw",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "moc",
+      "target" : "enterOrderID",
+      "to" : "Inventory",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "clone",
+      "target" : "Printer_d2.2xlarge",
+      "to" : "Printer_d2.2xlarge_riocagbjmm",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    }, {
+      "name" : "mcnn",
+      "target" : "ScannerController",
+      "to" : "New-Node_m5ad.xlarge_gqyjnjmmtx",
+      "where" : "",
+      "taggedValue" : "",
+      "scalingFactor" : ""
+    } ],
+    "markedForSurrogate" : true
+  } ],
+  "iteration" : 1,
+  "independentRun" : -1
+}

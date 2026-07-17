@@ -55,8 +55,15 @@ public class RSolutionListEvaluator<S extends RSolution<?>> implements SolutionL
 
         if(Configurator.eINSTANCE.isSurrogate()) {
             EasierLogger.logger_.info("Invoking surrogate evaluation for iteration: " + ITERATION_COUNTER);
-            String caseStudyName = Configurator.eINSTANCE.getInitialModelPath().getFileName().toString().replace(".uml", "").replace("-","");
-            ObjectiveEstimator.surrogateEvaluation((List<RSolution<?>>) evaluatedPopulation, ITERATION_COUNTER, caseStudyName);
+            String caseStudyName = Configurator.eINSTANCE
+            .getInitialModelPath().getFileName()
+            .toString()
+            .replace(".uml", "")
+            .replace("-","");
+            ObjectiveEstimator.surrogateEvaluation((List<RSolution<?>>) evaluatedPopulation, 
+                                                    ITERATION_COUNTER,
+                                                    caseStudyName,
+                                                    Configurator.eINSTANCE.getSurrogateRetrainInterval());
         }
 
         EasierResourcesLogger.checkpoint(this.getClass().getSimpleName(), "evaluate_end");

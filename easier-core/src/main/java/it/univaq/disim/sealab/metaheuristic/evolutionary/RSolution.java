@@ -51,7 +51,8 @@ public abstract class RSolution<T extends Refactoring> extends AbstractSolution<
         problemName = pName;
 
         // Mark solution for surrogate with configured probability
-        markedForSurrogate = Math.random() < Configurator.eINSTANCE.getSurrogateProbability();
+        if (Configurator.eINSTANCE.isSurrogate()) 
+            markedForSurrogate = Math.random() < Configurator.eINSTANCE.getSurrogateProbability();
     }
 
     protected static void incrementXOverCounter(){

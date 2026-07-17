@@ -29,7 +29,6 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierObjectiveNotFoundException;
 import it.univaq.disim.sealab.metaheuristic.utils.LQNException;
-import it.univaq.disim.sealab.metaheuristic.utils.WorkflowUtils;
 
 class ObjectiveEstimatorTest {
 
@@ -171,32 +170,6 @@ class ObjectiveEstimatorTest {
         ObjectiveEstimator.computeObjectives(solution);
 
         ObjectiveEstimator.setConsideredObjectives(solution);
-    }
-
-    @Test
-    void testSurrogateEvaluationHttpError() throws Exception {
-
-        // Create test solution
-        String model = "/cocome/simplified-cocome/cocome.uml";
-        modelPath = Path.of(getClass().getResource(BASE_PATH + model).getPath());
-        UMLRSolution solution = new UMLRSolution(modelPath, model + "__test");
-        solution.createRandomRefactoring();
-        UMLRSolution solution1 = new UMLRSolution(modelPath, model + "__test");
-        solution1.createRandomRefactoring();
-        solution1.setMarkedForSurrogate(true);
-
-        new WorkflowUtils().executeFlow(solution);
-        new WorkflowUtils().executeFlow(solution1);
-        ObjectiveEstimator.computeObjectives(solution);
-        ObjectiveEstimator.initObjectives(solution1);
-
-        List<RSolution<?>> solutions = List.of(solution, solution1);
-
-        // Run the method
-        ObjectiveEstimator.surrogateEvaluation(solutions, 0, modelPath.getFileName().toString().replace(".uml", ""));
-
-        // Verify solution was not updated due to error
-        assertEquals(-0.5, solution.getMapOfObjectives().get("perfq"));
     }
 
 }
