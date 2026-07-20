@@ -36,6 +36,16 @@ JDK 17 is required (`jdk.version` in the root `pom.xml`). Config files use JComm
 (`@config.ini`, one flag/value per line) — see `easier-core/config.ini` for the canonical example and inline
 comments documenting supported algorithms/objectives/quality-indicators.
 
+**Known build gap**: a full `easier-uml`/`easier-reliability` reactor build can fail with
+`Could not resolve dependencies for ... it.univaq.sealab.umlreliability` even after running
+`mvn-install.sh`, because `easier-reliability`'s pinned submodule commit depends on
+`it.univaq.disim.sealab.uml.profiles:org.eclipse.papyrus.marte.static.profile:1.2.0.201703081153`, a
+version whose install command is commented out in `mvn-install.sh` (a jar for it exists under
+`easier-maven/`, but installing it manually still fails one level deeper on a missing
+`org.eclipse.papyrus:org.eclipse.papyrus.extra.releng:1.2.0-SNAPSHOT` parent POM). This reproduces on a
+clean checkout — it isn't caused by local changes. `easier-core` alone builds fine and is a useful
+isolation check when this blocks a PR's `easier-uml`-side changes.
+
 ## Module Map & Git Submodules
 
 The root `pom.xml` aggregates: `easier-core`, `easier-uml`, `easier-epsilon`, `easier-uml2lqn`,
@@ -51,7 +61,11 @@ Several of these are **git submodules** (see `.gitmodules`), each independently 
 - `easier-user-profile` → `easier-user-profile`
 
 When these show as modified (`m`) in `git status`, that's a submodule pointer change, not local edits — check
-`git -C <submodule> status` / `git -C <submodule> log` before assuming something is dirty.
+`git -C <submodule> status` / `git -C <submodule> log` before assuming something is dirty. Also check for
+**untracked content inside a submodule** before relying on it (e.g. a new case-study model under
+`easier-uml2lqnCaseStudy/`) — it may only exist in that one local checkout and never have been pushed to
+the submodule's own remote, so a test or config referencing it will fail for anyone else (CI included)
+unless it's pushed there separately.
 
 `easier-surrogate` is a standalone Python project (its own `.git`), not a Maven module or submodule of this repo.
 
@@ -90,6 +104,14 @@ resource-scaling, etc.) live under `easier-uml/.../actions` and `easier-refactor
 detection and model-diagram generation is implemented as Eclipse Epsilon scripts (`.evl`/`.eol`/`.ewl`/`.egl`)
 under `easier-refactoringLibrary/{evl,ewl,egl}`.
 
+**Adding a new refactoring action requires two registrations, not one**: implementing the
+`UMLRefactoringAction` subclass and adding its `case` to `RefactoringActionFactory.getRandomAction`'s switch
+is not sufficient on its own — `Configurator.listOfActions()` (what the mutation operator actually samples
+from) is derived strictly from the keys of `Configurator.brfs_list`. An action missing from `brfs_list` is
+reachable in the switch but will never be randomly selected during a search, and `getBRF()`'s fallback
+(`1.23`) silently masks the omission instead of erroring. Register the action's name in the default
+`brfs_list` (with an explicit BRF weight) alongside the factory `case`.
+
 ## Surrogate Model Service (`easier-surrogate/`)
 
 Optional Python service that approximates objective evaluation to avoid running the full UML→LQN→solve pipeline
@@ -122,6 +144,16 @@ retrain interval (`--surrogate-retrain-interval`). Relevant config flags: `-s`/`
   Gemini-CLI-specific notes on that subproject only.
 - `easier-user-profile` and `easier-dataAnalyst` are auxiliary modules not wired into the root `pom.xml`'s
   `<modules>` list — treat them as standalone unless a task explicitly touches them.
+- **`main` is the active branch and GitHub's configured default** on `origin` (danieledipompeo/easier) as of
+  2026-07-20 — target PRs at `main`, not `devUML` (deleted; it was a stale 2023 branch that had drifted onto
+  an unrelated GitHub-Pages-style `docs/` layout). A handful of old, never-merged 2020–2022 branches
+  (`DEV`, `dev-logicalSpecification`, `devWorsenModels`, `ft-compute-qi-each-step`, `refactor-evo-operator`,
+  `reference-pareto-test`, `vnzstc-dev`) are still on `origin`, kept pending manual review — don't assume
+  they're current or build on them without checking first.
+- `gh pr create` against this fork can fail with a misleading `Head sha can't be blank ... No commits
+  between <base> and <head>` error if `--repo danieledipompeo/easier` is omitted — `gh` defaults to
+  resolving against the upstream parent (`SEALABQualityGroup/EASIER`), which doesn't have the branch. Always
+  pass `--repo` explicitly here.
 
 # Project architecture
 
