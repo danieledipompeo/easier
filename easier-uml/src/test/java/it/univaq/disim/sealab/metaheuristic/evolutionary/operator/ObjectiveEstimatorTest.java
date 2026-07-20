@@ -3,6 +3,7 @@ package it.univaq.disim.sealab.metaheuristic.evolutionary.operator;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -169,7 +170,13 @@ class ObjectiveEstimatorTest {
 
         ObjectiveEstimator.computeObjectives(solution);
 
+        assertTrue(solution.getMapOfObjectives().keySet().stream().anyMatch(k -> k.contains(scenarios.get(0))),
+                "The map of objectives should contain the scenario key: \n " + solution.getMapOfObjectives());
+
         ObjectiveEstimator.setConsideredObjectives(solution);
+
+        assertTrue(Arrays.stream(solution.getObjectives()).allMatch(o -> o != 0),
+                "Expected all considered objectives to be computed (non-zero) after setConsideredObjectives");
     }
 
 }

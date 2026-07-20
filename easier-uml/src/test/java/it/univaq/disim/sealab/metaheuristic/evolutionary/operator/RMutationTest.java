@@ -29,5 +29,8 @@ class RMutationTest {
     void execute() {
         RMutation<UMLRSolution> mutationOperator = new UMLRMutation(1, Configurator.eINSTANCE.getDistributionIndex());
         mutationOperator.execute(solution);
+
+        assertTrue(solution.isMutated(), "Expected the solution to be marked as mutated after a guaranteed mutation (probability=1)");
+        assertTrue(solution.isFeasible(), "Expected the mutated solution to remain feasible");
     }
 }

@@ -40,7 +40,7 @@ public class WorkflowUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "cocome, /simplified-cocome/cocome.uml",
+            "cocome, /cocome/simplified-cocome/cocome.uml",
             "train-ticket, /train-ticket/train-ticket.uml",
             "eshopper, /eshopper/eshopper.uml",
     })
@@ -62,7 +62,7 @@ public class WorkflowUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "cocome, /simplified-cocome/cocome.uml",
+            "cocome, /cocome/simplified-cocome/cocome.uml",
             "train-ticket, /train-ticket/train-ticket.uml",
             "eshopper, /eshopper/eshopper.uml",
     })
@@ -97,7 +97,7 @@ public class WorkflowUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "cocome, /simplified-cocome/cocome.uml",
+            "cocome, /cocome/simplified-cocome/cocome.uml",
             "train-ticket, /train-ticket/train-ticket.uml",
             "eshopper, /eshopper/eshopper.uml",
     })
@@ -163,9 +163,9 @@ public class WorkflowUtilsTest {
     public void backAnnotation(String model, String mPath) throws Exception {
         modelPath = Path.of(getClass().getResource(BASE_PATH + mPath).getPath());
 
-        WorkflowUtils.applyTransformation(modelPath);
-        WorkflowUtils.invokeSolver(modelPath.getParent());
-        WorkflowUtils.backAnnotation(modelPath);
+        assertDoesNotThrow(() -> WorkflowUtils.applyTransformation(modelPath), "Transformation failed.");
+        assertDoesNotThrow(() -> WorkflowUtils.invokeSolver(modelPath.getParent()), "Solver invocation failed.");
+        assertDoesNotThrow(() -> WorkflowUtils.backAnnotation(modelPath), "Back-annotation failed.");
     }
 
 }

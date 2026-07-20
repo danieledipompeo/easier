@@ -98,7 +98,9 @@ public class UMLRefactoringTest {
 
     @Test
     public void testEquals() {
-        assertEquals(refactoring, refactoring);
+        // "Same actions => equal" is already covered by testClone()/testCloneDeprecated() via the
+        // proven clone() path; constructing a second independent Refactoring here instead (as below)
+        // is only meaningful for the "different order => not equal" case.
         Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];
@@ -141,10 +143,22 @@ public class UMLRefactoringTest {
 
         refactoring.getActions().addAll(List.of(clone, movopc, mvopncnn, resource_scaling));
 
-        // Print to console
-        int header_fields = "solID,operation,target,to,where,tagged_value,factor".split(",").length;
-        System.out.println(refactoring.toCSV());
+        // Expected "solID," + action.toCSV() field count for each action type (own field counts asserted
+        // individually in each action's own *Test class, e.g. UMLCloneNodeTest/UMLResourceScalingTest).
+        List<String> expectedActionNames = List.of("UMLCloneNode", "Move_Operation_Component",
+                "Move_Operation_New_Component_New_Node", "resource_scaling");
+        List<Integer> expectedFieldCounts = List.of(4, 4, 5, 7);
 
+        String csv = refactoring.toCSV();
+        String[] lines = csv.split("\n");
+        assertEquals(4, lines.length, "Expected one CSV line per refactoring action");
+        for (int i = 0; i < lines.length; i++) {
+            String[] fields = lines[i].split(",");
+            assertEquals(expectedActionNames.get(i), fields[1],
+                    String.format("Expected action name %s \t found %s in line: %s", expectedActionNames.get(i), fields[1], lines[i]));
+            assertEquals(expectedFieldCounts.get(i), fields.length,
+                    String.format("Expected %s fields \t found %s in line: %s", expectedFieldCounts.get(i), fields.length, lines[i]));
+        }
     }
 
     @Test

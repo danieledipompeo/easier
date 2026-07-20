@@ -90,7 +90,6 @@ String mPath = "cocome/simplified-cocome/cocome.uml";
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
         action = new UMLMvOperationToComp(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 

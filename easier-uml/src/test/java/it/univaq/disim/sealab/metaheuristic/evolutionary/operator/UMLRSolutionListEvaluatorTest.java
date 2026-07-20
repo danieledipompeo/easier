@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
@@ -73,6 +74,15 @@ class UMLRSolutionListEvaluatorTest<S extends UMLRSolution> {
 
     @Test
     void testEvaluate() {
+        List<S> solutions = new ArrayList<>();
+        IntStream.range(0, 3).forEach(i -> solutions.add((S) problem.createSolution()));
+
+        List<S> evaluated = solutionListEvaluator.evaluate(solutions, problem);
+
+        assertEquals(solutions.size(), evaluated.size(),
+                "Expected the evaluated population to have the same size as the input population");
+        evaluated.forEach(s -> assertTrue(Arrays.stream(s.getObjectives()).allMatch(o -> o != 0),
+                "Expected all objectives to be computed for solution " + s.getName()));
     }
 
     private static void markForSurrogate(Object solution, boolean value) {

@@ -6,7 +6,6 @@ import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -61,7 +60,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     void testExecute(String mPath) throws URISyntaxException, EolModelLoadingException, EasierException {
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
-        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         assertDoesNotThrow(super::testExecute);
     }
 
@@ -85,7 +84,6 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    @Disabled
     void testMapEquals(){
         Map<String, Set<String>> map1 = new HashMap<>();
         Map<String, Set<String>> map2 = new HashMap<>();
@@ -94,7 +92,7 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
         map2.put(Configurator.NODE_LABEL, Set.of("clned_node"));
         map2.put(Configurator.COMPONENT_LABEL, Set.of("test_component"));
 
-        assertTrue(map2.equals(map1));
+        assertFalse(map2.equals(map1));
 
     }
 
@@ -105,7 +103,6 @@ public class UMLCloneNodeTest extends UMLRefactoringActionTest {
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
         action = new UMLCloneNode(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 

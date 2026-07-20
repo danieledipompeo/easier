@@ -81,7 +81,6 @@ public class UMLMvComponentToNNTest extends UMLRefactoringActionTest {
         eModel = new UMLEasierModel(modelpath);
         action = new UMLMvComponentToNN(eModel.getAvailableElements(), eModel.getInitialElements(),
                 eModel.getAllContents());
-        expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 

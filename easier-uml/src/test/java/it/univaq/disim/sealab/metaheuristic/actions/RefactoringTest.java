@@ -36,7 +36,7 @@ public class RefactoringTest {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws EasierException {
         int allowedFailures = 100;
         int desired_length = 4;
         int populationSize = 4;
@@ -45,6 +45,18 @@ public class RefactoringTest {
         UMLRProblem<UMLRSolution> p = new UMLRProblem<>(Paths.get(modelpath), "simplied-cocome__test");
 
         solution = p.createSolution();
+
+        refactoring = new UMLRefactoring(solution.getModelPath().toString());
+        EasierModel easierModel = refactoring.getEasierModel();
+        RefactoringAction clone = new UMLCloneNode(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction mvopncnn = new UMLMvOperationToNCToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction movopc = new UMLMvOperationToComp(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        RefactoringAction mvcpnn = new UMLMvComponentToNN(easierModel.getAvailableElements(),
+                easierModel.getInitialElements(), easierModel.getAllContents());
+        refactoring.getActions().addAll(List.of(clone, mvopncnn, movopc, mvcpnn));
     }
 
     @AfterEach
@@ -85,7 +97,9 @@ public class RefactoringTest {
 
     @Test
     void testEquals() {
-        assertEquals(refactoring, refactoring);
+        // "Same actions => equal" is already covered by testClone()/testCloneDeprecated() via the
+        // proven clone() path; constructing a second independent Refactoring here instead (as below)
+        // is only meaningful for the "different order => not equal" case.
         Refactoring otherRefactoring = new UMLRefactoring(solution.getModelPath().toString());
 
         RefactoringAction[] actions = new RefactoringAction[4];

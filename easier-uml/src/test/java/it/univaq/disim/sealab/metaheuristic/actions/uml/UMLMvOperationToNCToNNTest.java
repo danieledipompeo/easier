@@ -93,7 +93,6 @@ public class UMLMvOperationToNCToNNTest extends UMLRefactoringActionTest {
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
         action = new UMLMvOperationToNCToNN(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
-        expectedName = action.getTargetElements();
         super.testGetTargetElement();
     }
 

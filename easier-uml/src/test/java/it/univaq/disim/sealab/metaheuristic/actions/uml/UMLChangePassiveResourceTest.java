@@ -1,6 +1,7 @@
 package it.univaq.disim.sealab.metaheuristic.actions.uml;
 
 import it.univaq.disim.sealab.metaheuristic.domain.UMLEasierModel;
+import it.univaq.disim.sealab.metaheuristic.utils.Configurator;
 import it.univaq.disim.sealab.metaheuristic.utils.EasierException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.junit.jupiter.api.AfterEach;
@@ -34,8 +35,17 @@ class UMLChangePassiveResourceTest extends UMLRefactoringActionTest {
     }
 
     @Test
-    void testToString() {
+    void testToString() throws EasierException {
+        String mPath = "cocome/simplified-cocome/cocome.uml";
+        modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
+        eModel = new UMLEasierModel(modelpath);
+        action = new UMLChangePassiveResource(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
 
+        String targetNode = action.getTargetElements().get(Configurator.NODE_LABEL).iterator().next();
+        String result = action.toString();
+
+        assertTrue(result.startsWith("Change Passive Resource:"), "Expected toString to start with the action label");
+        assertTrue(result.contains(targetNode), "Expected toString to contain the target node: " + targetNode);
     }
 
     @Test

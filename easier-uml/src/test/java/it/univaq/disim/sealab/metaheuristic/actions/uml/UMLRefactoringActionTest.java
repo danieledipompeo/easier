@@ -28,7 +28,6 @@ public class UMLRefactoringActionTest {
     protected int numberOfCSVField;
     protected String actionName;
     protected String expectedType;
-    protected Map<String, Set<String>> expectedName;
 
     protected EasierModel eModel;
     protected String modelpath;
@@ -49,12 +48,8 @@ public class UMLRefactoringActionTest {
     }
 
     void testEquals() throws EasierException {
-        RefactoringAction action2 = action;
-        assertEquals(action, action2);
-
-        action2 = action.clone();
-        assertEquals(action, action2);
-
+        RefactoringAction action2 = action.clone();
+        assertEquals(action, action2, "Expected a cloned action to be equal to the original");
     }
 
     void testExecute() throws URISyntaxException, EolModelLoadingException, EasierException {
@@ -70,8 +65,15 @@ public class UMLRefactoringActionTest {
     }
 
     void testGetTargetElement() throws EasierException {
-        assertEquals(expectedName, action.getTargetElements(), String.format("Expected target name %s \t found %s",
-                expectedName, action.getTargetType()));
+        Map<String, Set<String>> targetElements = action.getTargetElements();
+        assertFalse(targetElements.isEmpty(), "Expected at least one target element type");
+        targetElements.forEach((label, names) -> {
+            assertFalse(names.isEmpty(), String.format("Expected at least one target element for label %s", label));
+            names.forEach(elementName -> assertTrue(
+                    eModel.getAvailableElements().getOrDefault(label, Set.of()).contains(elementName),
+                    String.format("Expected target element %s (label %s) to be an available element of the model",
+                            elementName, label)));
+        });
     }
 
     void testClone() throws EasierException {

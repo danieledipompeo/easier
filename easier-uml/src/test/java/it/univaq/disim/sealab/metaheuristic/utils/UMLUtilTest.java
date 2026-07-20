@@ -27,6 +27,7 @@ class UMLUtilTest {
     @Test
     void testGetElementsInPackageShouldReturnMessage() {
         List<Object> elementsInPackage = UMLUtil.getElementsInPackage(modelPath, UMLPackage.Literals.MESSAGE);
+        assertFalse(elementsInPackage.isEmpty(), "Expected at least one Message element in the model");
         assertTrue(elementsInPackage.stream().allMatch(Message.class::isInstance));
     }
 }

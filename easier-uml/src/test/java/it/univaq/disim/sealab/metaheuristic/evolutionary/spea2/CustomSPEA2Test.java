@@ -43,7 +43,7 @@ public class CustomSPEA2Test<S extends UMLRSolution> extends CustomGeneticAlgori
 //        sol.setReliability(-10);
 //        sol.setPAs(0);
 //		sol.getVariable(0).setNumOfChanges(10);
-        for(int objectiveIndex = 0; objectiveIndex <= sol.getObjectives().length; objectiveIndex++)
+        for(int objectiveIndex = 0; objectiveIndex < sol.getObjectives().length; objectiveIndex++)
             sol.setObjective(objectiveIndex, new Random().nextDouble());
 
         ((CustomSPEA2<UMLRSolution>) algorithm).setPopulation(List.of(sol));

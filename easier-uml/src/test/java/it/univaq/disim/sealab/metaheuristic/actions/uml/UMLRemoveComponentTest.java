@@ -38,7 +38,7 @@ class UMLRemoveComponentTest extends UMLRefactoringActionTest {
     void execute_does_not_throw_exception(String mPath) throws EasierException {
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
-        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         assertDoesNotThrow(super::testExecute);
     }
 
@@ -77,7 +77,7 @@ class UMLRemoveComponentTest extends UMLRefactoringActionTest {
             throws EasierException, URISyntaxException, EolModelLoadingException {
         modelpath = getClass().getResource(BASE_PATH + mPath).getPath();
         eModel = new UMLEasierModel(modelpath);
-        action = new UMLResourceScaling(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
+        action = new UMLRemoveComponent(eModel.getAvailableElements(), eModel.getInitialElements(), eModel.getAllContents());
         super.testComputeArchitecturalChanges();
     }
 }
