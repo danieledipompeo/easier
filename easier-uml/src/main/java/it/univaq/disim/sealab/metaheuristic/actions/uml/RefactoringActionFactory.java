@@ -54,6 +54,8 @@ public class RefactoringActionFactory {
                         return new UMLRemoveNode(availableElements, initialElements, modelContents);
                     case "remove_component":
                         return new UMLRemoveComponent(availableElements, initialElements, modelContents);
+                    case "encrypt_comm":
+                        return new UMLEncryptComm(availableElements, initialElements, modelContents);
                     default:
                         return null;
                 }

@@ -56,7 +56,7 @@ public class Configurator {
 
 	// For testing purposes it does not contain the tactics
 	@Parameter(names = {"-brf","--baselineRefactoringFactor"},  splitter = SemiColonSplitter.class, description = "The ordered list of baseline refactoring factors of Refactoring actions")
-	private List<String> brfs_list = List.of("clone:1.23","moc:1.23","mcnn:1.23","moncnn:1.23");
+	private List<String> brfs_list = List.of("clone:1.23","moc:1.23","mcnn:1.23","moncnn:1.23","encrypt_comm:1.23");
 	public List<String> getBrfList(){
 		return brfs_list;
 	}
